@@ -2,9 +2,20 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
+    @State private var selectedCategory: String = "Todas"
     
     var user: AppUser {
         authManager.currentUser ?? AppUser(id: "guest", name: "Músico", email: "")
+    }
+    
+    let badgeCategories = ["Todas", "Iniciante", "Consistência", "Mestria", "Lendário"]
+    
+    var filteredBadges: [Badge] {
+        if selectedCategory == "Todas" {
+            return user.badges
+        } else {
+            return user.badges.filter { $0.category == selectedCategory }
+        }
     }
     
     var body: some View {
@@ -45,30 +56,64 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Badges / Conquistas (Estilo Duolingo)
+                        // Badges / Conquistas por Categoria
                         VStack(alignment: .leading, spacing: 14) {
-                            Text("Conquistas Desbloqueadas")
-                                .font(.title3.bold())
-                                .foregroundColor(.white)
+                            HStack {
+                                Text("Conquistas (\(user.badges.filter({ $0.isUnlocked }).count)/\(user.badges.count))")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            
+                            // Category Pills
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(badgeCategories, id: \.self) { cat in
+                                        Button(action: {
+                                            selectedCategory = cat
+                                        }) {
+                                            Text(cat)
+                                                .font(.caption.bold())
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 6)
+                                                .background(selectedCategory == cat ? Color.purple : Color.white.opacity(0.08))
+                                                .foregroundColor(selectedCategory == cat ? .white : .gray)
+                                                .cornerRadius(16)
+                                        }
+                                    }
+                                }
                                 .padding(.horizontal)
+                            }
                             
                             VStack(spacing: 12) {
-                                ForEach(user.badges) { badge in
+                                ForEach(filteredBadges) { badge in
                                     HStack(spacing: 16) {
                                         ZStack {
                                             Circle()
-                                                .fill(badge.isUnlocked ? Color.amberGold.opacity(0.2) : Color.white.opacity(0.05))
-                                                .frame(width: 50, height: 50)
+                                                .fill(badgeColor(badge).opacity(badge.isUnlocked ? 0.25 : 0.05))
+                                                .frame(width: 52, height: 52)
                                             
                                             Image(systemName: badge.iconName)
                                                 .font(.title2)
-                                                .foregroundColor(badge.isUnlocked ? .yellow : .gray)
+                                                .foregroundColor(badge.isUnlocked ? badgeColor(badge) : .gray.opacity(0.5))
                                         }
                                         
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text(badge.title)
-                                                .font(.headline)
-                                                .foregroundColor(badge.isUnlocked ? .white : .gray)
+                                            HStack(spacing: 6) {
+                                                Text(badge.title)
+                                                    .font(.headline)
+                                                    .foregroundColor(badge.isUnlocked ? .white : .gray)
+                                                
+                                                Text(badge.category)
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 2)
+                                                    .background(badgeColor(badge).opacity(0.2))
+                                                    .foregroundColor(badgeColor(badge))
+                                                    .cornerRadius(6)
+                                            }
+                                            
                                             Text(badge.description)
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
@@ -78,16 +123,20 @@ struct ProfileView: View {
                                         
                                         if badge.isUnlocked {
                                             Image(systemName: "checkmark.seal.fill")
-                                                .foregroundColor(.yellow)
+                                                .foregroundColor(badgeColor(badge))
                                                 .font(.title3)
                                         } else {
                                             Image(systemName: "lock.fill")
-                                                .foregroundColor(.gray)
+                                                .foregroundColor(.gray.opacity(0.4))
                                         }
                                     }
                                     .padding(14)
                                     .background(Color.white.opacity(0.04))
                                     .cornerRadius(16)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(badge.isUnlocked ? badgeColor(badge).opacity(0.3) : Color.clear, lineWidth: 1)
+                                    )
                                 }
                             }
                             .padding(.horizontal)
@@ -120,39 +169,14 @@ struct ProfileView: View {
             .navigationBarHidden(true)
         }
     }
-}
-
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
     
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(value)
-                .font(.headline.bold())
-                .foregroundColor(.white)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.gray)
+    private func badgeColor(_ badge: Badge) -> Color {
+        switch badge.category {
+        case "Iniciante": return .cyan
+        case "Consistência": return .orange
+        case "Mestria": return .purple
+        case "Lendário": return .yellow
+        default: return .blue
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(color.opacity(0.3), lineWidth: 1)
-        )
     }
-}
-
-extension Color {
-    static let amberGold = Color(red: 1.0, green: 0.75, blue: 0.0)
 }

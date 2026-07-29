@@ -51,31 +51,65 @@ struct DashboardView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Card de Progresso do Dia e Nível (Gamificação)
+                        // Card de Nível com Curva Progressiva de XP
                         VStack(spacing: 14) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Nível \(user.level)")
-                                        .font(.caption.bold())
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color.purple.opacity(0.3))
-                                        .foregroundColor(.purple)
-                                        .cornerRadius(8)
+                                    HStack(spacing: 6) {
+                                        Text("Nível \(user.level)")
+                                            .font(.caption.bold())
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 4)
+                                            .background(Color.purple.opacity(0.3))
+                                            .foregroundColor(.purple)
+                                            .cornerRadius(8)
+                                        
+                                        Text("Shredder")
+                                            .font(.caption.bold())
+                                            .foregroundColor(.gray)
+                                    }
                                     
-                                    Text("\(user.xp) Total XP")
-                                        .font(.title.bold())
+                                    Text("\(user.xp) XP Total")
+                                        .font(.title2.bold())
                                         .foregroundColor(.white)
                                 }
                                 
                                 Spacer()
                                 
                                 Image(systemName: "guitars.fill")
-                                    .font(.system(size: 44))
+                                    .font(.system(size: 40))
                                     .foregroundStyle(
                                         LinearGradient(colors: [.cyan, .purple], startPoint: .top, endPoint: .bottom)
                                     )
                             }
+                            
+                            // Barra de XP para Próximo Nível (Progressiva)
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text("Progresso para o Nível \(user.level + 1)")
+                                        .font(.footnote.bold())
+                                        .foregroundColor(.gray)
+                                    Spacer()
+                                    Text("\(user.xpInCurrentLevel) / \(user.xpNeededForNextLevel) XP")
+                                        .font(.footnote.bold())
+                                        .foregroundColor(.purple)
+                                }
+                                
+                                GeometryReader { geo in
+                                    ZStack(alignment: .leading) {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white.opacity(0.1))
+                                            .frame(height: 10)
+                                        
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(LinearGradient(colors: [.purple, .cyan], startPoint: .leading, endPoint: .trailing))
+                                            .frame(width: geo.size.width * CGFloat(user.levelProgressFraction), height: 10)
+                                    }
+                                }
+                                .frame(height: 10)
+                            }
+                            
+                            Divider().background(Color.white.opacity(0.1))
                             
                             // Meta Diária Bar
                             VStack(alignment: .leading, spacing: 6) {
@@ -93,14 +127,14 @@ struct DashboardView: View {
                                     ZStack(alignment: .leading) {
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(Color.white.opacity(0.1))
-                                            .frame(height: 10)
+                                            .frame(height: 8)
                                         
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
-                                            .frame(width: geo.size.width * CGFloat(min(1.0, Double(user.todayPracticeMinutes) / Double(user.dailyGoalMinutes))), height: 10)
+                                            .frame(width: geo.size.width * CGFloat(min(1.0, Double(user.todayPracticeMinutes) / Double(user.dailyGoalMinutes))), height: 8)
                                     }
                                 }
-                                .frame(height: 10)
+                                .frame(height: 8)
                             }
                         }
                         .padding(20)
