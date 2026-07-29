@@ -14,17 +14,23 @@ struct MainTabView: View {
                         }
                         .tag(0)
                     
+                    AITeacherSetupView()
+                        .tabItem {
+                            Label("Professor IA", systemImage: "sparkles")
+                        }
+                        .tag(1)
+
                     SongLibraryView()
                         .tabItem {
                             Label("Biblioteca", systemImage: "music.note.list")
                         }
-                        .tag(1)
+                        .tag(2)
                     
                     ProfileView()
                         .tabItem {
                             Label("Perfil", systemImage: "person.fill")
                         }
-                        .tag(2)
+                        .tag(3)
                 }
                 .accentColor(.cyan)
             } else {
