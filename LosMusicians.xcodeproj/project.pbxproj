@@ -22,6 +22,8 @@
 		D3497911301A700000000005 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000005 /* MainTabView.swift */; };
 		D3497911301A700000000006 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000006 /* LoginView.swift */; };
 		D3497911301A700000000007 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000007 /* DashboardView.swift */; };
+		E3497911301A700000000001 /* AITeacherSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000001 /* AITeacherSetupView.swift */; };
+		E3497911301A700000000002 /* AITeacherPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000002 /* AITeacherPlayerView.swift */; };
 		D3497911301A700000000008 /* SongLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000008 /* SongLibraryView.swift */; };
 		D3497911301A700000000009 /* AddRiffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000009 /* AddRiffView.swift */; };
 		D3497911301A70000000000A /* AlphaTabWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A70000000000A /* AlphaTabWebView.swift */; };
@@ -43,6 +45,8 @@
 		D3497910301A700000000005 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MainTabView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000006 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Auth/LoginView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000007 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Home/DashboardView.swift; sourceTree = "<group>"; };
+		E3497910301A700000000001 /* AITeacherSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AITeacher/AITeacherSetupView.swift; sourceTree = "<group>"; };
+		E3497910301A700000000002 /* AITeacherPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AITeacher/AITeacherPlayerView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000008 /* SongLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Library/SongLibraryView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000009 /* AddRiffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Library/AddRiffView.swift; sourceTree = "<group>"; };
 		D3497910301A70000000000A /* AlphaTabWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/AlphaTabWebView.swift; sourceTree = "<group>"; };
@@ -94,6 +98,8 @@
 				D3497910301A700000000005 /* MainTabView.swift */,
 				D3497910301A700000000006 /* LoginView.swift */,
 				D3497910301A700000000007 /* DashboardView.swift */,
+				E3497910301A700000000001 /* AITeacherSetupView.swift */,
+				E3497910301A700000000002 /* AITeacherPlayerView.swift */,
 				D3497910301A700000000008 /* SongLibraryView.swift */,
 				D3497910301A700000000009 /* AddRiffView.swift */,
 				D3497910301A70000000000A /* AlphaTabWebView.swift */,
@@ -200,6 +206,8 @@
 				D3497911301A700000000005 /* MainTabView.swift in Sources */,
 				D3497911301A700000000006 /* LoginView.swift in Sources */,
 				D3497911301A700000000007 /* DashboardView.swift in Sources */,
+				E3497911301A700000000001 /* AITeacherSetupView.swift in Sources */,
+				E3497911301A700000000002 /* AITeacherPlayerView.swift in Sources */,
 				D3497911301A700000000008 /* SongLibraryView.swift in Sources */,
 				D3497911301A700000000009 /* AddRiffView.swift in Sources */,
 				D3497911301A70000000000A /* AlphaTabWebView.swift in Sources */,
