@@ -15,6 +15,18 @@
 		D36DD9083019401500158913 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36DD9073019401500158913 /* ContentView.swift */; };
 		D36DD90A3019401800158913 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D36DD9093019401800158913 /* Assets.xcassets */; };
 		D36DD90D3019401800158913 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D36DD90C3019401800158913 /* Preview Assets.xcassets */; };
+		D3497911301A700000000001 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000001 /* User.swift */; };
+		D3497911301A700000000002 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000002 /* Song.swift */; };
+		D3497911301A700000000003 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000003 /* AuthManager.swift */; };
+		D3497911301A700000000004 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000004 /* FirestoreManager.swift */; };
+		D3497911301A700000000005 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000005 /* MainTabView.swift */; };
+		D3497911301A700000000006 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000006 /* LoginView.swift */; };
+		D3497911301A700000000007 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000007 /* DashboardView.swift */; };
+		D3497911301A700000000008 /* SongLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000008 /* SongLibraryView.swift */; };
+		D3497911301A700000000009 /* AddRiffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000009 /* AddRiffView.swift */; };
+		D3497911301A70000000000A /* AlphaTabWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A70000000000A /* AlphaTabWebView.swift */; };
+		D3497911301A70000000000B /* TabPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A70000000000B /* TabPlayerView.swift */; };
+		D3497911301A70000000000C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A70000000000C /* ProfileView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +36,18 @@
 		D36DD9073019401500158913 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D36DD9093019401800158913 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D36DD90C3019401800158913 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D3497910301A700000000001 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/User.swift; sourceTree = "<group>"; };
+		D3497910301A700000000002 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Song.swift; sourceTree = "<group>"; };
+		D3497910301A700000000003 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AuthManager.swift; sourceTree = "<group>"; };
+		D3497910301A700000000004 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/FirestoreManager.swift; sourceTree = "<group>"; };
+		D3497910301A700000000005 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MainTabView.swift; sourceTree = "<group>"; };
+		D3497910301A700000000006 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Auth/LoginView.swift; sourceTree = "<group>"; };
+		D3497910301A700000000007 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Home/DashboardView.swift; sourceTree = "<group>"; };
+		D3497910301A700000000008 /* SongLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Library/SongLibraryView.swift; sourceTree = "<group>"; };
+		D3497910301A700000000009 /* AddRiffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Library/AddRiffView.swift; sourceTree = "<group>"; };
+		D3497910301A70000000000A /* AlphaTabWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/AlphaTabWebView.swift; sourceTree = "<group>"; };
+		D3497910301A70000000000B /* TabPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/TabPlayerView.swift; sourceTree = "<group>"; };
+		D3497910301A70000000000C /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Profile/ProfileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +87,18 @@
 				D36DD9073019401500158913 /* ContentView.swift */,
 				D36DD9093019401800158913 /* Assets.xcassets */,
 				D36DD90B3019401800158913 /* Preview Content */,
+				D3497910301A700000000001 /* User.swift */,
+				D3497910301A700000000002 /* Song.swift */,
+				D3497910301A700000000003 /* AuthManager.swift */,
+				D3497910301A700000000004 /* FirestoreManager.swift */,
+				D3497910301A700000000005 /* MainTabView.swift */,
+				D3497910301A700000000006 /* LoginView.swift */,
+				D3497910301A700000000007 /* DashboardView.swift */,
+				D3497910301A700000000008 /* SongLibraryView.swift */,
+				D3497910301A700000000009 /* AddRiffView.swift */,
+				D3497910301A70000000000A /* AlphaTabWebView.swift */,
+				D3497910301A70000000000B /* TabPlayerView.swift */,
+				D3497910301A70000000000C /* ProfileView.swift */,
 			);
 			path = LosMusicians;
 			sourceTree = "<group>";
@@ -157,6 +193,18 @@
 			files = (
 				D36DD9083019401500158913 /* ContentView.swift in Sources */,
 				D36DD9063019401500158913 /* LosMusiciansApp.swift in Sources */,
+				D3497911301A700000000001 /* User.swift in Sources */,
+				D3497911301A700000000002 /* Song.swift in Sources */,
+				D3497911301A700000000003 /* AuthManager.swift in Sources */,
+				D3497911301A700000000004 /* FirestoreManager.swift in Sources */,
+				D3497911301A700000000005 /* MainTabView.swift in Sources */,
+				D3497911301A700000000006 /* LoginView.swift in Sources */,
+				D3497911301A700000000007 /* DashboardView.swift in Sources */,
+				D3497911301A700000000008 /* SongLibraryView.swift in Sources */,
+				D3497911301A700000000009 /* AddRiffView.swift in Sources */,
+				D3497911301A70000000000A /* AlphaTabWebView.swift in Sources */,
+				D3497911301A70000000000B /* TabPlayerView.swift in Sources */,
+				D3497911301A70000000000C /* ProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
