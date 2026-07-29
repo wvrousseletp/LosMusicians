@@ -16,6 +16,12 @@ jobs:
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode_15.4.app
 
+      - name: Resolve Swift Package Manager Dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project LosMusicians.xcodeproj \
+            -scheme LosMusicians
+
       - name: Build iOS App Archive
         run: |
           xcodebuild archive \
@@ -24,7 +30,8 @@ jobs:
             -sdk iphoneos \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Log Build Success
         run: echo "App arquivado com sucesso no GitHub Actions!"
