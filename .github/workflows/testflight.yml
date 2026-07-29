@@ -1,0 +1,30 @@
+name: Deploy to TestFlight
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Build iOS App Archive
+        run: |
+          xcodebuild archive \
+            -project LosMusicians.xcodeproj \
+            -scheme LosMusicians \
+            -sdk iphoneos \
+            -archivePath $PWD/build/LosMusicians.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Log Build Success
+        run: echo "App arquivado com sucesso no GitHub Actions!"
