@@ -1,19 +1,24 @@
 import SwiftUI
+import SwiftData
 
 struct AITeacherPlayerView: View {
     let instrument: String
     let technique: String
     let timeAvailable: Int
     let isChallengeMode: Bool
+    let alphaTex: String
     
     @State private var isPlaying = false
     @State private var tempo = 120
     @State private var currentTrack = "1"
+    @State private var score = 0
+    @State private var maxScore = 0
     
     @State private var showingFeedback = false
     @Environment(\.presentationMode) var presentationMode
     
     @StateObject private var pitchDetector = PitchDetector()
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         ZStack {
@@ -35,6 +40,7 @@ struct AITeacherPlayerView: View {
                     Spacer()
                     
                     Button(action: {
+                        saveExercise()
                         showingFeedback = true
                     }) {
                         Text("Concluir")
@@ -50,6 +56,7 @@ struct AITeacherPlayerView: View {
                 
                 // Tablature Area
                 AlphaTabWebView(
+                    alphaTex: alphaTex,
                     isPlaying: $isPlaying,
                     tempo: $tempo,
                     currentInstrumentTrack: $currentTrack
@@ -57,24 +64,41 @@ struct AITeacherPlayerView: View {
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
                 
-                // Mic / Pitch Indicator
+                // Mic / Pitch Indicator & Score
                 HStack {
-                    Image(systemName: pitchDetector.currentNote != "--" ? "mic.fill" : "mic.slash.fill")
-                        .foregroundColor(pitchDetector.currentNote != "--" ? .green : .gray)
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Image(systemName: pitchDetector.currentNote != "--" ? "mic.fill" : "mic.slash.fill")
+                                .foregroundColor(pitchDetector.currentNote != "--" ? .green : .gray)
+                            
+                            Text("Nota: ")
+                                .foregroundColor(.gray)
+                                .font(.headline)
+                            
+                            Text(pitchDetector.currentNote)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.cyan)
+                                .frame(width: 50, alignment: .leading)
+                        }
+                        
+                        Text(String(format: "%.1f Hz", pitchDetector.currentFrequency))
+                            .foregroundColor(.gray)
+                            .font(.caption)
+                    }
                     
-                    Text("Nota Detectada: ")
-                        .foregroundColor(.gray)
-                        .font(.headline)
+                    Spacer()
                     
-                    Text(pitchDetector.currentNote)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.cyan)
-                        .frame(width: 60, alignment: .leading)
-                    
-                    Text(String(format: "%.1f Hz", pitchDetector.currentFrequency))
-                        .foregroundColor(.gray)
-                        .font(.subheadline)
+                    VStack(alignment: .trailing) {
+                        Text("Acertos")
+                            .foregroundColor(.gray)
+                            .font(.caption)
+                        
+                        Text("\(score) / \(maxScore)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.green)
+                    }
                 }
                 .padding()
                 .background(Color.black.opacity(0.4))
@@ -113,14 +137,39 @@ struct AITeacherPlayerView: View {
         .onDisappear {
             pitchDetector.stop()
         }
-        .sheet(isPresented: $showingFeedback) {
-            DDAFeedbackView(technique: technique)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AlphaTabPlayedNote"))) { notification in
+            guard isPlaying, let userInfo = notification.userInfo, let expectedMidi = userInfo["midi"] as? Int else { return }
+            
+            maxScore += 1
+            
+            // Verifica se a nota cantada (ou tocada) bate com a nota esperada (com uma tolerância de +-1 semitom)
+            let detectedMidi = pitchDetector.currentMidiNote
+            if abs(detectedMidi - expectedMidi) <= 1 {
+                score += 1
+            }
         }
+        .sheet(isPresented: $showingFeedback) {
+            DDAFeedbackView(technique: technique, score: score, maxScore: maxScore)
+        }
+    }
+    
+    private func saveExercise() {
+        let newExercise = ExerciseModel(
+            title: "\(technique) - \(isChallengeMode ? "Desafio" : "Treino")",
+            instrument: instrument,
+            technique: technique,
+            alphaTex: alphaTex,
+            score: score,
+            maxScore: maxScore
+        )
+        modelContext.insert(newExercise)
     }
 }
 
 struct DDAFeedbackView: View {
     let technique: String
+    let score: Int
+    let maxScore: Int
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -128,6 +177,11 @@ struct DDAFeedbackView: View {
             VStack(spacing: 30) {
                 Text("Como foi o treino?")
                     .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Text("Você acertou \(score) de \(maxScore) notas!")
+                    .font(.title2)
+                    .foregroundColor(score > maxScore / 2 ? .green : .orange)
                     .fontWeight(.bold)
                 
                 Text("Seu feedback ajuda a IA a calibrar a dificuldade do próximo exercício de \(technique).")

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -24,6 +25,7 @@ struct LosMusiciansApp: App {
             MainTabView()
                 .environmentObject(authManager)
                 .preferredColorScheme(.dark)
+                .modelContainer(for: ExerciseModel.self)
         }
     }
 }

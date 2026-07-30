@@ -2,9 +2,30 @@ import SwiftUI
 import WebKit
 
 struct AlphaTabWebView: UIViewRepresentable {
+    let alphaTex: String
     @Binding var isPlaying: Bool
     @Binding var tempo: Int
     @Binding var currentInstrumentTrack: String
+    
+    class Coordinator: NSObject, WKScriptMessageHandler {
+        var parent: AlphaTabWebView
+        
+        init(_ parent: AlphaTabWebView) {
+            self.parent = parent
+        }
+        
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "alphaTabBridge", let dict = message.body as? [String: Any] {
+                if let type = dict["type"] as? String, type == "playedNote", let midi = dict["midi"] as? Int {
+                    NotificationCenter.default.post(name: NSNotification.Name("AlphaTabPlayedNote"), object: nil, userInfo: ["midi": midi])
+                }
+            }
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
     
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -12,14 +33,16 @@ struct AlphaTabWebView: UIViewRepresentable {
         prefs.allowsContentJavaScript = true
         config.defaultWebpagePreferences = prefs
         
+        config.userContentController.add(context.coordinator, name: "alphaTabBridge")
+        
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.isScrollEnabled = true
         
         // Load embedded AlphaTab HTML5 Engine
-        let htmlContent = generateAlphaTabHTML()
-        webView.loadHTMLString(htmlContent, baseURL: nil)
+        let htmlContent = generateAlphaTabHTML(with: alphaTex)
+        webView.loadHTMLString(htmlContent, baseURL: URL(string: "https://www.alphatab.net/"))
         
         return webView
     }
@@ -33,12 +56,20 @@ struct AlphaTabWebView: UIViewRepresentable {
         uiView.evaluateJavaScript(tempoJS)
     }
     
-    private func generateAlphaTabHTML() -> String {
+    private func generateAlphaTabHTML(with tex: String) -> String {
+        // Escaping the alphaTex string for Javascript
+        let escapedTex = tex
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\r", with: "")
+
         return """
         <!DOCTYPE html>
         <html>
         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.js"></script>
             <style>
                 body {
                     background-color: #0F0F13;
@@ -46,68 +77,60 @@ struct AlphaTabWebView: UIViewRepresentable {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                     margin: 0;
                     padding: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
                 }
-                .tab-container {
+                #alphaTab {
                     width: 100%;
-                    max-width: 600px;
                     background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(10px);
                     border-radius: 16px;
-                    padding: 20px;
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    box-sizing: border-box;
-                }
-                .measure {
-                    border-bottom: 1px solid #333;
-                    padding: 12px 0;
-                    font-family: monospace;
-                    font-size: 16px;
-                    letter-spacing: 4px;
-                    line-height: 1.8;
-                    color: #00E5FF;
-                }
-                .string-line {
-                    color: #8E8E93;
-                }
-                .active-note {
-                    color: #FF9500;
-                    font-weight: bold;
-                    text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
-                }
-                .tempo-badge {
-                    display: inline-block;
-                    background: linear-gradient(135deg, #FF512F, #DD2476);
-                    color: white;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    font-size: 12px;
-                    font-weight: bold;
-                    margin-bottom: 12px;
+                    padding: 10px;
                 }
             </style>
         </head>
         <body>
-            <div class="tab-container">
-                <div class="tempo-badge" id="tempo-display">BPM: 120</div>
-                
-                <div style="margin-bottom: 10px; color: #8E8E93; font-size: 13px;">E|---------------------------------------------------|</div>
-                <div style="margin-bottom: 10px; color: #8E8E93; font-size: 13px;">B|---------------------------------------------------|</div>
-                <div style="margin-bottom: 10px; color: #00E5FF; font-weight: bold; font-size: 14px;">G|--12--14--<span class="active-note">15</span>--14--12--------------------------|</div>
-                <div style="margin-bottom: 10px; color: #8E8E93; font-size: 13px;">D|------------------------14--12--14-----------------|</div>
-                <div style="margin-bottom: 10px; color: #8E8E93; font-size: 13px;">A|------------------------------------12/14----------|</div>
-                <div style="margin-bottom: 10px; color: #8E8E93; font-size: 13px;">E|------------------------------------------12-------|</div>
-            </div>
+            <div id="alphaTab" data-tex="true"></div>
 
             <script>
+                var wrapper = document.getElementById('alphaTab');
+                var texData = "\(escapedTex)";
+                
+                // Tratar fallback para tex vazio
+                if (texData.trim() === "") {
+                    texData = "\\\\title \\"Exemplo\\" \\n . \\n :4 5.6.7.8 | 8.7.6.5";
+                }
+
+                var api = new alphaTab.AlphaTabApi(wrapper, {
+                    core: {
+                        engine: 'svg'
+                    },
+                    display: {
+                        layoutMode: 'page',
+                        staveProfile: 'Default'
+                    },
+                    player: {
+                        enablePlayer: true,
+                        enableUserInteraction: false,
+                        soundFont: 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2'
+                    }
+                });
+                
+                api.tex(texData);
+
+                api.playedBeat.on(function (beat) {
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.alphaTabBridge) {
+                        for (var i = 0; i < beat.notes.length; i++) {
+                            window.webkit.messageHandlers.alphaTabBridge.postMessage({
+                                type: 'playedNote',
+                                midi: beat.notes[i].realValue
+                            });
+                        }
+                    }
+                });
+
                 window.api = {
-                    play: function() { console.log('Playing AlphaTab audio...'); },
-                    pause: function() { console.log('Paused AlphaTab audio...'); },
+                    play: function() { api.playPause(); },
+                    pause: function() { api.pause(); },
                     setTempo: function(bpm) { 
-                        document.getElementById('tempo-display').innerText = 'BPM: ' + bpm;
+                        api.playbackSpeed = bpm / 120; // AlphaTab usa multiplicador baseado no tempo original
                     }
                 };
             </script>

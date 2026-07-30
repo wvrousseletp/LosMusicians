@@ -8,6 +8,7 @@ class PitchDetector: ObservableObject {
     
     @Published var currentNote: String = "--"
     @Published var currentFrequency: Float = 0.0
+    @Published var currentMidiNote: Int = 0
     
     func start() {
         guard !isRunning else { return }
@@ -121,12 +122,14 @@ class PitchDetector: ObservableObject {
             // Filter out noise or unrealistically low/high guitar notes (E2 is ~82Hz, high notes ~1000Hz)
             if frequency > 60 && frequency < 1500 {
                 self.currentFrequency = frequency
-                self.currentNote = self.noteFromFrequency(frequency)
+                let (noteName, midiNumber) = self.noteFromFrequency(frequency)
+                self.currentNote = noteName
+                self.currentMidiNote = midiNumber
             }
         }
     }
     
-    private func noteFromFrequency(_ frequency: Float) -> String {
+    private func noteFromFrequency(_ frequency: Float) -> (String, Int) {
         let noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
         let A4: Float = 440.0
         
@@ -137,8 +140,8 @@ class PitchDetector: ObservableObject {
         if roundedNoteNumber >= 0 {
             let noteIndex = roundedNoteNumber % 12
             let octave = (roundedNoteNumber / 12) - 1
-            return "\(noteNames[noteIndex])\(octave)"
+            return ("\(noteNames[noteIndex])\(octave)", roundedNoteNumber)
         }
-        return "--"
+        return ("--", 0)
     }
 }

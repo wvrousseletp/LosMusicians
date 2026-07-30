@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.scenePhase) var scenePhase
     @State private var selectedTab: Int = 0
     
     var body: some View {
@@ -20,19 +21,33 @@ struct MainTabView: View {
                         }
                         .tag(1)
 
-                    SongLibraryView()
+                    SavedExercisesView()
                         .tabItem {
-                            Label("Biblioteca", systemImage: "music.note.list")
+                            Label("Meus Treinos", systemImage: "music.note.list")
                         }
                         .tag(2)
+                        
+                    LeaderboardView()
+                        .tabItem {
+                            Label("Ranking", systemImage: "trophy.fill")
+                        }
+                        .tag(3)
                     
                     ProfileView()
                         .tabItem {
                             Label("Perfil", systemImage: "person.fill")
                         }
-                        .tag(3)
+                        .tag(4)
                 }
                 .accentColor(.cyan)
+                .onAppear {
+                    NotificationManager.shared.requestPermission()
+                }
+                .onChange(of: scenePhase) { newPhase in
+                    if newPhase == .background {
+                        NotificationManager.shared.scheduleStreakReminder()
+                    }
+                }
             } else {
                 LoginView()
             }

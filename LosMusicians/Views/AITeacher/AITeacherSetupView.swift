@@ -93,26 +93,59 @@ struct AITeacherSetupView: View {
                         instrument: selectedInstrument,
                         technique: selectedTechnique,
                         timeAvailable: timeAvailable,
-                        isChallengeMode: isChallengeMode
+                        isChallengeMode: isChallengeMode,
+                        alphaTex: generatedAlphaTex
                     ),
                     isActive: $navigateToPlayer,
                     label: { EmptyView() }
                 )
                 .hidden()
             )
+            .alert(item: Binding<AlertItem?>(
+                get: { errorMessage != nil ? AlertItem(message: errorMessage!) : nil },
+                set: { _ in errorMessage = nil }
+            )) { alertItem in
+                Alert(title: Text("Erro na IA"), message: Text(alertItem.message), dismissButton: .default(Text("OK")))
+            }
         }
     }
     
+    @State private var generatedAlphaTex: String = ""
+    @State private var errorMessage: String?
+    
     private func generateExercise() {
         isGenerating = true
-        // Simulando a chamada da API do Gemini (A geração do AlphaTex aconteceria aqui)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            isGenerating = false
-            navigateToPlayer = true
+        errorMessage = nil
+        
+        Task {
+            do {
+                let tex = try await GeminiService.shared.generateExercise(
+                    instrument: selectedInstrument,
+                    technique: selectedTechnique,
+                    timeAvailable: timeAvailable,
+                    isChallengeMode: isChallengeMode
+                )
+                
+                await MainActor.run {
+                    self.generatedAlphaTex = tex
+                    self.isGenerating = false
+                    self.navigateToPlayer = true
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.isGenerating = false
+                }
+            }
         }
     }
 }
 
 #Preview {
     AITeacherSetupView()
+}
+
+struct AlertItem: Identifiable {
+    let id = UUID()
+    let message: String
 }
