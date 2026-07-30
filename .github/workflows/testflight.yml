@@ -30,6 +30,12 @@ jobs:
             -project LosMusicians.xcodeproj \
             -scheme LosMusicians
 
+      - name: Inject API Keys
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          sed -i '' "s/INJECTED_BY_CI/$GEMINI_API_KEY/g" LosMusicians/Services/GeminiService.swift
+
       - name: Build iOS App Archive
         run: |
           xcodebuild archive \

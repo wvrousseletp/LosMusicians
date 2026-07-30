@@ -3,9 +3,8 @@ import Foundation
 class GeminiService {
     static let shared = GeminiService()
     
-    // ATENÇÃO: Em produção, NUNCA deixe a API Key hardcoded no app. Use Firebase Remote Config ou Cloud Functions.
-    // Para fins de teste e protótipo, substitua pela sua chave do Google AI Studio.
-    private let apiKey = "YOUR_GEMINI_API_KEY" 
+    // A chave real será injetada pela esteira de CI/CD por segurança.
+    private let apiKey = "INJECTED_BY_CI"
     
     private let modelURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent"
     

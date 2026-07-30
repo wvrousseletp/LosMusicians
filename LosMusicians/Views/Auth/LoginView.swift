@@ -106,6 +106,26 @@ struct LoginView: View {
                             .foregroundColor(.cyan)
                     }
                     .padding(.top, 4)
+                    
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                    
+                    Button(action: {
+                        authManager.signInWithGoogle()
+                    }) {
+                        HStack {
+                            Image(systemName: "g.circle.fill")
+                                .font(.title2)
+                            Text("Continuar com Google")
+                                .font(.headline.bold())
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .cornerRadius(16)
+                    }
                 }
                 .padding(24)
                 .background(Color.white.opacity(0.05))

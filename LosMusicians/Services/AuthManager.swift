@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
 import FirebaseAuth
+import GoogleSignIn
+import FirebaseCore
 
 class AuthManager: ObservableObject {
     @Published var currentUser: AppUser? = nil
@@ -9,19 +11,7 @@ class AuthManager: ObservableObject {
     @Published var errorMessage: String? = nil
     
     init() {
-        // Mock user for instant preview / offline test
-        self.currentUser = AppUser(
-            id: "mock_user_1",
-            name: "Músico Rocker",
-            email: "musico@losmusicians.com",
-            xp: 350,
-            streakDays: 5,
-            lastPracticeDate: Date(),
-            dailyGoalMinutes: 15,
-            todayPracticeMinutes: 10
-        )
-        self.isAuthenticated = true
-        
+        self.isAuthenticated = false
         listenToAuthChanges()
     }
     
@@ -29,7 +19,7 @@ class AuthManager: ObservableObject {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self = self else { return }
             if let user = user {
-                self.fetchUserData(userId: user.uid)
+                self.fetchUserData(userId: user.uid, authUser: user)
             }
         }
     }
@@ -43,10 +33,8 @@ class AuthManager: ObservableObject {
                 self?.isLoading = false
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
-                    // Fallback to mock for seamless UI testing
-                    self?.signInMockUser(email: email)
                 } else if let uid = result?.user.uid {
-                    self?.fetchUserData(userId: uid)
+                    self?.fetchUserData(userId: uid, authUser: result?.user)
                 }
             }
         }
@@ -61,7 +49,6 @@ class AuthManager: ObservableObject {
                 self?.isLoading = false
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
-                    self?.signInMockUser(email: email, name: name)
                 } else if let uid = result?.user.uid {
                     let newUser = AppUser(id: uid, name: name, email: email)
                     self?.currentUser = newUser
@@ -72,24 +59,65 @@ class AuthManager: ObservableObject {
         }
     }
     
+    func signInWithGoogle() {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootViewController = window.rootViewController else {
+            return
+        }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { [weak self] result, error in
+            guard error == nil else {
+                self?.errorMessage = error?.localizedDescription
+                return
+            }
+
+            guard let user = result?.user,
+                  let idToken = user.idToken?.tokenString
+            else { return }
+
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                           accessToken: user.accessToken.tokenString)
+
+            self?.isLoading = true
+            Auth.auth().signIn(with: credential) { authResult, error in
+                DispatchQueue.main.async {
+                    self?.isLoading = false
+                    if let error = error {
+                        self?.errorMessage = error.localizedDescription
+                        return
+                    }
+                    if let authUser = authResult?.user {
+                        self?.fetchUserData(userId: authUser.uid, authUser: authUser)
+                    }
+                }
+            }
+        }
+    }
+    
     func logout() {
         try? Auth.auth().signOut()
+        GIDSignIn.sharedInstance.signOut()
         currentUser = nil
         isAuthenticated = false
     }
     
-    private func signInMockUser(email: String, name: String = "Novo Músico") {
-        self.currentUser = AppUser(id: UUID().uuidString, name: name, email: email, xp: 100, streakDays: 1)
-        self.isAuthenticated = true
-    }
-    
-    private func fetchUserData(userId: String) {
+    private func fetchUserData(userId: String, authUser: FirebaseAuth.User?) {
         FirestoreManager.shared.fetchUser(userId: userId) { [weak self] user in
             DispatchQueue.main.async {
                 if let user = user {
                     self?.currentUser = user
                 } else {
-                    self?.currentUser = AppUser(id: userId, name: "Músico", email: "user@losmusicians.com")
+                    let name = authUser?.displayName ?? "Músico Google"
+                    let email = authUser?.email ?? "user@losmusicians.com"
+                    let newUser = AppUser(id: userId, name: name, email: email)
+                    self?.currentUser = newUser
+                    FirestoreManager.shared.saveUser(user: newUser)
                 }
                 self?.isAuthenticated = true
             }
@@ -99,9 +127,8 @@ class AuthManager: ObservableObject {
     func addPracticeTime(minutes: Int) {
         guard var user = currentUser else { return }
         user.todayPracticeMinutes += minutes
-        user.xp += minutes * 10 // 10 XP por minuto de prática!
+        user.xp += minutes * 10 
         
-        // Atualiza streak se for um novo dia
         let calendar = Calendar.current
         if let lastDate = user.lastPracticeDate {
             if !calendar.isDateInToday(lastDate) {
