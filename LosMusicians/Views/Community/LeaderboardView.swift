@@ -49,35 +49,7 @@ struct LeaderboardView: View {
                 }
                 
                 ForEach(Array(viewModel.users.enumerated()), id: \.element.id) { index, user in
-                    HStack {
-                        Text("\(index + 1)")
-                            .font(.headline)
-                            .foregroundColor(index < 3 ? .yellow : .gray)
-                            .frame(width: 30, alignment: .leading)
-                        
-                        VStack(alignment: .leading) {
-                            Text(user.displayName)
-                                .font(.headline)
-                                .foregroundColor(user.id == authManager.user?.uid ? .cyan : .white)
-                            
-                            if user.id == authManager.user?.uid {
-                                Text("Você")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 2)
-                                    .background(Color.cyan.opacity(0.3))
-                                    .cornerRadius(4)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        Text("\(user.xp) XP")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.vertical, 4)
+                    LeaderboardRowView(index: index, user: user)
                 }
             }
             .navigationTitle("Global Leaderboard 🏆")
@@ -85,5 +57,43 @@ struct LeaderboardView: View {
                 viewModel.fetchLeaderboard()
             }
         }
+    }
+}
+
+struct LeaderboardRowView: View {
+    let index: Int
+    let user: LeaderboardUser
+    @EnvironmentObject var authManager: AuthManager
+    
+    var body: some View {
+        HStack {
+            Text("\(index + 1)")
+                .font(.headline)
+                .foregroundColor(index < 3 ? .yellow : .gray)
+                .frame(width: 30, alignment: .leading)
+            
+            VStack(alignment: .leading) {
+                Text(user.displayName)
+                    .font(.headline)
+                    .foregroundColor(user.id == authManager.user?.uid ? .cyan : .white)
+                
+                if user.id == authManager.user?.uid {
+                    Text("Você")
+                        .font(.caption2)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(Color.cyan.opacity(0.3))
+                        .cornerRadius(4)
+                }
+            }
+            
+            Spacer()
+            
+            Text("\(user.xp) XP")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(.orange)
+        }
+        .padding(.vertical, 4)
     }
 }
