@@ -48,7 +48,8 @@ struct LeaderboardView: View {
                         .foregroundColor(.gray)
                 }
                 
-                ForEach(Array(viewModel.users.enumerated()), id: \.element.id) { index, user in
+                ForEach(viewModel.users.indices, id: \.self) { index in
+                    let user = viewModel.users[index]
                     HStack {
                         Text("\(index + 1)")
                             .font(.headline)
