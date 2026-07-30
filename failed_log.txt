@@ -1,27 +1,335 @@
-deploy	Export IPA Package	﻿2026-07-30T19:24:20.8322390Z ##[group]Run xcodebuild -exportArchive \
-deploy	Export IPA Package	2026-07-30T19:24:20.8322830Z ^[[36;1mxcodebuild -exportArchive \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8323180Z ^[[36;1m  -archivePath $PWD/build/LosMusicians.xcarchive \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8323540Z ^[[36;1m  -exportPath $PWD/build \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8323830Z ^[[36;1m  -exportOptionsPlist ExportOptions.plist \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8324270Z ^[[36;1m  -allowProvisioningUpdates \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8324760Z ^[[36;1m  -authenticationKeyID *** \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8325200Z ^[[36;1m  -authenticationKeyIssuerID *** \^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8325720Z ^[[36;1m  -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_***.p8^[[0m
-deploy	Export IPA Package	2026-07-30T19:24:20.8541110Z shell: /bin/bash -e {0}
-deploy	Export IPA Package	2026-07-30T19:24:20.8541380Z ##[endgroup]
-deploy	Export IPA Package	2026-07-30T19:24:21.9500100Z 2026-07-30 19:24:21.949 xcodebuild[5253:19007] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/8j/sfr9qqcj73j4p6nhwcfpr0th0000gn/T/LosMusicians_2026-07-30_19-24-21.920.xcdistributionlogs".
-deploy	Export IPA Package	2026-07-30T19:24:33.9741640Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9742420Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9742620Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9742980Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9743200Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9743540Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9743740Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9743990Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9744220Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9744530Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9744740Z error: exportArchive Signing certificate is invalid.
-deploy	Export IPA Package	2026-07-30T19:24:33.9745170Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9745300Z ** EXPORT FAILED **
-deploy	Export IPA Package	2026-07-30T19:24:33.9745470Z 
-deploy	Export IPA Package	2026-07-30T19:24:33.9861980Z ##[error]Process completed with exit code 70.
+deploy	Build iOS App Archive	﻿2026-07-30T19:28:48.4781040Z ##[group]Run xcodebuild archive \
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4781620Z ^[[36;1mxcodebuild archive \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4782100Z ^[[36;1m  -project LosMusicians.xcodeproj \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4782610Z ^[[36;1m  -scheme LosMusicians \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4782990Z ^[[36;1m  -sdk iphoneos \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4783530Z ^[[36;1m  -archivePath $PWD/build/LosMusicians.xcarchive \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4783940Z ^[[36;1m  -destination 'generic/platform=iOS' \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4784630Z ^[[36;1m  CODE_SIGN_IDENTITY="Apple Distribution" \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4785250Z ^[[36;1m  -allowProvisioningUpdates \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4786150Z ^[[36;1m  -authenticationKeyID *** \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4787710Z ^[[36;1m  -authenticationKeyIssuerID *** \^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.4789240Z ^[[36;1m  -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_***.p8^[[0m
+deploy	Build iOS App Archive	2026-07-30T19:28:48.5156530Z shell: /bin/bash -e {0}
+deploy	Build iOS App Archive	2026-07-30T19:28:48.5157000Z ##[endgroup]
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9262310Z Command line invocation:
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9368900Z     /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild archive -project LosMusicians.xcodeproj -scheme LosMusicians -sdk iphoneos -archivePath /Users/runner/work/LosMusicians/LosMusicians/build/LosMusicians.xcarchive -destination generic/platform=iOS "CODE_SIGN_IDENTITY=Apple Distribution" -allowProvisioningUpdates -authenticationKeyID *** -authenticationKeyIssuerID *** -authenticationKeyPath /Users/runner/.appstoreconnect/private_keys/AuthKey_***.p8
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9370930Z 
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9371040Z Build settings from command line:
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9371400Z     CODE_SIGN_IDENTITY = Apple Distribution
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9371700Z     SDKROOT = iphoneos26.5
+deploy	Build iOS App Archive	2026-07-30T19:28:50.9371860Z 
+deploy	Build iOS App Archive	2026-07-30T19:28:51.3361300Z Resolve Package Graph
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5403480Z 
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5426950Z 
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5433830Z Resolved source packages:
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5436140Z   GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 2.3.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5437880Z   AppCheck: https://github.com/google/app-check.git @ 10.19.2
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5439240Z   Promises: https://github.com/google/promises.git @ 2.4.1
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5440640Z   InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 100.0.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5442080Z   SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.26.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5443530Z   Firebase: https://github.com/firebase/firebase-ios-sdk @ 10.29.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5444960Z   GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 9.4.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5446320Z   abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024011602.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5447810Z   GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 7.13.3
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5449600Z   leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5451420Z   GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 10.28.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5453070Z   nanopb: https://github.com/firebase/nanopb.git @ 2.30909.0
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5454670Z   gRPC: https://github.com/google/grpc-binary.git @ 1.62.2
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5455650Z 
+deploy	Build iOS App Archive	2026-07-30T19:28:58.5590090Z 2026-07-30 19:28:58.557 xcodebuild[5990:20794] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+deploy	Build iOS App Archive	2026-07-30T19:28:58.6546730Z note: Using codesigning identity override: Apple Distribution
+deploy	Build iOS App Archive	2026-07-30T19:28:59.6127010Z ComputePackagePrebuildTargetDependencyGraph
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1230830Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1251070Z Prepare packages
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1251620Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1315460Z CreateBuildRequest
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1316440Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1317310Z SendProjectDescription
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1904420Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1906950Z CreateBuildOperation
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1962480Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:02.1982800Z ComputeTargetDependencyGraph
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9387450Z note: Building targets in dependency order
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9581230Z note: Target dependency graph (60 targets)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9587150Z     Target 'LosMusicians' in project 'LosMusicians'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9589080Z         ➜ Explicit dependency on target 'FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9591170Z         ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9592170Z         ➜ Explicit dependency on target 'FirebaseStorage' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9592820Z     Target 'FirebaseStorage' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9593380Z         ➜ Explicit dependency on target 'FirebaseStorage' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9594210Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9594950Z         ➜ Explicit dependency on target 'FirebaseAuthInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9595460Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9596150Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9598670Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9600270Z         ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9601790Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9603790Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9605340Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9606700Z         ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9607470Z     Target 'FirebaseStorage' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9608100Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9609070Z         ➜ Explicit dependency on target 'FirebaseAuthInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9609750Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9610340Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9611190Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9611980Z         ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9613230Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9614150Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9615170Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9616340Z         ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9617330Z     Target 'FirebaseAuthInterop' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9617880Z     Target 'FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9619020Z         ➜ Explicit dependency on target 'FirebaseFirestoreTarget' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9619910Z         ➜ Explicit dependency on target 'FirebaseFirestoreInternalWrapper' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9620660Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9621540Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9623240Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9625180Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9627190Z         ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9629290Z         ➜ Explicit dependency on target 'FirebaseSharedSwift' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9632860Z         ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9634740Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9636690Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9638490Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9640410Z         ➜ Explicit dependency on target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9641250Z         ➜ Explicit dependency on target 'gRPC-C++' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9642820Z         ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9643450Z         ➜ Explicit dependency on target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9643980Z     Target 'FirebaseFirestoreTarget' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9644880Z         ➜ Explicit dependency on target 'FirebaseFirestoreInternalWrapper' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9646180Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9646720Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9647360Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9648070Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9648730Z         ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9651130Z         ➜ Explicit dependency on target 'FirebaseSharedSwift' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9652900Z         ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9654420Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9655990Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9657680Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9659120Z         ➜ Explicit dependency on target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9660200Z         ➜ Explicit dependency on target 'gRPC-C++' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9660880Z         ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9661420Z         ➜ Explicit dependency on target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9661950Z     Target 'FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9662520Z         ➜ Explicit dependency on target 'Firebase_FirebaseFirestore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9663460Z         ➜ Explicit dependency on target 'FirebaseFirestoreInternalWrapper' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9664520Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9665390Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9666130Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9666770Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9667400Z         ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9668220Z         ➜ Explicit dependency on target 'FirebaseSharedSwift' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9668960Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9669930Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9670720Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9671330Z         ➜ Explicit dependency on target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9671860Z         ➜ Explicit dependency on target 'gRPC-C++' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9673310Z         ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9673930Z         ➜ Explicit dependency on target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9674360Z     Target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9675190Z         ➜ Explicit dependency on target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9675790Z         ➜ Explicit dependency on target 'leveldb_leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9676350Z     Target 'leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9676870Z         ➜ Explicit dependency on target 'leveldb_leveldb' in project 'leveldb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9677400Z     Target 'leveldb_leveldb' in project 'leveldb' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9677890Z     Target 'nanopb' in project 'nanopb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9678290Z         ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9678780Z     Target 'nanopb' in project 'nanopb' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9679190Z     Target 'gRPC-C++' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9679790Z         ➜ Explicit dependency on target 'grpcppWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9680760Z         ➜ Explicit dependency on target 'gRPC_grpcppWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9681470Z         ➜ Explicit dependency on target 'grpcWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9681990Z         ➜ Explicit dependency on target 'opensslWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9682590Z         ➜ Explicit dependency on target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9683160Z     Target 'grpcppWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9684660Z         ➜ Explicit dependency on target 'gRPC_grpcppWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9686500Z         ➜ Explicit dependency on target 'grpcWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9688120Z         ➜ Explicit dependency on target 'opensslWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9689550Z         ➜ Explicit dependency on target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9690820Z     Target 'opensslWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9692350Z         ➜ Explicit dependency on target 'gRPC_opensslWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9693660Z     Target 'gRPC_opensslWrapper' in project 'gRPC' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9694810Z     Target 'grpcWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9696140Z         ➜ Explicit dependency on target 'gRPC_grpcWrapper' in project 'gRPC'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9696780Z     Target 'gRPC_grpcWrapper' in project 'gRPC' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9697330Z     Target 'gRPC_grpcppWrapper' in project 'gRPC' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9697810Z     Target 'abseil' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9698500Z         ➜ Explicit dependency on target 'abslWrapper' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9699120Z         ➜ Explicit dependency on target 'abseil_abslWrapper' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9699620Z     Target 'abslWrapper' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9700150Z         ➜ Explicit dependency on target 'abseil_abslWrapper' in project 'abseil'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9700780Z     Target 'abseil_abslWrapper' in project 'abseil' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9701380Z     Target 'Firebase_FirebaseFirestore' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9701960Z     Target 'FirebaseSharedSwift' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9702500Z     Target 'FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9703260Z         ➜ Explicit dependency on target 'Firebase_FirebaseCoreExtension' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9703960Z     Target 'Firebase_FirebaseCoreExtension' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9704630Z     Target 'FirebaseFirestoreInternalWrapper' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9705220Z     Target 'FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9705860Z         ➜ Explicit dependency on target 'FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9709800Z         ➜ Explicit dependency on target 'Firebase_FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9711420Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9713220Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9714650Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9716400Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9717920Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9719350Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9720860Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9722470Z         ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9724190Z         ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9725680Z         ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9727030Z     Target 'FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9728420Z         ➜ Explicit dependency on target 'Firebase_FirebaseAuth' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9730650Z         ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9732150Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9733560Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9734950Z         ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9736380Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9737890Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9739410Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9786700Z         ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9787670Z         ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9788340Z         ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9788970Z     Target 'RecaptchaInterop' in project 'InteropForGoogle'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9789560Z         ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9790030Z     Target 'RecaptchaInterop' in project 'InteropForGoogle' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9790440Z     Target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9790940Z         ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9791510Z     Target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9791980Z     Target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9795390Z         ➜ Explicit dependency on target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9797240Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9797960Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9798710Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9800770Z         ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9802710Z         ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9804910Z         ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9808990Z         ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9809640Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9810230Z     Target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9811100Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9811790Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9812540Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9813230Z         ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9814000Z         ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9814580Z         ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9815180Z         ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9815690Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9816130Z     Target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9816710Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9817370Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9818040Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9825490Z         ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9827220Z         ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9852100Z         ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9852690Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9853200Z     Target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9853720Z     Target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9854420Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9881400Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9882300Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9882960Z         ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9883460Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9883980Z     Target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9884640Z     Target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9885120Z     Target 'FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9885560Z         ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9886020Z         ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9886470Z         ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9886960Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9888340Z         ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9888840Z         ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9889210Z     Target 'GULLogger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9889740Z         ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9890370Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9891030Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9891660Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9892190Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9892590Z     Target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9893130Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9893750Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9894320Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9894840Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9895360Z     Target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9895820Z     Target 'GULEnvironment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9896300Z         ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9896930Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9897620Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9898160Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9898570Z     Target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9899160Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9899790Z         ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9900300Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9900640Z     Target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9903180Z         ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9903770Z         ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9904130Z     Target 'FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9904550Z         ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9904980Z     Target 'Promises_FBLPromises' in project 'Promises' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9905460Z     Target 'third-party-IsAppEncrypted' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9906040Z     Target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9906570Z     Target 'Firebase_FirebaseCore' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9906940Z     Target 'FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9907400Z         ➜ Explicit dependency on target 'Firebase_FirebaseCoreInternal' in project 'Firebase'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9907910Z         ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9908280Z     Target 'GULNSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9909660Z         ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9910280Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9922480Z     Target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9923140Z         ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9923730Z     Target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9924280Z     Target 'Firebase_FirebaseCoreInternal' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9924730Z     Target 'Firebase' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9925140Z     Target 'FirebaseAppCheckInterop' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9925600Z     Target 'Firebase_FirebaseAuth' in project 'Firebase' (no dependencies)
+deploy	Build iOS App Archive	2026-07-30T19:29:02.9925890Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:03.1225160Z GatherProvisioningInputs
+deploy	Build iOS App Archive	2026-07-30T19:29:03.1473810Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:03.2288230Z CreateBuildDescription
+deploy	Build iOS App Archive	2026-07-30T19:29:09.4601120Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.4604810Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x objective-c -c /dev/null
+deploy	Build iOS App Archive	2026-07-30T19:29:09.6087640Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.6090890Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+deploy	Build iOS App Archive	2026-07-30T19:29:09.8797290Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.8902040Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9116980Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9123580Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9811780Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9906320Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c++ -c /dev/null
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9909360Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:09.9910130Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/LosMusicians/LosMusicians/LosMusicians/Assets.xcassets
+deploy	Build iOS App Archive	2026-07-30T19:29:14.1917700Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:14.1935990Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+deploy	Build iOS App Archive	2026-07-30T19:29:14.1989100Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:14.1991630Z ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+deploy	Build iOS App Archive	2026-07-30T19:29:14.1993060Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:19.1823720Z Build description signature: fb0615e5ac507902eba37325a5a03053
+deploy	Build iOS App Archive	2026-07-30T19:29:19.1928740Z Build description path: /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/Build/Intermediates.noindex/ArchiveIntermediates/LosMusicians/IntermediateBuildFilesPath/XCBuildData/fb0615e5ac507902eba37325a5a03053.xcbuilddata
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2029770Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/grpc-binary/Package.swift: error: Signing for "gRPC_grpcppWrapper" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'gRPC_grpcppWrapper' from project 'gRPC')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2137970Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/firebase-ios-sdk/Package.swift: error: Signing for "Firebase_FirebaseFirestore" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Firebase_FirebaseFirestore' from project 'Firebase')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2244980Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/abseil-cpp-binary/Package.swift: error: Signing for "abseil_abslWrapper" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'abseil_abslWrapper' from project 'abseil')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2438290Z ** ARCHIVE FAILED **
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2441950Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/firebase-ios-sdk/Package.swift: error: Signing for "Firebase_FirebaseAuth" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Firebase_FirebaseAuth' from project 'Firebase')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2445780Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2449390Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-AppDelegateSwizzler" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2586800Z 
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2588260Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/grpc-binary/Package.swift: error: Signing for "gRPC_opensslWrapper" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'gRPC_opensslWrapper' from project 'gRPC')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2590900Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-Network" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-Network' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2593260Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/firebase-ios-sdk/Package.swift: error: Signing for "Firebase_FirebaseCore" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Firebase_FirebaseCore' from project 'Firebase')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2595710Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-Logger" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-Logger' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2598290Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/firebase-ios-sdk/Package.swift: error: Signing for "Firebase_FirebaseCoreExtension" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Firebase_FirebaseCoreExtension' from project 'Firebase')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2600400Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/grpc-binary/Package.swift: error: Signing for "gRPC_grpcWrapper" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'gRPC_grpcWrapper' from project 'gRPC')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2603010Z /Users/runner/work/LosMusicians/LosMusicians/LosMusicians.xcodeproj: error: LosMusicians has conflicting provisioning settings. LosMusicians is automatically signed for development, but a conflicting code signing identity Apple Distribution has been manually specified. Set the code signing identity value to "Apple Development" in the build settings editor, or switch to manual signing in the Signing & Capabilities editor. (in target 'LosMusicians' from project 'LosMusicians')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2606680Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/promises/Package.swift: error: Signing for "Promises_FBLPromises" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Promises_FBLPromises' from project 'Promises')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2609130Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-Environment" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-Environment' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2611590Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/firebase-ios-sdk/Package.swift: error: Signing for "Firebase_FirebaseCoreInternal" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'Firebase_FirebaseCoreInternal' from project 'Firebase')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2619830Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-Reachability" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-Reachability' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2723240Z The following build commands failed:
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2727220Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/GoogleUtilities/Package.swift: error: Signing for "GoogleUtilities_GoogleUtilities-NSData" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'GoogleUtilities_GoogleUtilities-NSData' from project 'GoogleUtilities')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2833160Z 	Archiving project LosMusicians with scheme LosMusicians
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2836610Z /Users/runner/Library/Developer/Xcode/DerivedData/LosMusicians-adhnoewqcxrclldmagxrlrxmdgza/SourcePackages/checkouts/leveldb/Package.swift: error: Signing for "leveldb_leveldb" requires a development team. Select a development team in the Signing & Capabilities editor. (in target 'leveldb_leveldb' from project 'leveldb')
+deploy	Build iOS App Archive	2026-07-30T19:29:19.2897340Z (1 failure)
+deploy	Build iOS App Archive	2026-07-30T19:29:19.4749330Z ##[error]Process completed with exit code 65.
