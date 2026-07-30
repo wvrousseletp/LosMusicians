@@ -155,6 +155,7 @@
 				B3D053AC2A17F6E2A3C61569 /* Models */,
 				CDB84C315A997DA8821E48E1 /* Services */,
 				3C0E8BBE716D99564F81317B /* Views */,
+				D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */,
 			);
 			path = LosMusicians;
 			sourceTree = "<group>";
@@ -162,7 +163,6 @@
 		D36DD90B3019401800158913 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */,
 				D36DD90C3019401800158913 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
