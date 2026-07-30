@@ -13,6 +13,8 @@ struct AITeacherPlayerView: View {
     @State private var showingFeedback = false
     @Environment(\.presentationMode) var presentationMode
     
+    @StateObject private var pitchDetector = PitchDetector()
+    
     var body: some View {
         ZStack {
             Color(red: 15/255, green: 15/255, blue: 19/255).edgesIgnoringSafeArea(.all)
@@ -55,6 +57,30 @@ struct AITeacherPlayerView: View {
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
                 
+                // Mic / Pitch Indicator
+                HStack {
+                    Image(systemName: pitchDetector.currentNote != "--" ? "mic.fill" : "mic.slash.fill")
+                        .foregroundColor(pitchDetector.currentNote != "--" ? .green : .gray)
+                    
+                    Text("Nota Detectada: ")
+                        .foregroundColor(.gray)
+                        .font(.headline)
+                    
+                    Text(pitchDetector.currentNote)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.cyan)
+                        .frame(width: 60, alignment: .leading)
+                    
+                    Text(String(format: "%.1f Hz", pitchDetector.currentFrequency))
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
+                }
+                .padding()
+                .background(Color.black.opacity(0.4))
+                .cornerRadius(15)
+                .padding(.bottom, 10)
+                
                 // Controls
                 VStack(spacing: 20) {
                     // Playback Controls
@@ -79,8 +105,13 @@ struct AITeacherPlayerView: View {
                     }
                 }
                 .padding(.bottom, 30)
-                .padding(.top, 10)
             }
+        }
+        .onAppear {
+            pitchDetector.start()
+        }
+        .onDisappear {
+            pitchDetector.stop()
         }
         .sheet(isPresented: $showingFeedback) {
             DDAFeedbackView(technique: technique)

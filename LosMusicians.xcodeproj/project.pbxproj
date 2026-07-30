@@ -19,6 +19,7 @@
 		D3497911301A700000000002 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000002 /* Song.swift */; };
 		D3497911301A700000000003 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000003 /* AuthManager.swift */; };
 		D3497911301A700000000004 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000004 /* FirestoreManager.swift */; };
+		F3497911301A700000000001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3497910301A700000000001 /* PitchDetector.swift */; };
 		D3497911301A700000000005 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000005 /* MainTabView.swift */; };
 		D3497911301A700000000006 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000006 /* LoginView.swift */; };
 		D3497911301A700000000007 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000007 /* DashboardView.swift */; };
@@ -42,6 +43,7 @@
 		D3497910301A700000000002 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Song.swift; sourceTree = "<group>"; };
 		D3497910301A700000000003 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AuthManager.swift; sourceTree = "<group>"; };
 		D3497910301A700000000004 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/FirestoreManager.swift; sourceTree = "<group>"; };
+		F3497910301A700000000001 /* PitchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PitchDetector.swift; sourceTree = "<group>"; };
 		D3497910301A700000000005 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MainTabView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000006 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Auth/LoginView.swift; sourceTree = "<group>"; };
 		D3497910301A700000000007 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Home/DashboardView.swift; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				D3497910301A700000000002 /* Song.swift */,
 				D3497910301A700000000003 /* AuthManager.swift */,
 				D3497910301A700000000004 /* FirestoreManager.swift */,
+				F3497910301A700000000001 /* PitchDetector.swift */,
 				D3497910301A700000000005 /* MainTabView.swift */,
 				D3497910301A700000000006 /* LoginView.swift */,
 				D3497910301A700000000007 /* DashboardView.swift */,
@@ -203,6 +206,7 @@
 				D3497911301A700000000002 /* Song.swift in Sources */,
 				D3497911301A700000000003 /* AuthManager.swift in Sources */,
 				D3497911301A700000000004 /* FirestoreManager.swift in Sources */,
+				F3497911301A700000000001 /* PitchDetector.swift in Sources */,
 				D3497911301A700000000005 /* MainTabView.swift in Sources */,
 				D3497911301A700000000006 /* LoginView.swift in Sources */,
 				D3497911301A700000000007 /* DashboardView.swift in Sources */,
@@ -347,6 +351,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to listen to your guitar playing and give real-time feedback.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -376,6 +381,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to listen to your guitar playing and give real-time feedback.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
