@@ -9,7 +9,7 @@ class NotificationManager {
             if granted {
                 print("Permissão para Notificações concedida!")
             } else if let error = error {
-                print("Erro ao pedir permissão para notificações: \\(error.localizedDescription)")
+                print("Erro ao pedir permissão para notificações: \(error.localizedDescription)")
             }
         }
     }
@@ -30,7 +30,7 @@ class NotificationManager {
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("Erro ao agendar notificação: \\(error.localizedDescription)")
+                print("Erro ao agendar notificação: \(error.localizedDescription)")
             } else {
                 print("Lembrete de Ofensiva agendado com sucesso para amanhã.")
             }

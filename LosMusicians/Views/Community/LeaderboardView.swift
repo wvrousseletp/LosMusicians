@@ -18,7 +18,7 @@ class LeaderboardViewModel: ObservableObject {
             .limit(to: 50)
             .getDocuments { snapshot, error in
                 guard let documents = snapshot?.documents else {
-                    print("Erro ao buscar leaderboard: \\(String(describing: error))")
+                    print("Erro ao buscar leaderboard: \(String(describing: error))")
                     return
                 }
                 
@@ -48,9 +48,9 @@ struct LeaderboardView: View {
                         .foregroundColor(.gray)
                 }
                 
-                ForEach(Array(viewModel.users.enumerated()), id: \\.element.id) { index, user in
+                ForEach(Array(viewModel.users.enumerated()), id: \.element.id) { index, user in
                     HStack {
-                        Text("\\(index + 1)")
+                        Text("\(index + 1)")
                             .font(.headline)
                             .foregroundColor(index < 3 ? .yellow : .gray)
                             .frame(width: 30, alignment: .leading)
@@ -72,7 +72,7 @@ struct LeaderboardView: View {
                         
                         Spacer()
                         
-                        Text("\\(user.xp) XP")
+                        Text("\(user.xp) XP")
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
