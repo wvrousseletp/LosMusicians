@@ -75,9 +75,9 @@ struct LeaderboardRowView: View {
             VStack(alignment: .leading) {
                 Text(user.displayName)
                     .font(.headline)
-                    .foregroundColor(user.id == authManager.user?.uid ? .cyan : .white)
+                    .foregroundColor(user.id == authManager.currentUser?.id ? .cyan : .white)
                 
-                if user.id == authManager.user?.uid {
+                if user.id == authManager.currentUser?.id {
                     Text("Você")
                         .font(.caption2)
                         .padding(.horizontal, 4)
