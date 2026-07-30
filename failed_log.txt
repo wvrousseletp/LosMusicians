@@ -1,0 +1,27 @@
+deploy	Export IPA Package	﻿2026-07-30T19:24:20.8322390Z ##[group]Run xcodebuild -exportArchive \
+deploy	Export IPA Package	2026-07-30T19:24:20.8322830Z ^[[36;1mxcodebuild -exportArchive \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8323180Z ^[[36;1m  -archivePath $PWD/build/LosMusicians.xcarchive \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8323540Z ^[[36;1m  -exportPath $PWD/build \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8323830Z ^[[36;1m  -exportOptionsPlist ExportOptions.plist \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8324270Z ^[[36;1m  -allowProvisioningUpdates \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8324760Z ^[[36;1m  -authenticationKeyID *** \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8325200Z ^[[36;1m  -authenticationKeyIssuerID *** \^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8325720Z ^[[36;1m  -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_***.p8^[[0m
+deploy	Export IPA Package	2026-07-30T19:24:20.8541110Z shell: /bin/bash -e {0}
+deploy	Export IPA Package	2026-07-30T19:24:20.8541380Z ##[endgroup]
+deploy	Export IPA Package	2026-07-30T19:24:21.9500100Z 2026-07-30 19:24:21.949 xcodebuild[5253:19007] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/8j/sfr9qqcj73j4p6nhwcfpr0th0000gn/T/LosMusicians_2026-07-30_19-24-21.920.xcdistributionlogs".
+deploy	Export IPA Package	2026-07-30T19:24:33.9741640Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9742420Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9742620Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9742980Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9743200Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9743540Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9743740Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9743990Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9744220Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9744530Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9744740Z error: exportArchive Signing certificate is invalid.
+deploy	Export IPA Package	2026-07-30T19:24:33.9745170Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9745300Z ** EXPORT FAILED **
+deploy	Export IPA Package	2026-07-30T19:24:33.9745470Z 
+deploy	Export IPA Package	2026-07-30T19:24:33.9861980Z ##[error]Process completed with exit code 70.
