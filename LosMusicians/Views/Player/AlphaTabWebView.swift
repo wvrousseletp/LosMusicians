@@ -2,7 +2,7 @@ import SwiftUI
 import WebKit
 
 struct AlphaTabWebView: UIViewRepresentable {
-    let alphaTex: String
+    var alphaTex: String? = nil
     @Binding var isPlaying: Bool
     @Binding var tempo: Int
     @Binding var currentInstrumentTrack: String
@@ -56,9 +56,10 @@ struct AlphaTabWebView: UIViewRepresentable {
         uiView.evaluateJavaScript(tempoJS)
     }
     
-    private func generateAlphaTabHTML(with tex: String) -> String {
+    private func generateAlphaTabHTML(with tex: String?) -> String {
+        let texString = tex ?? ""
         // Escaping the alphaTex string for Javascript
-        let escapedTex = tex
+        let escapedTex = texString
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
             .replacingOccurrences(of: "\n", with: "\\n")
