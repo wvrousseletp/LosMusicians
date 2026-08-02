@@ -55,6 +55,7 @@
 		D3497910301A70000000000B /* TabPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/TabPlayerView.swift; sourceTree = "<group>"; };
 		D3497910301A70000000000C /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Profile/ProfileView.swift; sourceTree = "<group>"; };
 		D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D34979A1301A67DF00EDB599 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		D36DD9023019401500158913 /* LosMusicians.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LosMusicians.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D36DD9053019401500158913 /* LosMusiciansApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LosMusiciansApp.swift; sourceTree = "<group>"; };
 		D36DD9073019401500158913 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -160,6 +161,7 @@
 				CDB84C315A997DA8821E48E1 /* Services */,
 				3C0E8BBE716D99564F81317B /* Views */,
 				D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */,
+				D34979A1301A67DF00EDB599 /* Info.plist */,
 			);
 			path = LosMusicians;
 			sourceTree = "<group>";
@@ -407,6 +409,7 @@
 				DEVELOPMENT_TEAM = PJ32UPL29J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LosMusicians/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to listen to your guitar playing and give real-time feedback.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -438,6 +441,7 @@
 				DEVELOPMENT_TEAM = PJ32UPL29J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LosMusicians/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to listen to your guitar playing and give real-time feedback.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

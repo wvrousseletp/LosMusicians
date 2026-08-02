@@ -3,140 +3,152 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var authManager: AuthManager
     
-    @State private var email: String = ""
-    @State private var pass: String = ""
-    @State private var name: String = ""
-    @State private var isRegisterMode: Bool = false
-    
     var body: some View {
         ZStack {
-            Color(red: 0.07, green: 0.07, blue: 0.10)
-                .ignoresSafeArea()
+            // Fundo escuro premium com gradientes sutis
+            LinearGradient(
+                colors: [
+                    Color(red: 0.05, green: 0.05, blue: 0.09),
+                    Color(red: 0.08, green: 0.08, blue: 0.14)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
             
-            VStack(spacing: 24) {
+            // Círculos de luz ambiente de fundo
+            GeometryReader { proxy in
+                Circle()
+                    .fill(Color.cyan.opacity(0.12))
+                    .blur(radius: 80)
+                    .frame(width: 260, height: 260)
+                    .offset(x: -50, y: -30)
+                
+                Circle()
+                    .fill(Color.purple.opacity(0.12))
+                    .blur(radius: 90)
+                    .frame(width: 300, height: 300)
+                    .offset(x: proxy.size.width - 200, y: proxy.size.height - 350)
+            }
+            
+            VStack(spacing: 32) {
                 Spacer()
                 
-                // App Logo
-                VStack(spacing: 12) {
-                    Image(systemName: "guitars.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(LinearGradient(colors: [.cyan, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                // Marca e Logo
+                VStack(spacing: 18) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.cyan.opacity(0.25), .purple.opacity(0.25)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 120, height: 120)
+                            .overlay(
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.cyan.opacity(0.6), .purple.opacity(0.6)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 2
+                                    )
+                            )
+                        
+                        Image(systemName: "guitars.fill")
+                            .font(.system(size: 54))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.cyan, .purple, .pink],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
                     
-                    Text("Los Musicians")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    Text("Estudo Musical Gamificado")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                    VStack(spacing: 8) {
+                        Text("Los Musicians")
+                            .font(.system(size: 36, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .cyan.opacity(0.3), radius: 10, x: 0, y: 4)
+                        
+                        Text("Evolua na guitarra com Inteligência Artificial e detecção de notas em tempo real.")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
                 }
                 
                 Spacer()
                 
-                // Form Card
+                // Bloco de Ação (Login Google)
                 VStack(spacing: 16) {
-                    if isRegisterMode {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Nome").font(.caption).foregroundColor(.gray)
-                            TextField("Seu nome", text: $name)
-                                .padding(14)
-                                .background(Color.white.opacity(0.08))
-                                .cornerRadius(12)
-                                .foregroundColor(.white)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Email").font(.caption).foregroundColor(.gray)
-                        TextField("seu@email.com", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .cornerRadius(12)
-                            .foregroundColor(.white)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Senha").font(.caption).foregroundColor(.gray)
-                        SecureField("••••••••", text: $pass)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .cornerRadius(12)
-                            .foregroundColor(.white)
-                    }
-                    
                     if let error = authManager.errorMessage {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                    }
-                    
-                    Button(action: {
-                        if isRegisterMode {
-                            authManager.register(name: name, email: email, pass: pass)
-                        } else {
-                            authManager.login(email: email, pass: pass)
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
                         }
-                    }) {
-                        HStack {
-                            if authManager.isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text(isRegisterMode ? "CRIAR CONTA" : "ENTRAR NO APP")
-                                    .font(.headline.bold())
-                            }
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
-                        .cornerRadius(16)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.red.opacity(0.2))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.red.opacity(0.4), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
                     }
-                    .padding(.top, 8)
-                    
-                    Button(action: {
-                        withAnimation {
-                            isRegisterMode.toggle()
-                        }
-                    }) {
-                        Text(isRegisterMode ? "Já tem conta? Entrar" : "Não tem conta? Cadastrar-se")
-                            .font(.subheadline.bold())
-                            .foregroundColor(.cyan)
-                    }
-                    .padding(.top, 4)
-                    
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
                     
                     Button(action: {
                         authManager.signInWithGoogle()
                     }) {
-                        HStack {
-                            Image(systemName: "g.circle.fill")
-                                .font(.title2)
-                            Text("Continuar com Google")
-                                .font(.headline.bold())
+                        HStack(spacing: 14) {
+                            if authManager.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                            } else {
+                                Image(systemName: "g.circle.fill")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(.red)
+                                
+                                Text("Continuar com Google")
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundColor(.black)
+                            }
                         }
-                        .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .frame(height: 56)
                         .background(Color.white)
-                        .cornerRadius(16)
+                        .cornerRadius(18)
+                        .shadow(color: Color.white.opacity(0.15), radius: 15, x: 0, y: 8)
                     }
+                    .disabled(authManager.isLoading)
+                    
+                    Text("Seus treinos, histórico e dados sincronizados em tempo real.")
+                        .font(.caption2)
+                        .foregroundColor(.gray.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 6)
                 }
-                .padding(24)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(24)
+                .padding(28)
+                .background(Color.white.opacity(0.04))
+                .cornerRadius(28)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 24)
+                    RoundedRectangle(cornerRadius: 28)
                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                 )
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 24)
                 
                 Spacer()
+                    .frame(height: 20)
             }
         }
     }

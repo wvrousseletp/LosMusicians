@@ -60,40 +60,66 @@ class AuthManager: ObservableObject {
     }
     
     func signInWithGoogle() {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            self.errorMessage = "Configuração do Firebase não encontrada."
+            return
+        }
 
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
-              let rootViewController = window.rootViewController else {
+        // Obter de forma 100% segura a ViewController do topo
+        guard let windowScene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene ?? UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController ?? windowScene.windows.first?.rootViewController else {
+            self.errorMessage = "Não foi possível exibir a tela de autenticação."
             return
         }
 
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { [weak self] result, error in
-            guard error == nil else {
-                self?.errorMessage = error?.localizedDescription
+        var topController = rootViewController
+        while let presentedViewController = topController.presentedViewController {
+            topController = presentedViewController
+        }
+
+        self.isLoading = true
+        self.errorMessage = nil
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: topController) { [weak self] result, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    // Ignora caso o usuário apenas feche o modal do Google sem logar
+                    let nsError = error as NSError
+                    if nsError.domain == kGIDSignInErrorDomain && nsError.code == -5 {
+                        return
+                    }
+                    self.errorMessage = error.localizedDescription
+                }
                 return
             }
 
             guard let user = result?.user,
-                  let idToken = user.idToken?.tokenString
-            else { return }
+                  let idToken = user.idToken?.tokenString else {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.errorMessage = "Falha ao obter credenciais do Google."
+                }
+                return
+            }
 
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: user.accessToken.tokenString)
 
-            self?.isLoading = true
             Auth.auth().signIn(with: credential) { authResult, error in
                 DispatchQueue.main.async {
-                    self?.isLoading = false
+                    self.isLoading = false
                     if let error = error {
-                        self?.errorMessage = error.localizedDescription
+                        self.errorMessage = error.localizedDescription
                         return
                     }
                     if let authUser = authResult?.user {
-                        self?.fetchUserData(userId: authUser.uid, authUser: authUser)
+                        self.fetchUserData(userId: authUser.uid, authUser: authUser)
                     }
                 }
             }
