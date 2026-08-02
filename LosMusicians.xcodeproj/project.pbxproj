@@ -37,6 +37,8 @@
 		F3497911301A700000000001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3497910301A700000000001 /* PitchDetector.swift */; };
 		D34979B3301A6B7A00EDB517 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B1301A6B7A00EDB517 /* GoogleSignIn */; };
 		D34979B4301A6B7A00EDB517 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B2301A6B7A00EDB517 /* GoogleSignInSwift */; };
+		G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = G7497910301A700000000001 /* GuitarSynthEngine.swift */; };
+		I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = I7497910301A700000000001 /* InteractiveTablatureView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,7 +68,8 @@
 		E3497910301A700000000001 /* AITeacherSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AITeacher/AITeacherSetupView.swift; sourceTree = "<group>"; };
 		E3497910301A700000000002 /* AITeacherPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AITeacher/AITeacherPlayerView.swift; sourceTree = "<group>"; };
 		EDA73D9D1E8D68DD37A3ABAA /* LeaderboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LeaderboardView.swift; path = Views/Community/LeaderboardView.swift; sourceTree = "<group>"; };
-		F3497910301A700000000001 /* PitchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PitchDetector.swift; sourceTree = "<group>"; };
+		G7497910301A700000000001 /* GuitarSynthEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/GuitarSynthEngine.swift; sourceTree = "<group>"; };
+		I7497910301A700000000001 /* InteractiveTablatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/InteractiveTablatureView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,7 +159,8 @@
 				D3497910301A700000000009 /* AddRiffView.swift */,
 				D3497910301A70000000000A /* AlphaTabWebView.swift */,
 				D3497910301A70000000000B /* TabPlayerView.swift */,
-				D3497910301A70000000000C /* ProfileView.swift */,
+				G7497910301A700000000001 /* GuitarSynthEngine.swift */,
+				I7497910301A700000000001 /* InteractiveTablatureView.swift */,
 				B3D053AC2A17F6E2A3C61569 /* Models */,
 				CDB84C315A997DA8821E48E1 /* Services */,
 				3C0E8BBE716D99564F81317B /* Views */,
@@ -278,6 +282,8 @@
 				C613AF8BD98EB14D1D1C4AAA /* NotificationManager.swift in Sources */,
 				59C6BF8AA3A5A39E75D10511 /* LeaderboardView.swift in Sources */,
 				74A2B09B026A93C0C8371B24 /* SavedExercisesView.swift in Sources */,
+				G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */,
+				I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
