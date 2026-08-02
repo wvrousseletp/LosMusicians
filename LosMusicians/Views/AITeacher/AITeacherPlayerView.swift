@@ -7,6 +7,7 @@ struct AITeacherPlayerView: View {
     let timeAvailable: Int
     let isChallengeMode: Bool
     let alphaTex: String
+    var exercise: ExerciseModel? = nil
     
     @State private var isPlaying = false
     @State private var tempo = 120
@@ -133,6 +134,10 @@ struct AITeacherPlayerView: View {
         }
         .onAppear {
             pitchDetector.start()
+            if let exercise = exercise {
+                self.score = exercise.score
+                self.maxScore = exercise.maxScore
+            }
         }
         .onDisappear {
             pitchDetector.stop()
@@ -154,15 +159,23 @@ struct AITeacherPlayerView: View {
     }
     
     private func saveExercise() {
-        let newExercise = ExerciseModel(
-            title: "\(technique) - \(isChallengeMode ? "Desafio" : "Treino")",
-            instrument: instrument,
-            technique: technique,
-            alphaTex: alphaTex,
-            score: score,
-            maxScore: maxScore
-        )
-        modelContext.insert(newExercise)
+        if let exercise = exercise {
+            exercise.score = max(exercise.score, score)
+            exercise.maxScore = max(exercise.maxScore, maxScore)
+            try? modelContext.save()
+        } else {
+            let newExercise = ExerciseModel(
+                title: "\(technique) - \(isChallengeMode ? "Desafio" : "Treino")",
+                instrument: instrument,
+                technique: technique,
+                alphaTex: alphaTex,
+                score: score,
+                maxScore: maxScore,
+                dateCreated: Date()
+            )
+            modelContext.insert(newExercise)
+            try? modelContext.save()
+        }
     }
 }
 

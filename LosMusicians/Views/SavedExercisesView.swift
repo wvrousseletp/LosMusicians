@@ -18,7 +18,8 @@ struct SavedExercisesView: View {
                             technique: exercise.technique,
                             timeAvailable: 0,
                             isChallengeMode: exercise.title.contains("Desafio"),
-                            alphaTex: exercise.alphaTex
+                            alphaTex: exercise.alphaTex,
+                            exercise: exercise
                         )) {
                             VStack(alignment: .leading) {
                                 Text(exercise.title)
