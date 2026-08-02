@@ -159,6 +159,7 @@
 				D3497910301A700000000009 /* AddRiffView.swift */,
 				D3497910301A70000000000A /* AlphaTabWebView.swift */,
 				D3497910301A70000000000B /* TabPlayerView.swift */,
+				D3497910301A70000000000C /* ProfileView.swift */,
 				G7497910301A700000000001 /* GuitarSynthEngine.swift */,
 				I7497910301A700000000001 /* InteractiveTablatureView.swift */,
 				B3D053AC2A17F6E2A3C61569 /* Models */,
