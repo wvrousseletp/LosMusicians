@@ -42,13 +42,15 @@ jobs:
           xcodebuild archive \
             -project LosMusicians.xcodeproj \
             -scheme LosMusicians \
+            -configuration Release \
             -sdk iphoneos \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
             -allowProvisioningUpdates \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
       - name: Export IPA Package
         run: |
