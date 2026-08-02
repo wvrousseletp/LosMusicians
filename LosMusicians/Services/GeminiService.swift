@@ -15,22 +15,29 @@ class GeminiService {
     
     func generateExercise(instrument: String, technique: String, timeAvailable: Int, isChallengeMode: Bool) async throws -> String {
         guard !apiKey.isEmpty && apiKey != "YOUR_GEMINI_API_KEY" else {
-            throw NSError(domain: "GeminiService", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key não configurada. Edite GeminiService.swift."])
+            throw NSError(domain: "GeminiService", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key não configurada."])
         }
         
         let prompt = """
-        Atue como um professor de música especialista. O aluno precisa de um exercício de \(instrument) focado na técnica de \(technique).
+        Atue como um professor de música especialista. O aluno precisa de um exercício para \(instrument) focado na técnica de \(technique).
         Tempo disponível: \(timeAvailable) minutos.
-        Modo: \(isChallengeMode ? "Desafio (Alta dificuldade, velocidade rápida, técnicas avançadas)" : "Aquecimento (Dificuldade moderada, foco em precisão)").
+        Modo: \(isChallengeMode ? "Desafio (Alta dificuldade, padrões rápidos)" : "Aquecimento (Dificuldade moderada, foco em precisão)").
         
-        Gere uma partitura curta (4 a 8 compassos) no formato AlphaTex (um formato de texto simples para renderização de tablatura).
-        O AlphaTex DEVE iniciar com a tab `\\title "Exercício de \(technique)"` e conter a trilha `\\track "Guitar"`.
-        Retorne APENAS o código AlphaTex puro, sem markdown, sem explicações, e sem tags de bloco de código (ex: não use ```).
-        Exemplo de AlphaTex válido:
-        \\title "Aquecimento"
-        \\track "Guitarra"
+        Você DEVE responder EXCLUSIVAMENTE com código AlphaTex compatível com AlphaTab.
+        Formato obrigatório estrito:
+        \\title "Exercício de \(technique)"
+        \\tempo 100
         .
-        :4 5.6.7.8 | 8.7.6.5
+        :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2
+        
+        Regras:
+        1. Inicie com \\title e \\tempo.
+        2. Coloque um ponto "." sozinho na linha seguinte.
+        3. Notas no formato traste.corda (ex: 5.6 significa traste 5 na corda 6).
+        4. Use :8 para colcheias ou :4 para semínimas antes dos grupos de notas.
+        5. Separe os compassos usando a barra vertical "|".
+        6. Gere exatamente 4 compassos completos.
+        7. Não use markdown, crases ou qualquer texto explicativo. Retorne apenas o código AlphaTex puro.
         """
         
         let requestBody: [String: Any] = [
@@ -42,15 +49,14 @@ class GeminiService {
                 ]
             ],
             "generationConfig": [
-                "temperature": 0.7,
-                "maxOutputTokens": 800
+                "temperature": 0.2,
+                "maxOutputTokens": 2048
             ]
         ]
         
         let httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         var lastError: Error? = nil
         
-        // Tentativa nos modelos disponíveis com fallback automático
         for model in models {
             guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
                 continue
@@ -81,12 +87,22 @@ class GeminiService {
                     continue
                 }
                 
-                // Limpa marcações markdown se a IA colocar ```alphatex ou ```
+                // Limpeza e higienização rigorosa do AlphaTex
                 var cleanText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
                 if cleanText.contains("```") {
                     let lines = cleanText.components(separatedBy: .newlines)
                     let filteredLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("```") }
                     cleanText = filteredLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                
+                // Valida se o texto contém estrutura mínima de AlphaTex
+                if !cleanText.contains(".") && !cleanText.contains(":") {
+                    cleanText = """
+                    \\title "\(technique)"
+                    \\tempo 100
+                    .
+                    :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2
+                    """
                 }
                 
                 return cleanText

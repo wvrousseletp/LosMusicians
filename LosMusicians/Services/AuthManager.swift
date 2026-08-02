@@ -11,15 +11,36 @@ class AuthManager: ObservableObject {
     @Published var errorMessage: String? = nil
     
     init() {
-        self.isAuthenticated = false
+        // Verifica se já existe um usuário autenticado no Keychain do iOS
+        if let user = Auth.auth().currentUser {
+            self.isAuthenticated = true
+            let name = user.displayName ?? "Músico"
+            let email = user.email ?? ""
+            self.currentUser = AppUser(id: user.uid, name: name, email: email)
+            self.fetchUserData(userId: user.uid, authUser: user)
+        } else {
+            self.isAuthenticated = false
+        }
+        
         listenToAuthChanges()
     }
     
     func listenToAuthChanges() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self = self else { return }
-            if let user = user {
-                self.fetchUserData(userId: user.uid, authUser: user)
+            DispatchQueue.main.async {
+                if let user = user {
+                    self.isAuthenticated = true
+                    if self.currentUser == nil {
+                        let name = user.displayName ?? "Músico"
+                        let email = user.email ?? ""
+                        self.currentUser = AppUser(id: user.uid, name: name, email: email)
+                    }
+                    self.fetchUserData(userId: user.uid, authUser: user)
+                } else {
+                    self.currentUser = nil
+                    self.isAuthenticated = false
+                }
             }
         }
     }
@@ -33,8 +54,9 @@ class AuthManager: ObservableObject {
                 self?.isLoading = false
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
-                } else if let uid = result?.user.uid {
-                    self?.fetchUserData(userId: uid, authUser: result?.user)
+                } else if let user = result?.user {
+                    self?.isAuthenticated = true
+                    self?.fetchUserData(userId: user.uid, authUser: user)
                 }
             }
         }
@@ -68,7 +90,6 @@ class AuthManager: ObservableObject {
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
-        // Obter de forma 100% segura a ViewController do topo
         guard let windowScene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene ?? UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController ?? windowScene.windows.first?.rootViewController else {
             self.errorMessage = "Não foi possível exibir a tela de autenticação."
@@ -89,7 +110,6 @@ class AuthManager: ObservableObject {
             if let error = error {
                 DispatchQueue.main.async {
                     self.isLoading = false
-                    // Ignora caso o usuário apenas feche o modal do Google sem logar
                     let nsError = error as NSError
                     if nsError.domain == kGIDSignInErrorDomain && nsError.code == -5 {
                         return
@@ -119,6 +139,7 @@ class AuthManager: ObservableObject {
                         return
                     }
                     if let authUser = authResult?.user {
+                        self.isAuthenticated = true
                         self.fetchUserData(userId: authUser.uid, authUser: authUser)
                     }
                 }
@@ -134,18 +155,23 @@ class AuthManager: ObservableObject {
     }
     
     private func fetchUserData(userId: String, authUser: FirebaseAuth.User?) {
+        DispatchQueue.main.async {
+            self.isAuthenticated = true
+        }
+        
         FirestoreManager.shared.fetchUser(userId: userId) { [weak self] user in
             DispatchQueue.main.async {
+                guard let self = self else { return }
                 if let user = user {
-                    self?.currentUser = user
+                    self.currentUser = user
                 } else {
-                    let name = authUser?.displayName ?? "Músico Google"
+                    let name = authUser?.displayName ?? "Músico"
                     let email = authUser?.email ?? "user@losmusicians.com"
                     let newUser = AppUser(id: userId, name: name, email: email)
-                    self?.currentUser = newUser
+                    self.currentUser = newUser
                     FirestoreManager.shared.saveUser(user: newUser)
                 }
-                self?.isAuthenticated = true
+                self.isAuthenticated = true
             }
         }
     }
