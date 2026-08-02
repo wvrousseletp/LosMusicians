@@ -16,8 +16,14 @@ struct AlphaTabWebView: UIViewRepresentable {
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "alphaTabBridge", let dict = message.body as? [String: Any] {
-                if let type = dict["type"] as? String, type == "playedNote", let midi = dict["midi"] as? Int {
-                    NotificationCenter.default.post(name: NSNotification.Name("AlphaTabPlayedNote"), object: nil, userInfo: ["midi": midi])
+                if let type = dict["type"] as? String {
+                    if type == "playedNote", let midi = dict["midi"] as? Int {
+                        NotificationCenter.default.post(name: NSNotification.Name("AlphaTabPlayedNote"), object: nil, userInfo: ["midi": midi])
+                    } else if type == "playerFinished" {
+                        DispatchQueue.main.async {
+                            self.parent.isPlaying = false
+                        }
+                    }
                 }
             }
         }
@@ -32,6 +38,10 @@ struct AlphaTabWebView: UIViewRepresentable {
         let prefs = WKWebpagePreferences()
         prefs.allowsContentJavaScript = true
         config.defaultWebpagePreferences = prefs
+        
+        // Habilita reprodução de áudio sem exigir toque direto no DOM do WebKit
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
         
         config.userContentController.add(context.coordinator, name: "alphaTabBridge")
         
@@ -48,10 +58,10 @@ struct AlphaTabWebView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        let playJS = isPlaying ? "if(window.api) window.api.play();" : "if(window.api) window.api.pause();"
+        let playJS = isPlaying ? "if(window.api) { window.api.play(); } else { window.pendingPlay = true; }" : "if(window.api) { window.api.pause(); } else { window.pendingPlay = false; }"
         uiView.evaluateJavaScript(playJS)
         
-        let tempoJS = "if(window.api) window.api.setTempo(\(tempo));"
+        let tempoJS = "if(window.api) { window.api.setTempo(\(tempo)); }"
         uiView.evaluateJavaScript(tempoJS)
     }
     
@@ -85,14 +95,15 @@ struct AlphaTabWebView: UIViewRepresentable {
                     color: #FFFFFF;
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                     margin: 0;
-                    padding: 8px;
+                    padding: 12px;
                     overflow-x: hidden;
                 }
                 #loading {
                     text-align: center;
-                    padding: 40px 10px;
-                    color: #9CA3AF;
+                    padding: 30px 10px;
+                    color: #06B6D4;
                     font-size: 14px;
+                    font-weight: 500;
                 }
                 #alphaTab {
                     width: 100%;
@@ -116,7 +127,7 @@ struct AlphaTabWebView: UIViewRepresentable {
                     border-radius: 12px;
                     border: 1px solid #272732;
                     font-family: monospace;
-                    font-size: 13px;
+                    font-size: 14px;
                     color: #06B6D4;
                     white-space: pre-wrap;
                 }
@@ -132,11 +143,46 @@ struct AlphaTabWebView: UIViewRepresentable {
                 var texData = "\(escapedTex)";
                 var fallbackTex = "\\\\title \\"Exercicio\\" \\n \\\\tempo 100 \\n . \\n :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2";
                 
+                var globalApi = null;
+                var audioCtx = null;
+                var currentBPM = 100;
+                var isInternalPlaying = false;
+                
+                // Sintetizador WebAudio de contingência para garantir áudio instantâneo
+                function playSynthNote(midiNote) {
+                    try {
+                        var AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                        if (!audioCtx) {
+                            audioCtx = new AudioCtxClass();
+                        }
+                        if (audioCtx.state === 'suspended') {
+                            audioCtx.resume();
+                        }
+                        
+                        var freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+                        var osc = audioCtx.createOscillator();
+                        var gain = audioCtx.createGain();
+                        
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                        
+                        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                        
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.5);
+                    } catch(e) {
+                        console.log("Synth error:", e);
+                    }
+                }
+
                 function initAlphaTab() {
                     try {
                         if (typeof alphaTab === 'undefined') {
-                            showFallback("Biblioteca de partitura carregando...");
-                            setTimeout(initAlphaTab, 500);
+                            setTimeout(initAlphaTab, 300);
                             return;
                         }
 
@@ -151,22 +197,46 @@ struct AlphaTabWebView: UIViewRepresentable {
                             player: {
                                 enablePlayer: true,
                                 enableUserInteraction: true,
+                                enableCursor: true,
                                 soundFont: 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2'
                             }
                         });
+
+                        globalApi = api;
 
                         api.renderStarted.on(function() {
                             loadingEl.style.display = 'none';
                             wrapper.style.display = 'block';
                         });
 
-                        api.playedBeat.on(function (beat) {
+                        api.playerReady.on(function() {
+                            console.log("AlphaTab Player Ready!");
+                            if (window.pendingPlay) {
+                                window.api.play();
+                                window.pendingPlay = false;
+                            }
+                        });
+
+                        api.playerFinished.on(function() {
+                            isInternalPlaying = false;
                             if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.alphaTabBridge) {
-                                if (beat && beat.notes) {
-                                    for (var i = 0; i < beat.notes.length; i++) {
+                                window.webkit.messageHandlers.alphaTabBridge.postMessage({ type: 'playerFinished' });
+                            }
+                        });
+
+                        api.playedBeat.on(function (beat) {
+                            if (beat && beat.notes) {
+                                for (var i = 0; i < beat.notes.length; i++) {
+                                    var midiVal = beat.notes[i].realValue;
+                                    
+                                    // Emite áudio de retorno garantido
+                                    playSynthNote(midiVal);
+                                    
+                                    // Notifica o app Swift sobre a nota para validação de microfone
+                                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.alphaTabBridge) {
                                         window.webkit.messageHandlers.alphaTabBridge.postMessage({
                                             type: 'playedNote',
-                                            midi: beat.notes[i].realValue
+                                            midi: midiVal
                                         });
                                     }
                                 }
@@ -181,12 +251,37 @@ struct AlphaTabWebView: UIViewRepresentable {
                         }
 
                         window.api = {
-                            play: function() { api.playPause(); },
-                            pause: function() { api.pause(); },
+                            play: function() {
+                                isInternalPlaying = true;
+                                try {
+                                    if (audioCtx && audioCtx.state === 'suspended') {
+                                        audioCtx.resume();
+                                    }
+                                } catch(e) {}
+                                
+                                if (api) {
+                                    api.play();
+                                }
+                            },
+                            pause: function() {
+                                isInternalPlaying = false;
+                                if (api) {
+                                    api.pause();
+                                }
+                            },
                             setTempo: function(bpm) { 
-                                api.playbackSpeed = bpm / 100;
+                                currentBPM = bpm;
+                                if (api) {
+                                    api.playbackSpeed = bpm / 100;
+                                }
                             }
                         };
+                        
+                        if (window.pendingPlay) {
+                            window.api.play();
+                            window.pendingPlay = false;
+                        }
+
                     } catch (e) {
                         showFallback(texData);
                     }
