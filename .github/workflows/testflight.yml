@@ -46,8 +46,10 @@ jobs:
             -sdk iphoneos \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
+            -allowProvisioningUpdates \
+            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
             CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
       - name: Export IPA Package
@@ -67,4 +69,5 @@ jobs:
             --type ios \
             --file $PWD/build/LosMusicians.ipa \
             --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+            --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
+            --apiPrivateKey ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
