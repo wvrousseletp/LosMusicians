@@ -82,31 +82,33 @@ class PitchDetector: ObservableObject {
         
         // 2. Perform FFT
         let log2n = vDSP_Length(log2(Float(frameLength)))
-        let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2))
+        guard let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) else { return }
         
-        realp.withUnsafeMutableBufferPointer { realpBuffer in
-            imagp.withUnsafeMutableBufferPointer { imagpBuffer in
-                guard let realBase = realpBuffer.baseAddress,
-                      let imagBase = imagpBuffer.baseAddress,
-                      let fft = fftSetup else { return }
+        var realp = [Float](repeating: 0.0, count: frameLength / 2)
+        var imagp = [Float](repeating: 0.0, count: frameLength / 2)
+        
+        // Apply window function (Hanning)
+        var window = [Float](repeating: 0.0, count: frameLength)
+        vDSP_hann_window(&window, vDSP_Length(frameLength), Int32(vDSP_HANN_NORM))
+        
+        var windowedData = [Float](repeating: 0.0, count: frameLength)
+        vDSP_vmul(channelData, 1, window, 1, &windowedData, 1, vDSP_Length(frameLength))
+        
+        realp.withUnsafeMutableBufferPointer { realpBuf in
+            imagp.withUnsafeMutableBufferPointer { imagpBuf in
+                guard let realBase = realpBuf.baseAddress,
+                      let imagBase = imagpBuf.baseAddress else { return }
                 
                 var splitComplex = DSPSplitComplex(realp: realBase, imagp: imagBase)
                 
-                // Apply window function (Hanning)
-                var window = [Float](repeating: 0.0, count: frameLength)
-                vDSP_hann_window(&window, vDSP_Length(frameLength), Int32(vDSP_HANN_NORM))
-                
-                var windowedData = [Float](repeating: 0.0, count: frameLength)
-                vDSP_vmul(channelData, 1, window, 1, &windowedData, 1, vDSP_Length(frameLength))
-                
-                windowedData.withUnsafeBufferPointer { pointer in
-                    guard let base = pointer.baseAddress else { return }
-                    base.withMemoryRebound(to: DSPComplex.self, capacity: frameLength / 2) { complexPointer in
+                windowedData.withUnsafeBufferPointer { wBuf in
+                    guard let wBase = wBuf.baseAddress else { return }
+                    wBase.withMemoryRebound(to: DSPComplex.self, capacity: frameLength / 2) { complexPointer in
                         vDSP_ctoz(complexPointer, 2, &splitComplex, 1, vDSP_Length(frameLength / 2))
                     }
                 }
                 
-                vDSP_fft_zrip(fft, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
+                vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
                 
                 // 3. Find magnitude and peak
                 var magnitudes = [Float](repeating: 0.0, count: frameLength / 2)
@@ -115,8 +117,6 @@ class PitchDetector: ObservableObject {
                 var maxMag: Float = 0.0
                 var maxIndex: vDSP_Length = 0
                 vDSP_maxvi(&magnitudes, 1, &maxMag, &maxIndex, vDSP_Length(frameLength / 2))
-                
-                vDSP_destroy_fftsetup(fft)
                 
                 // 4. Convert bin index to frequency
                 let frequency = Float(maxIndex) * sampleRate / Float(frameLength)
@@ -131,6 +131,8 @@ class PitchDetector: ObservableObject {
                 }
             }
         }
+        
+        vDSP_destroy_fftsetup(fftSetup)
     }
     
     private func noteFromFrequency(_ frequency: Float) -> (String, Int) {
