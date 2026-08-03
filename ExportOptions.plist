@@ -7,17 +7,10 @@
     <key>destination</key>
     <string>export</string>
     <key>signingStyle</key>
-    <string>manual</string>
+    <string>automatic</string>
     <key>stripSwiftSymbols</key>
     <true/>
     <key>teamID</key>
     <string>PJ32UPL29J</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.vicente.losmooscles</key>
-        <string>Los Mooscles App Store Profile</string>
-    </dict>
-    <key>signingCertificate</key>
-    <string>Apple Distribution</string>
 </dict>
 </plist>
