@@ -100,18 +100,7 @@ jobs:
 
           # Re-sign the app itself with clean entitlements (no iCloud wildcards)
           ENTITLEMENTS_PATH=$RUNNER_TEMP/entitlements.plist
-          python3 -c "
-import plistlib, pathlib
-ents = {
-    'application-identifier': 'PJ32UPL29J.com.vicente.losmooscles',
-    'com.apple.developer.team-identifier': 'PJ32UPL29J',
-    'get-task-allow': False,
-    'beta-reports-active': True,
-    'keychain-access-groups': ['PJ32UPL29J.com.vicente.losmooscles'],
-}
-pathlib.Path('$RUNNER_TEMP/entitlements.plist').write_bytes(plistlib.dumps(ents))
-print('Entitlements written')
-"
+          python3 scripts/generate_entitlements.py
 
           codesign --force --sign "$SIGN_IDENTITY" --keychain "$KEYCHAIN_PATH" \
             --entitlements "$ENTITLEMENTS_PATH" \
