@@ -15,5 +15,11 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O LosMusicians usa o microfone para detectar as notas tocadas no seu instrumento em tempo real.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Este app não acessa dados de saúde.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Este app não atualiza dados de saúde.</string>
 </dict>
 </plist>
