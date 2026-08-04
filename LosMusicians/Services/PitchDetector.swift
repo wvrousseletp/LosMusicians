@@ -21,7 +21,7 @@ class PitchDetector: ObservableObject {
             }
             
             do {
-                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
                 try AVAudioSession.sharedInstance().setActive(true)
             } catch {
                 print("Failed to setup audio session: \(error)")
