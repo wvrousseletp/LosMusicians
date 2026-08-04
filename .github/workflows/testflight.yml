@@ -26,7 +26,7 @@ jobs:
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
-          KEYCHAIN_PASSWORD=$(openssl rand -base64 12)
+          KEYCHAIN_PASSWORD="buildkeychain"
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
@@ -84,6 +84,8 @@ jobs:
         run: |
           APP_PATH="$PWD/build/LosMusicians.xcarchive/Products/Applications/LosMusicians.app"
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
 
           # Find the signing identity
           SIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep "Apple Distribution" | head -1 | awk -F'"' '{print $2}')
@@ -111,6 +113,9 @@ jobs:
 
       - name: Export IPA Package
         run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
           xcodebuild -exportArchive \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -exportPath $PWD/build \
