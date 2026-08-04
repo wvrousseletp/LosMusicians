@@ -98,10 +98,24 @@ jobs:
             codesign --force --sign "$SIGN_IDENTITY" --keychain "$KEYCHAIN_PATH" "$framework"
           done
 
-          # Re-sign the app itself with entitlements
-          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
+          # Re-sign the app itself with clean entitlements (no iCloud wildcards)
           ENTITLEMENTS_PATH=$RUNNER_TEMP/entitlements.plist
-          security cms -D -i "$PROFILE_PATH" | plutil -extract Entitlements xml1 - -o "$ENTITLEMENTS_PATH"
+          cat > "$ENTITLEMENTS_PATH" << 'ENTITLEMENTS_EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>application-identifier</key>
+    <string>PJ32UPL29J.com.vicente.losmooscles</string>
+    <key>com.apple.developer.team-identifier</key>
+    <string>PJ32UPL29J</string>
+    <key>get-task-allow</key>
+    <false/>
+    <key>beta-reports-active</key>
+    <true/>
+</dict>
+</plist>
+ENTITLEMENTS_EOF
 
           codesign --force --sign "$SIGN_IDENTITY" --keychain "$KEYCHAIN_PATH" \
             --entitlements "$ENTITLEMENTS_PATH" \
