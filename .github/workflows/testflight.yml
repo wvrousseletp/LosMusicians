@@ -35,11 +35,9 @@ jobs:
           echo "$CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
           security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/xcodebuild
           
-          # Download and install Apple WWDR intermediate certificates to establish trust chain
-          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -o $RUNNER_TEMP/AppleWWDRCA.cer
-          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer -o $RUNNER_TEMP/AppleWWDRCAG3.cer
-          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG6.cer -o $RUNNER_TEMP/AppleWWDRCAG6.cer
-          security import $RUNNER_TEMP/AppleWWDRCA.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          # Download and install Apple WWDR intermediate certificates (G3 and G6) to establish trust chain
+          curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o $RUNNER_TEMP/AppleWWDRCAG3.cer
+          curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer -o $RUNNER_TEMP/AppleWWDRCAG6.cer
           security import $RUNNER_TEMP/AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
           security import $RUNNER_TEMP/AppleWWDRCAG6.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
 
