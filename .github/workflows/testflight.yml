@@ -125,6 +125,21 @@ jobs:
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
+      - name: Print Xcode Distribution Logs on Failure
+        if: failure()
+        run: |
+          echo "=== Xcode Distribution Logs ==="
+          LOG_DIR=$(find /var/folders -type d -name "LosMusicians_*.xcdistributionlogs" 2>/dev/null | sort | tail -1)
+          if [ -n "$LOG_DIR" ]; then
+            echo "Found logs at: $LOG_DIR"
+            for logfile in "$LOG_DIR"/*.log; do
+              echo "--- $(basename "$logfile") ---"
+              cat "$logfile" | head -100
+            done
+          else
+            echo "No logs found under /var/folders"
+          fi
+
       - name: Upload Build to TestFlight
         run: |
           xcrun altool --upload-app \
