@@ -138,6 +138,34 @@ struct InteractiveTablatureView: View {
     var onNotePlayed: ((Int) -> Void)? = nil
     var onLoopCycleCompleted: (() -> Void)? = nil
     
+    init(
+        alphaTex: String?,
+        isPlaying: Binding<Bool>,
+        tempo: Binding<Int>,
+        instrument: String = "Guitarra",
+        isLoopActive: Binding<Bool> = .constant(false),
+        loopStartMeasure: Binding<Int> = .constant(1),
+        loopEndMeasure: Binding<Int> = .constant(8),
+        pitchShiftSemitones: Binding<Int> = .constant(0),
+        isMetronomeActive: Binding<Bool> = .constant(false),
+        isSpeedTrainerActive: Binding<Bool> = .constant(false),
+        onNotePlayed: ((Int) -> Void)? = nil,
+        onLoopCycleCompleted: (() -> Void)? = nil
+    ) {
+        self.alphaTex = alphaTex
+        self._isPlaying = isPlaying
+        self._tempo = tempo
+        self.instrument = instrument
+        self._isLoopActive = isLoopActive
+        self._loopStartMeasure = loopStartMeasure
+        self._loopEndMeasure = loopEndMeasure
+        self._pitchShiftSemitones = pitchShiftSemitones
+        self._isMetronomeActive = isMetronomeActive
+        self._isSpeedTrainerActive = isSpeedTrainerActive
+        self.onNotePlayed = onNotePlayed
+        self.onLoopCycleCompleted = onLoopCycleCompleted
+    }
+    
     @State private var notes: [TabNoteItem] = []
     @State private var currentActiveIndex: Int = -1
     @State private var playbackTimer: Timer? = nil
