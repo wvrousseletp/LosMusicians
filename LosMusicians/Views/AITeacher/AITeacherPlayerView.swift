@@ -133,6 +133,13 @@ struct AITeacherPlayerView: View {
                 )
                 .padding(.horizontal, 16)
                 
+                // Agulha Visual de Afinação e Precisão do Player (Premium)
+                PitchAccuracyGauge(
+                    cents: pitchDetector.centsDeviation,
+                    isActive: pitchDetector.currentNote != "--"
+                )
+                .padding(.top, 4)
+                
                 Spacer(minLength: 4)
                 
                 // Painel de Controle de Playback
@@ -326,5 +333,77 @@ struct FeedbackButton: View {
             .background(color.opacity(0.8))
             .cornerRadius(14)
         }
+    }
+}
+
+// MARK: - Componente Agulha Visual de Afinação (Tuner / Pitch Accuracy Gauge)
+struct PitchAccuracyGauge: View {
+    let cents: Float
+    let isActive: Bool
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("BEMOL (BAIXO)")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(isActive && cents < -5 ? .red : .gray.opacity(0.5))
+                
+                Spacer()
+                
+                Text(isActive ? (abs(cents) <= 5 ? "PERFEITO! ✨" : String(format: "%+.0f cents", cents)) : "TOCANDO...")
+                    .font(.system(size: 11, weight: .black))
+                    .foregroundColor(isActive ? (abs(cents) <= 5 ? .green : .orange) : .gray)
+                
+                Spacer()
+                
+                Text("SUSTENIDO (ALTO)")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(isActive && cents > 5 ? .red : .gray.opacity(0.5))
+            }
+            .padding(.horizontal, 4)
+            
+            // Dial/Slider da agulha
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    // Trilha de fundo
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.white.opacity(0.08))
+                        .frame(height: 6)
+                    
+                    // Zona perfeita central (Glow verde sutil)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.green.opacity(0.3))
+                        .frame(width: geo.size.width * 0.12)
+                        .position(x: geo.size.width / 2, y: 3)
+                    
+                    // Linha central
+                    Rectangle()
+                        .fill(Color.white.opacity(0.4))
+                        .frame(width: 2, height: 10)
+                        .position(x: geo.size.width / 2, y: 3)
+                    
+                    // Ponteiro deslizante dinâmico
+                    if isActive {
+                        let clampedCents = max(-50.0, min(50.0, Double(cents)))
+                        let progress = (clampedCents + 50.0) / 100.0 // Normalizado para 0.0 - 1.0
+                        
+                        Circle()
+                            .fill(abs(cents) <= 5 ? Color.green : Color.orange)
+                            .frame(width: 12, height: 12)
+                            .shadow(color: abs(cents) <= 5 ? Color.green.opacity(0.8) : Color.orange.opacity(0.8), radius: 6)
+                            .position(x: geo.size.width * CGFloat(progress), y: 3)
+                            .animation(.easeOut(duration: 0.12), value: cents)
+                    }
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(12)
+        .background(Color.white.opacity(0.03))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(isActive && abs(cents) <= 5 ? Color.green.opacity(0.3) : Color.white.opacity(0.05), lineWidth: 1)
+        )
     }
 }

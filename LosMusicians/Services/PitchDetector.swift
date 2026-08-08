@@ -9,6 +9,7 @@ class PitchDetector: ObservableObject {
     @Published var currentNote: String = "--"
     @Published var currentFrequency: Float = 0.0
     @Published var currentMidiNote: Int = 0
+    @Published var centsDeviation: Float = 0.0
     
     func start() {
         guard !isRunning else { return }
@@ -60,6 +61,7 @@ class PitchDetector: ObservableObject {
         isRunning = false
         currentNote = "--"
         currentFrequency = 0.0
+        centsDeviation = 0.0
     }
     
     private func processBuffer(buffer: AVAudioPCMBuffer) {
@@ -76,6 +78,7 @@ class PitchDetector: ObservableObject {
             DispatchQueue.main.async {
                 self.currentNote = "--"
                 self.currentFrequency = 0.0
+                self.centsDeviation = 0.0
             }
             return
         }
@@ -124,9 +127,10 @@ class PitchDetector: ObservableObject {
                 DispatchQueue.main.async {
                     if frequency > 60 && frequency < 1500 {
                         self.currentFrequency = frequency
-                        let (noteName, midiNumber) = self.noteFromFrequency(frequency)
+                        let (noteName, midiNumber, cents) = self.noteFromFrequency(frequency)
                         self.currentNote = noteName
                         self.currentMidiNote = midiNumber
+                        self.centsDeviation = cents
                     }
                 }
             }
@@ -135,7 +139,7 @@ class PitchDetector: ObservableObject {
         vDSP_destroy_fftsetup(fftSetup)
     }
     
-    private func noteFromFrequency(_ frequency: Float) -> (String, Int) {
+    private func noteFromFrequency(_ frequency: Float) -> (String, Int, Float) {
         let noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
         let A4: Float = 440.0
         
@@ -146,8 +150,14 @@ class PitchDetector: ObservableObject {
         if roundedNoteNumber >= 0 {
             let noteIndex = roundedNoteNumber % 12
             let octave = (roundedNoteNumber / 12) - 1
-            return ("\(noteNames[noteIndex])\(octave)", roundedNoteNumber)
+            
+            // Calcula a frequência ideal para essa nota MIDI
+            let targetFrequency = A4 * pow(2.0, Float(roundedNoteNumber - 69) / 12.0)
+            // Desvio de cents = 1200 * log2(f_atual / f_ideal)
+            let cents = 1200.0 * log2(frequency / targetFrequency)
+            
+            return ("\(noteNames[noteIndex])\(octave)", roundedNoteNumber, cents)
         }
-        return ("--", 0)
+        return ("--", 0, 0.0)
     }
 }
