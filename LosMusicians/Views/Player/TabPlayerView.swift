@@ -491,7 +491,13 @@ struct TabPlayerView: View {
             MultitrackMixerView(song: song)
         }
         .onAppear {
+            GuitarSynthEngine.shared.startEngineIfNeeded()
             OfflineTabManager.shared.recordRecent(song: song)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AlphaTabPlayedNote"))) { notification in
+            if let midi = notification.userInfo?["midi"] as? Int {
+                GuitarSynthEngine.shared.playNote(midi: midi, instrument: selectedTrack.instrument.rawValue, pitchShift: pitchShiftSemitones)
+            }
         }
     }
     

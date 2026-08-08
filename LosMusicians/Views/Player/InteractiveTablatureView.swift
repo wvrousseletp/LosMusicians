@@ -394,6 +394,7 @@ struct InteractiveTablatureView: View {
     }
     
     private func startPlayback() {
+        GuitarSynthEngine.shared.startEngineIfNeeded()
         playbackTimer?.invalidate()
         tickCounter = 0
         

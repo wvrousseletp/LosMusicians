@@ -147,18 +147,23 @@ final class GuitarSynthEngine: ObservableObject {
         startEngineIfNeeded()
     }
     
-    private func startEngineIfNeeded() {
-        guard !isEngineRunning else { return }
+    func startEngineIfNeeded() {
         do {
-            let currentCategory = AVAudioSession.sharedInstance().category
-            if currentCategory != .playAndRecord {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.allowBluetooth, .mixWithOthers])
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(
+                .playAndRecord,
+                mode: .default,
+                options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers]
+            )
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            
+            if !engine.isRunning {
+                engine.prepare()
+                try engine.start()
+                isEngineRunning = true
             }
-            try AVAudioSession.sharedInstance().setActive(true)
-            try engine.start()
-            isEngineRunning = true
         } catch {
-            print("Erro ao iniciar AVAudioEngine de síntese:", error)
+            print("⚠️ Erro ao iniciar AVAudioEngine de síntese:", error)
         }
     }
     
