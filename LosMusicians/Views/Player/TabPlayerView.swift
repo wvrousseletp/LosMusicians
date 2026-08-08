@@ -12,9 +12,14 @@ struct TabPlayerView: View {
     @State private var isLoopActive: Bool = false
     @State private var isAIAnalysisPresented: Bool = false
     @State private var sessionXP: Int = 0
-    @State private var practiceTimer: Timer? = nil
     @State private var isMetronomeActive: Bool = false
     @State private var isSpeedTrainerActive: Bool = false
+    @State private var playerMode: PlayerMode = .native
+    
+    enum PlayerMode {
+        case native
+        case sheetMusic
+    }
     
     init(song: Song) {
         self.song = song
@@ -108,16 +113,38 @@ struct TabPlayerView: View {
                     .padding(.horizontal, 16)
                 }
                 
-                // Tablatura Interativa Nativa em Tempo Real (Com áudio sintetizado e braço)
-                InteractiveTablatureView(
-                    alphaTex: song.tabDataJson,
-                    isPlaying: $isPlaying,
-                    tempo: $tempo,
-                    instrument: selectedTrack.instrument.rawValue,
-                    isMetronomeActive: $isMetronomeActive,
-                    isSpeedTrainerActive: $isSpeedTrainerActive
-                )
-                .padding(.horizontal, 16)
+                // Seletor de Modo de Visualização Premium (Estilo Songsterr)
+                Picker("Visualização", selection: $playerMode) {
+                    Text("🎸 Prática (Braço)").tag(PlayerMode.native)
+                    Text("🎼 Partitura (Songsterr)").tag(PlayerMode.sheetMusic)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                
+                if playerMode == .native {
+                    // Tablatura Interativa Nativa em Tempo Real (Com áudio sintetizado e braço)
+                    InteractiveTablatureView(
+                        alphaTex: song.tabDataJson,
+                        isPlaying: $isPlaying,
+                        tempo: $tempo,
+                        instrument: selectedTrack.instrument.rawValue,
+                        isMetronomeActive: $isMetronomeActive,
+                        isSpeedTrainerActive: $isSpeedTrainerActive
+                    )
+                    .padding(.horizontal, 16)
+                } else {
+                    // Partitura Real interativa (Estilo Songsterr)
+                    AlphaTabWebView(
+                        alphaTex: song.tabDataJson,
+                        isPlaying: $isPlaying,
+                        tempo: $tempo,
+                        currentInstrumentTrack: .constant(selectedTrack.name)
+                    )
+                    .frame(height: 250)
+                    .cornerRadius(18)
+                    .padding(.horizontal, 16)
+                }
                 
                 // Barra de Gamificação & Afinação
                 HStack {

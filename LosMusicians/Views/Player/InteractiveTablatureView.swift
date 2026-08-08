@@ -37,6 +37,11 @@ struct TabParser {
             rawText = ":8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2"
         }
         
+        // Normaliza quebras de linha literais (geradas como texto pela IA no JSON)
+        rawText = rawText
+            .replacingOccurrences(of: "\\n", with: "\n")
+            .replacingOccurrences(of: "\\r", with: "")
+        
         // Remove linhas de metadados (\title, \tempo, .)
         let lines = rawText.components(separatedBy: .newlines)
         var tabLines: [String] = []

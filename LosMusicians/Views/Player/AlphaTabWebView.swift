@@ -67,6 +67,12 @@ struct AlphaTabWebView: UIViewRepresentable {
     
     private func generateAlphaTabHTML(with tex: String?) -> String {
         var validTex = (tex ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Normaliza quebras de linha literais
+        validTex = validTex
+            .replacingOccurrences(of: "\\n", with: "\n")
+            .replacingOccurrences(of: "\\r", with: "")
+            
         if validTex.isEmpty || (!validTex.contains(":") && !validTex.contains(".")) {
             validTex = """
             \\title "Exercício IA"
@@ -80,7 +86,6 @@ struct AlphaTabWebView: UIViewRepresentable {
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
             .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\r", with: "")
 
         return """
         <!DOCTYPE html>
