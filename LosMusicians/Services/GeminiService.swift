@@ -120,22 +120,36 @@ class GeminiService {
         }
         
         let prompt = """
-        Atue como um professor de música especialista. O aluno quer aprender a música/riff: "\(songTitle)" no instrumento "\(instrument)".
-        Divida o aprendizado dessa música em exatamente 3 partes/passos de aprendizado progressivos:
-        Parte 1: Ritmo/Base Lento (Velocidade reduzida para pegar os movimentos básicos).
-        Parte 2: Padrão Intermediário (Velocidade média, focado em precisão das notas).
-        Parte 3: Velocidade Real (Andamento original, tocando no ritmo correto).
+        Atue como um professor de música especialista em transcrição e tablaturas.
+        O aluno quer aprender a música ou riff: "\(songTitle)" no instrumento: "\(instrument)".
         
-        Forneça a tablatura simplificada da música para cada parte no formato AlphaTex compatível com AlphaTab.
+        Você DEVE transcrever a melodia, riff de introdução ou progressão de acordes REAL e RECONHECÍVEL da música "\(songTitle)".
+        NÃO retorne escalas genéricas ou notas aleatórias. Se for um riff famoso (como "Back in Black", "Sweet Child O' Mine", "Smoke on the Water", "Seven Nation Army", "Come As You Are", etc.), use a sequência de trastes e cordas correta e correspondente ao instrumento "\(instrument)".
+        
+        Exemplos de referências reais (traste.corda):
+        - Smoke on the Water (Riff de Guitarra na corda 6 e 5): :4 0.6 3.6 5.6 | 0.6 3.6 6.6 5.6 | 0.6 3.6 5.6 | 3.6 0.6
+        - Seven Nation Army (Riff de Baixo/Guitarra na corda 5 e 4): :4 7.5 7.5 10.5 7.5 5.5 3.5 2.5
+        
+        Se o instrumento for Baixo, faça a linha de baixo real da música (geralmente notas graves unitárias).
+        Se for Teclado, forneça as notas da melodia vocal principal ou melodia de piano na corda 1, 2 ou 3 (tons mais agudos).
+        Se for Violão/Acoustic, use progressões de acordes ou dedilhados comuns da música.
+        Se for Guitarra (Lead/Rhythm), use o riff principal da guitarra.
+        
+        Divida o aprendizado dessa música em exatamente 3 partes/passos de aprendizado progressivos:
+        Parte 1: Ritmo/Base Lento (BPM bem reduzido para treinar o posicionamento correto dos dedos).
+        Parte 2: Padrão Intermediário (BPM médio, aproximando-se da velocidade real, foco em fluxo de palhetada/digitação).
+        Parte 3: Velocidade Real (BPM original da música, tocando na velocidade do estúdio).
+        
+        Forneça a tablatura real no formato AlphaTex compatível com AlphaTab.
         Retorne a resposta EXCLUSIVAMENTE como um array JSON válido de objetos com os campos: "stepName", "description", "bpm" (inteiro) e "alphaTex" (string com escapes de quebra de linha corretos).
         Não use crases de markdown (```json), tags HTML ou qualquer texto explicativo. Retorne apenas o JSON bruto de forma que possa ser analisado por um JSONDecoder em Swift.
         
-        Regras para o AlphaTex em cada parte:
-        - Inicie com \\\\title \\"Nome\\" e \\\\tempo BPM.
+        Regras de formatação obrigatórias do AlphaTex em cada parte:
+        - Inicie com \\\\title \\"Nome da Parte\\" e \\\\tempo BPM correspondente.
         - Coloque um ponto "." isolado na linha seguinte.
-        - Use notas no formato traste.corda (ex: 5.6).
+        - Escreva as notas no formato traste.corda (ex: 5.6).
         - Separe os compassos usando a barra vertical "|".
-        - Use :8 para colcheias antes dos grupos de notas.
+        - Use :4 (semínimas) ou :8 (colcheias) antes de grupos de notas para definir o tempo.
         - Gere exatamente 2 ou 4 compassos completos da música real (ou o mais próximo possível simplificado).
         """
         
