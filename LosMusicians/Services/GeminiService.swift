@@ -113,4 +113,111 @@ class GeminiService {
         
         throw lastError ?? NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Não foi possível gerar o exercício com nenhum dos modelos."])
     }
+    
+    func generateSongSteps(songTitle: String, instrument: String) async throws -> [AISongStep] {
+        guard !apiKey.isEmpty && apiKey != "YOUR_GEMINI_API_KEY" else {
+            throw NSError(domain: "GeminiService", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key não configurada."])
+        }
+        
+        let prompt = """
+        Atue como um professor de música especialista. O aluno quer aprender a música/riff: "\(songTitle)" no instrumento "\(instrument)".
+        Divida o aprendizado dessa música em exatamente 3 partes/passos de aprendizado progressivos:
+        Parte 1: Ritmo/Base Lento (Velocidade reduzida para pegar os movimentos básicos).
+        Parte 2: Padrão Intermediário (Velocidade média, focado em precisão das notas).
+        Parte 3: Velocidade Real (Andamento original, tocando no ritmo correto).
+        
+        Forneça a tablatura simplificada da música para cada parte no formato AlphaTex compatível com AlphaTab.
+        Retorne a resposta EXCLUSIVAMENTE como um array JSON válido de objetos com os campos: "stepName", "description", "bpm" (inteiro) e "alphaTex" (string com escapes de quebra de linha corretos).
+        Não use crases de markdown (```json), tags HTML ou qualquer texto explicativo. Retorne apenas o JSON bruto de forma que possa ser analisado por um JSONDecoder em Swift.
+        
+        Regras para o AlphaTex em cada parte:
+        - Inicie com \\\\title \\"Nome\\" e \\\\tempo BPM.
+        - Coloque um ponto "." isolado na linha seguinte.
+        - Use notas no formato traste.corda (ex: 5.6).
+        - Separe os compassos usando a barra vertical "|".
+        - Use :8 para colcheias antes dos grupos de notas.
+        - Gere exatamente 2 ou 4 compassos completos da música real (ou o mais próximo possível simplificado).
+        """
+        
+        let requestBody: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": [
+                "temperature": 0.3,
+                "maxOutputTokens": 4096
+            ]
+        ]
+        
+        let httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        var lastError: Error? = nil
+        
+        for model in models {
+            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
+                continue
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = httpBody
+            
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    let errorText = String(data: data, encoding: .utf8) ?? "Erro desconhecido"
+                    lastError = NSError(domain: "GeminiService", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Erro na API (\(model)): \(errorText)"])
+                    continue
+                }
+                
+                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                guard let candidates = json?["candidates"] as? [[String: Any]],
+                      let firstCandidate = candidates.first,
+                      let content = firstCandidate["content"] as? [String: Any],
+                      let parts = content["parts"] as? [[String: Any]],
+                      let firstPart = parts.first,
+                      var rawText = firstPart["text"] as? String else {
+                    lastError = NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Resposta inválida da API"])
+                    continue
+                }
+                
+                // Limpeza rigorosa de markdown de código
+                rawText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+                if rawText.contains("```") {
+                    let lines = rawText.components(separatedBy: .newlines)
+                    let filteredLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("```") }
+                    rawText = filteredLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                
+                guard let jsonData = rawText.data(using: .utf8) else {
+                    continue
+                }
+                
+                let steps = try JSONDecoder().decode([AISongStep].self, from: jsonData)
+                return steps
+            } catch {
+                lastError = error
+            }
+        }
+        
+        throw lastError ?? NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Não foi possível gerar os passos do treino com nenhum dos modelos."])
+    }
 }
+
+struct AISongStep: Codable, Identifiable {
+    var id: UUID { UUID() }
+    let stepName: String
+    let description: String
+    let bpm: Int
+    let alphaTex: String
+    
+    enum CodingKeys: String, CodingKey {
+        case stepName, description, bpm, alphaTex
+    }
+}
+

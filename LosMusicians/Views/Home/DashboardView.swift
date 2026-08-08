@@ -4,6 +4,25 @@ struct DashboardView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var selectedSongForPlayer: Song? = nil
     
+    // Estado do buscador de músicas com IA
+    @State private var searchQuery: String = ""
+    @State private var selectedInstrument: String = "Guitarra"
+    @State private var isSearching: Bool = false
+    @State private var aiSteps: [AISongStep] = []
+    @State private var searchedSongTitle: String = ""
+    @State private var errorMessage: String? = nil
+    
+    let instruments = ["Guitarra", "Violão", "Baixo", "Teclado"]
+    
+    private func iconForInstrument(_ inst: String) -> String {
+        switch inst {
+        case "Guitarra": return "guitars.fill"
+        case "Violão": return "music.quarternote.3"
+        case "Baixo": return "waveform.path"
+        default: return "piano"
+        }
+    }
+    
     var user: AppUser {
         authManager.currentUser ?? AppUser(id: "guest", name: "Músico", email: "")
     }
@@ -18,7 +37,7 @@ struct DashboardView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         headerSection
                         levelCardSection
-                        highlightsSection
+                        aiSongSearchSection
                     }
                     .padding(.vertical)
                 }
@@ -161,46 +180,213 @@ struct DashboardView: View {
         .padding(.horizontal)
     }
     
-    private var highlightsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Destaques para Treino")
+    private var aiSongSearchSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Aprenda Qualquer Música com IA")
                 .font(.title3.bold())
                 .foregroundColor(.white)
                 .padding(.horizontal)
             
-            ForEach(Song.sampleSongs) { song in
-                Button(action: {
-                    selectedSongForPlayer = song
-                }) {
-                    HStack(spacing: 16) {
-                        Image(systemName: "music.note")
-                            .font(.title2)
-                            .foregroundColor(.cyan)
-                            .frame(width: 48, height: 48)
-                            .background(Color.cyan.opacity(0.15))
-                            .clipShape(Circle())
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(song.title)
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            Text(song.artist)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+            VStack(spacing: 14) {
+                // Seletor de instrumento horizontal
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(instruments, id: \.self) { inst in
+                            Button(action: {
+                                selectedInstrument = inst
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: iconForInstrument(inst))
+                                    Text(inst)
+                                        .font(.subheadline.bold())
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(selectedInstrument == inst ? Color.cyan.opacity(0.2) : Color.white.opacity(0.06))
+                                .foregroundColor(selectedInstrument == inst ? .cyan : .gray)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(selectedInstrument == inst ? Color.cyan.opacity(0.6) : Color.clear, lineWidth: 1)
+                                )
+                            }
                         }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "play.circle.fill")
-                            .font(.title)
-                            .foregroundColor(.cyan)
                     }
-                    .padding(14)
-                    .background(Color.white.opacity(0.04))
-                    .cornerRadius(16)
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal)
+                
+                // Barra de pesquisa
+                HStack(spacing: 10) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        TextField("Ex: Back in Black, Sweet Child O' Mine", text: $searchQuery)
+                            .foregroundColor(.white)
+                            .submitLabel(.search)
+                            .onSubmit {
+                                searchAndSplitSong()
+                            }
+                    }
+                    .padding(12)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(12)
+                    
+                    Button(action: searchAndSplitSong) {
+                        if isSearching {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                .frame(width: 44, height: 44)
+                                .background(Color.cyan)
+                                .cornerRadius(12)
+                        } else {
+                            Image(systemName: "sparkles")
+                                .font(.title3.bold())
+                                .foregroundColor(.black)
+                                .frame(width: 44, height: 44)
+                                .background(Color.cyan)
+                                .cornerRadius(12)
+                                .shadow(color: .cyan.opacity(0.4), radius: 6)
+                        }
+                    }
+                    .disabled(isSearching || searchQuery.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+                .padding(.horizontal, 20)
+                
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .padding(.horizontal, 20)
+                }
+                
+                // Resultados dos passos da IA
+                if !aiSteps.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(searchedSongTitle)
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text("Exercício passo a passo para \(selectedInstrument)")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 6)
+                        
+                        ForEach(Array(aiSteps.enumerated()), id: \.offset) { index, step in
+                            Button(action: {
+                                playAIStep(step)
+                            }) {
+                                HStack(spacing: 16) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.cyan.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+                                        Text("\(index + 1)")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.cyan)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(step.stepName)
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .multilineTextAlignment(.leading)
+                                        Text(step.description)
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                            .multilineTextAlignment(.leading)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "play.fill")
+                                        .foregroundColor(.cyan)
+                                        .font(.footnote)
+                                }
+                                .padding(12)
+                                .background(Color.white.opacity(0.04))
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                                )
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .padding(.vertical, 16)
+            .background(Color.white.opacity(0.03))
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+            )
+            .padding(.horizontal)
+        }
+    }
+    
+    private func searchAndSplitSong() {
+        let cleanedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanedQuery.isEmpty else { return }
+        
+        isSearching = true
+        errorMessage = nil
+        aiSteps = []
+        
+        Task {
+            do {
+                let steps = try await GeminiService.shared.generateSongSteps(songTitle: cleanedQuery, instrument: selectedInstrument)
+                await MainActor.run {
+                    self.aiSteps = steps
+                    self.searchedSongTitle = cleanedQuery
+                    self.isSearching = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Erro ao buscar aula: \(error.localizedDescription)"
+                    self.isSearching = false
+                }
             }
         }
+    }
+    
+    private func playAIStep(_ step: AISongStep) {
+        // Converte o passo de IA em uma estrutura de Song aceita pelo TabPlayerView
+        let instEnum: InstrumentType
+        switch selectedInstrument {
+        case "Violão": instEnum = .leadGuitar // violao mapeia para leadGuitar de afinação normal
+        case "Baixo": instEnum = .bass
+        case "Teclado": instEnum = .keys
+        default: instEnum = .leadGuitar
+        }
+        
+        let dynamicSong = Song(
+            id: "ai-step-\(UUID().uuidString)",
+            title: step.stepName,
+            artist: searchedSongTitle,
+            difficulty: "Médio",
+            bpm: step.bpm,
+            tracks: [
+                InstrumentTrack(
+                    id: "t-ai",
+                    name: "\(selectedInstrument) - Aula IA",
+                    instrument: instEnum
+                )
+            ],
+            isPublic: false,
+            authorName: "IA Professor",
+            tabDataJson: step.alphaTex
+        )
+        
+        selectedSongForPlayer = dynamicSong
     }
 }
