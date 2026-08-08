@@ -81,7 +81,8 @@ struct AITeacherPlayerView: View {
                 InteractiveTablatureView(
                     alphaTex: alphaTex,
                     isPlaying: $isPlaying,
-                    tempo: $tempo
+                    tempo: $tempo,
+                    instrument: instrument
                 )
                 .padding(.horizontal, 16)
                 

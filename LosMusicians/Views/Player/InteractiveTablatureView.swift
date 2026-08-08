@@ -123,6 +123,7 @@ struct InteractiveTablatureView: View {
     let alphaTex: String?
     @Binding var isPlaying: Bool
     @Binding var tempo: Int
+    var instrument: String = "Guitarra"
     var onNotePlayed: ((Int) -> Void)? = nil
     
     @State private var notes: [TabNoteItem] = []
@@ -282,7 +283,7 @@ struct InteractiveTablatureView: View {
         guard index >= 0 && index < notes.count else { return }
         currentActiveIndex = index
         let note = notes[index]
-        GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret)
+        GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: instrument)
         
         NotificationCenter.default.post(
             name: NSNotification.Name("AlphaTabPlayedNote"),
@@ -307,8 +308,8 @@ struct InteractiveTablatureView: View {
                     self.currentActiveIndex += 1
                     let note = self.notes[self.currentActiveIndex]
                     
-                    // Emite som nativo de violão/guitarra com harmônicos ricos
-                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret)
+                    // Emite som nativo com harmônicos ricos específicos do instrumento
+                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument)
                     
                     // Notifica mic e pontuação
                     NotificationCenter.default.post(
@@ -321,7 +322,7 @@ struct InteractiveTablatureView: View {
                     // Fim da tablatura -> loop contínuo
                     self.currentActiveIndex = 0
                     let note = self.notes[0]
-                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret)
+                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument)
                     NotificationCenter.default.post(
                         name: NSNotification.Name("AlphaTabPlayedNote"),
                         object: nil,

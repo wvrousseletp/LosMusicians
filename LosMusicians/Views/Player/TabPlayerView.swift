@@ -110,7 +110,8 @@ struct TabPlayerView: View {
                 InteractiveTablatureView(
                     alphaTex: song.tabDataJson,
                     isPlaying: $isPlaying,
-                    tempo: $tempo
+                    tempo: $tempo,
+                    instrument: selectedTrack.instrument.rawValue
                 )
                 .padding(.horizontal, 16)
                 
