@@ -130,6 +130,7 @@ struct InteractiveTablatureView: View {
     @Binding var tempo: Int
     var instrument: String = "Guitarra"
     
+    @Binding var isLoopActive: Bool
     @Binding var isMetronomeActive: Bool
     @Binding var isSpeedTrainerActive: Bool
     
@@ -284,6 +285,16 @@ struct InteractiveTablatureView: View {
                 stopPlayback()
             }
         }
+        .onChange(of: tempo) { _ in
+            if isPlaying {
+                startPlayback()
+            }
+        }
+        .onChange(of: instrument) { _ in
+            if isPlaying {
+                startPlayback()
+            }
+        }
         .onDisappear {
             stopPlayback()
         }
@@ -339,7 +350,7 @@ struct InteractiveTablatureView: View {
                     )
                     self.onNotePlayed?(note.midiValue)
                 } else {
-                    // Fim da tablatura -> loop contínuo
+                    // Fim da tablatura
                     if self.isSpeedTrainerActive {
                         // Acelera +5 BPM para treino incremental
                         self.tempo = min(280, self.tempo + 5)
@@ -347,16 +358,23 @@ struct InteractiveTablatureView: View {
                         return
                     }
                     
-                    self.currentActiveIndex = 0
-                    self.tickCounter = 0
-                    let note = self.notes[0]
-                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument)
-                    NotificationCenter.default.post(
-                        name: NSNotification.Name("AlphaTabPlayedNote"),
-                        object: nil,
-                        userInfo: ["midi": note.midiValue]
-                    )
-                    self.onNotePlayed?(note.midiValue)
+                    if self.isLoopActive {
+                        // Reinicia do início (loop ativo)
+                        self.currentActiveIndex = 0
+                        self.tickCounter = 0
+                        let note = self.notes[0]
+                        GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument)
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("AlphaTabPlayedNote"),
+                            object: nil,
+                            userInfo: ["midi": note.midiValue]
+                        )
+                        self.onNotePlayed?(note.midiValue)
+                    } else {
+                        // Para reprodução se loop estiver inativo
+                        self.isPlaying = false
+                        self.stopPlayback()
+                    }
                 }
             }
         }

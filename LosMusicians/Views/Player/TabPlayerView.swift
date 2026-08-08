@@ -130,6 +130,7 @@ struct TabPlayerView: View {
                         isPlaying: $isPlaying,
                         tempo: $tempo,
                         instrument: selectedTrack.instrument.rawValue,
+                        isLoopActive: $isLoopActive,
                         isMetronomeActive: $isMetronomeActive,
                         isSpeedTrainerActive: $isSpeedTrainerActive
                     )

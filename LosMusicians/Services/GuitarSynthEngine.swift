@@ -138,7 +138,10 @@ final class GuitarSynthEngine: ObservableObject {
     private func startEngineIfNeeded() {
         guard !isEngineRunning else { return }
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
+            let currentCategory = AVAudioSession.sharedInstance().category
+            if currentCategory != .playAndRecord {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.allowBluetooth, .mixWithOthers])
+            }
             try AVAudioSession.sharedInstance().setActive(true)
             try engine.start()
             isEngineRunning = true

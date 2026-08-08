@@ -83,6 +83,7 @@ struct AITeacherPlayerView: View {
                     isPlaying: $isPlaying,
                     tempo: $tempo,
                     instrument: instrument,
+                    isLoopActive: .constant(false),
                     isMetronomeActive: .constant(false),
                     isSpeedTrainerActive: .constant(false)
                 )
