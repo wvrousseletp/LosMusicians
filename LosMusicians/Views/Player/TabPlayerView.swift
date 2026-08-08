@@ -12,6 +12,7 @@ struct TabPlayerView: View {
     @State private var isLoopActive: Bool = false
     @State private var isAIAnalysisPresented: Bool = false
     @State private var sessionXP: Int = 0
+    @State private var practiceTimer: Timer? = nil
     @State private var isMetronomeActive: Bool = false
     @State private var isSpeedTrainerActive: Bool = false
     @State private var playerMode: PlayerMode = .native
