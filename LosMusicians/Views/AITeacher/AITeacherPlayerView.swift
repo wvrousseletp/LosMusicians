@@ -82,7 +82,9 @@ struct AITeacherPlayerView: View {
                     alphaTex: alphaTex,
                     isPlaying: $isPlaying,
                     tempo: $tempo,
-                    instrument: instrument
+                    instrument: instrument,
+                    isMetronomeActive: .constant(false),
+                    isSpeedTrainerActive: .constant(false)
                 )
                 .padding(.horizontal, 16)
                 

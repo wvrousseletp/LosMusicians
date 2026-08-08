@@ -124,12 +124,17 @@ struct InteractiveTablatureView: View {
     @Binding var isPlaying: Bool
     @Binding var tempo: Int
     var instrument: String = "Guitarra"
+    
+    @Binding var isMetronomeActive: Bool
+    @Binding var isSpeedTrainerActive: Bool
+    
     var onNotePlayed: ((Int) -> Void)? = nil
     
     @State private var notes: [TabNoteItem] = []
     @State private var currentActiveIndex: Int = -1
     @State private var playbackTimer: Timer? = nil
     @State private var showFretboard: Bool = true
+    @State private var tickCounter: Int = 0
     
     private let stringNames = ["e", "B", "G", "D", "A", "E"]
     
@@ -295,6 +300,7 @@ struct InteractiveTablatureView: View {
     
     private func startPlayback() {
         playbackTimer?.invalidate()
+        tickCounter = 0
         if currentActiveIndex < 0 || currentActiveIndex >= notes.count - 1 {
             currentActiveIndex = -1
         }
@@ -304,6 +310,15 @@ struct InteractiveTablatureView: View {
         
         playbackTimer = Timer.scheduledTimer(withTimeInterval: beatInterval * 0.5, repeats: true) { _ in
             DispatchQueue.main.async {
+                // Toca metrônomo
+                if self.isMetronomeActive {
+                    if self.tickCounter % 2 == 0 {
+                        let isStrongBeat = (self.tickCounter / 2) % 4 == 0
+                        GuitarSynthEngine.shared.playMetronomeTick(isStrong: isStrongBeat)
+                    }
+                }
+                self.tickCounter += 1
+                
                 if self.currentActiveIndex + 1 < self.notes.count {
                     self.currentActiveIndex += 1
                     let note = self.notes[self.currentActiveIndex]
@@ -320,7 +335,15 @@ struct InteractiveTablatureView: View {
                     self.onNotePlayed?(note.midiValue)
                 } else {
                     // Fim da tablatura -> loop contínuo
+                    if self.isSpeedTrainerActive {
+                        // Acelera +5 BPM para treino incremental
+                        self.tempo = min(280, self.tempo + 5)
+                        self.startPlayback()
+                        return
+                    }
+                    
                     self.currentActiveIndex = 0
+                    self.tickCounter = 0
                     let note = self.notes[0]
                     GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument)
                     NotificationCenter.default.post(

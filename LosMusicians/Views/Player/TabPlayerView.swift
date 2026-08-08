@@ -13,6 +13,8 @@ struct TabPlayerView: View {
     @State private var isAIAnalysisPresented: Bool = false
     @State private var sessionXP: Int = 0
     @State private var practiceTimer: Timer? = nil
+    @State private var isMetronomeActive: Bool = false
+    @State private var isSpeedTrainerActive: Bool = false
     
     init(song: Song) {
         self.song = song
@@ -111,7 +113,9 @@ struct TabPlayerView: View {
                     alphaTex: song.tabDataJson,
                     isPlaying: $isPlaying,
                     tempo: $tempo,
-                    instrument: selectedTrack.instrument.rawValue
+                    instrument: selectedTrack.instrument.rawValue,
+                    isMetronomeActive: $isMetronomeActive,
+                    isSpeedTrainerActive: $isSpeedTrainerActive
                 )
                 .padding(.horizontal, 16)
                 
@@ -216,6 +220,54 @@ struct TabPlayerView: View {
                         .padding(.vertical, 6)
                         .background(Color.black.opacity(0.3))
                         .cornerRadius(10)
+                    }
+                    .padding(.horizontal, 16)
+                    
+                    // Linha Premiums: Metrônomo e Treino de Velocidade Gradual
+                    HStack(spacing: 12) {
+                        // Metrônomo Premium
+                        Button(action: {
+                            isMetronomeActive.toggle()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: isMetronomeActive ? "clock.fill" : "clock")
+                                    .font(.system(size: 11))
+                                Text("Metrônomo")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundColor(isMetronomeActive ? .yellow : .white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(isMetronomeActive ? Color.yellow.opacity(0.18) : Color.white.opacity(0.08))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(isMetronomeActive ? Color.yellow.opacity(0.5) : Color.clear, lineWidth: 1)
+                            )
+                        }
+                        
+                        // Treino de Velocidade Premium (Speed Trainer)
+                        Button(action: {
+                            isSpeedTrainerActive.toggle()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "bolt.fill")
+                                    .font(.system(size: 11))
+                                Text("Aceleração Automática (+5 BPM)")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundColor(isSpeedTrainerActive ? .orange : .white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(isSpeedTrainerActive ? Color.orange.opacity(0.18) : Color.white.opacity(0.08))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(isSpeedTrainerActive ? Color.orange.opacity(0.5) : Color.clear, lineWidth: 1)
+                            )
+                        }
+                        
+                        Spacer()
                     }
                     .padding(.horizontal, 16)
                     

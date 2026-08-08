@@ -15,7 +15,7 @@ final class GuitarSynthEngine: ObservableObject {
         var time: Float
         let sampleRate: Float
         var isPlucked: Bool
-        let instrument: String // "guitar" | "acoustic" | "bass" | "drums" | "keys"
+        let instrument: String // "guitar" | "acoustic" | "bass" | "drums" | "keys" | "metronome"
         let string: Int
     }
     
@@ -49,6 +49,11 @@ final class GuitarSynthEngine: ObservableObject {
                     var voiceSample: Float = 0.0
                     
                     switch inst {
+                    case "metronome":
+                        // Metrônomo: clique curto percussivo
+                        let click = sin(2.0 * .pi * freq * t) * exp(-t * 90.0)
+                        voiceSample = click * 0.45
+                        
                     case "acoustic":
                         // Violão acústico: Karplus-Strong harmônico com decaimento natural e ruído de dedilhado
                         let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.2)
@@ -188,6 +193,18 @@ final class GuitarSynthEngine: ObservableObject {
         let baseMidi = openMidiByString[string] ?? 40
         let midi = baseMidi + fret
         playNote(midi: midi, instrument: instrument, string: string)
+    }
+    
+    /// Toca um clique de metrônomo curto
+    func playMetronomeTick(isStrong: Bool) {
+        startEngineIfNeeded()
+        let freq: Float = isStrong ? 900.0 : 600.0
+        voiceLock.lock()
+        if activeVoices.count > 6 {
+            activeVoices.removeFirst()
+        }
+        activeVoices.append(ActiveVoice(frequency: freq, time: 0.0, sampleRate: 44100.0, isPlucked: true, instrument: "metronome", string: 1))
+        voiceLock.unlock()
     }
     
     /// Para todas as notas ativas
