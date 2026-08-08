@@ -27,7 +27,6 @@
 		D34979A2301A67E000EDB517 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */; };
 		D34979A5301A6B7A00EDB517 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D34979A4301A6B7A00EDB517 /* FirebaseAuth */; };
 		D34979A7301A6B7A00EDB517 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D34979A6301A6B7A00EDB517 /* FirebaseFirestore */; };
-		D34979A9301A6B7A00EDB517 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = D34979A8301A6B7A00EDB517 /* FirebaseStorage */; };
 		D36DD9063019401500158913 /* LosMusiciansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36DD9053019401500158913 /* LosMusiciansApp.swift */; };
 		D36DD9083019401500158913 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36DD9073019401500158913 /* ContentView.swift */; };
 		D36DD90A3019401800158913 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D36DD9093019401800158913 /* Assets.xcassets */; };
@@ -39,6 +38,8 @@
 		D34979B4301A6B7A00EDB517 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B2301A6B7A00EDB517 /* GoogleSignInSwift */; };
 		G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = G7497910301A700000000001 /* GuitarSynthEngine.swift */; };
 		I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = I7497910301A700000000001 /* InteractiveTablatureView.swift */; };
+		O7497911301A700000000001 /* OfflineTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = O7497910301A700000000001 /* OfflineTabManager.swift */; };
+		M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M7497910301A700000000001 /* MultitrackMixerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,8 @@
 		F3497910301A700000000001 /* PitchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PitchDetector.swift; sourceTree = "<group>"; };
 		G7497910301A700000000001 /* GuitarSynthEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/GuitarSynthEngine.swift; sourceTree = "<group>"; };
 		I7497910301A700000000001 /* InteractiveTablatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/InteractiveTablatureView.swift; sourceTree = "<group>"; };
+		O7497910301A700000000001 /* OfflineTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/OfflineTabManager.swift; sourceTree = "<group>"; };
+		M7497910301A700000000001 /* MultitrackMixerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/MultitrackMixerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +83,6 @@
 			files = (
 				D34979A5301A6B7A00EDB517 /* FirebaseAuth in Frameworks */,
 				D34979A7301A6B7A00EDB517 /* FirebaseFirestore in Frameworks */,
-				D34979A9301A6B7A00EDB517 /* FirebaseStorage in Frameworks */,
 				D34979B3301A6B7A00EDB517 /* GoogleSignIn in Frameworks */,
 				D34979B4301A6B7A00EDB517 /* GoogleSignInSwift in Frameworks */,
 			);
@@ -163,6 +165,8 @@
 				D3497910301A70000000000C /* ProfileView.swift */,
 				G7497910301A700000000001 /* GuitarSynthEngine.swift */,
 				I7497910301A700000000001 /* InteractiveTablatureView.swift */,
+				O7497910301A700000000001 /* OfflineTabManager.swift */,
+				M7497910301A700000000001 /* MultitrackMixerView.swift */,
 				B3D053AC2A17F6E2A3C61569 /* Models */,
 				CDB84C315A997DA8821E48E1 /* Services */,
 				3C0E8BBE716D99564F81317B /* Views */,
@@ -199,7 +203,6 @@
 			packageProductDependencies = (
 				D34979A4301A6B7A00EDB517 /* FirebaseAuth */,
 				D34979A6301A6B7A00EDB517 /* FirebaseFirestore */,
-				D34979A8301A6B7A00EDB517 /* FirebaseStorage */,
 				D34979B1301A6B7A00EDB517 /* GoogleSignIn */,
 				D34979B2301A6B7A00EDB517 /* GoogleSignInSwift */,
 			);
@@ -286,6 +289,8 @@
 				74A2B09B026A93C0C8371B24 /* SavedExercisesView.swift in Sources */,
 				G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */,
 				I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */,
+				O7497911301A700000000001 /* OfflineTabManager.swift in Sources */,
+				M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -524,11 +529,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D34979A3301A6B7A00EDB517 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
-		};
-		D34979A8301A6B7A00EDB517 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D34979A3301A6B7A00EDB517 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
 		};
 		D34979B1301A6B7A00EDB517 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

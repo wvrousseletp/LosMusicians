@@ -6,6 +6,7 @@ struct AlphaTabWebView: UIViewRepresentable {
     @Binding var isPlaying: Bool
     @Binding var tempo: Int
     @Binding var currentInstrumentTrack: String
+    var pitchShiftSemitones: Int = 0
     
     class Coordinator: NSObject, WKScriptMessageHandler {
         var parent: AlphaTabWebView
@@ -18,7 +19,8 @@ struct AlphaTabWebView: UIViewRepresentable {
             if message.name == "alphaTabBridge", let dict = message.body as? [String: Any] {
                 if let type = dict["type"] as? String {
                     if type == "playedNote", let midi = dict["midi"] as? Int {
-                        NotificationCenter.default.post(name: NSNotification.Name("AlphaTabPlayedNote"), object: nil, userInfo: ["midi": midi])
+                        let transposed = midi + self.parent.pitchShiftSemitones
+                        NotificationCenter.default.post(name: NSNotification.Name("AlphaTabPlayedNote"), object: nil, userInfo: ["midi": transposed])
                     } else if type == "playerFinished" {
                         DispatchQueue.main.async {
                             self.parent.isPlaying = false
@@ -63,6 +65,9 @@ struct AlphaTabWebView: UIViewRepresentable {
         
         let tempoJS = "if(window.api) { window.api.setTempo(\(tempo)); }"
         uiView.evaluateJavaScript(tempoJS)
+        
+        let shiftJS = "if(window.api) { window.api.setPitchShift(\(pitchShiftSemitones)); }"
+        uiView.evaluateJavaScript(shiftJS)
     }
     
     private func generateAlphaTabHTML(with tex: String?) -> String {
@@ -151,6 +156,7 @@ struct AlphaTabWebView: UIViewRepresentable {
                 var globalApi = null;
                 var audioCtx = null;
                 var currentBPM = 100;
+                var currentShift = 0;
                 var isInternalPlaying = false;
                 
                 // Sintetizador WebAudio de contingência para garantir áudio instantâneo
@@ -164,7 +170,8 @@ struct AlphaTabWebView: UIViewRepresentable {
                             audioCtx.resume();
                         }
                         
-                        var freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+                        var transposedMidi = midiNote + currentShift;
+                        var freq = 440 * Math.pow(2, (transposedMidi - 69) / 12);
                         var osc = audioCtx.createOscillator();
                         var gain = audioCtx.createGain();
                         
@@ -240,8 +247,8 @@ struct AlphaTabWebView: UIViewRepresentable {
                                     // Notifica o app Swift sobre a nota para validação de microfone
                                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.alphaTabBridge) {
                                         window.webkit.messageHandlers.alphaTabBridge.postMessage({
-                                            type: 'playedNote',
-                                            midi: midiVal
+                                             type: 'playedNote',
+                                             midi: midiVal + currentShift
                                         });
                                     }
                                 }
@@ -279,6 +286,9 @@ struct AlphaTabWebView: UIViewRepresentable {
                                 if (api) {
                                     api.playbackSpeed = bpm / 100;
                                 }
+                            },
+                            setPitchShift: function(semitones) {
+                                currentShift = semitones;
                             }
                         };
                         
