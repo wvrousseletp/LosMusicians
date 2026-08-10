@@ -47,12 +47,26 @@ final class GuitarSynthEngine: ObservableObject {
             guard let self = self else { return noErr }
             
             let ablPointer = UnsafeMutableAudioBufferListPointer(audioBufferList)
-            let buffer = ablPointer[0]
-            guard let channelData = buffer.mData?.assumingMemoryBound(to: Float.self) else { return noErr }
             
             self.voiceLock.lock()
+            
+            // Se não houver vozes ativas, zera os buffers para evitar chiado de hardware e poupar CPU
+            if self.activeVoices.isEmpty {
+                for buffer in ablPointer {
+                    if let channelData = buffer.mData {
+                        memset(channelData, 0, Int(frameCount) * MemoryLayout<Float>.stride)
+                    }
+                }
+                self.voiceLock.unlock()
+                return noErr
+            }
+            
+            var localSamples = [Float](repeating: 0.0, count: Int(frameCount))
+            let frameDuration = 1.0 / sampleRate
+            
+            // Renderiza cada frame
             for frame in 0..<Int(frameCount) {
-                var sample: Float = 0.0
+                var frameSample: Float = 0.0
                 
                 for i in 0..<self.activeVoices.count {
                     let freq = self.activeVoices[i].frequency
@@ -65,84 +79,91 @@ final class GuitarSynthEngine: ObservableObject {
                     
                     switch inst {
                     case "metronome":
-                        // Metrônomo: clique curto percussivo
                         let click = sin(2.0 * .pi * freq * t) * exp(-t * 90.0)
-                        voiceSample = click * 0.55 * voiceVol
+                        voiceSample = click * 0.85 * voiceVol
                         
                     case "acoustic":
-                        // Violão acústico: Karplus-Strong harmônico com decaimento natural e ruído de dedilhado
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.2)
-                        let harmonic2 = 0.45 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 3.5)
-                        let harmonic3 = 0.2 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 5.0)
-                        let harmonic4 = 0.08 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 7.0)
-                        let pluckNoise = (Float.random(in: -1.0...1.0) * exp(-t * 100.0)) * 0.15
-                        voiceSample = ((fundamental + harmonic2 + harmonic3 + harmonic4) * 0.45 + pluckNoise) * voiceVol
+                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.5)
+                        let harmonic2 = 0.6 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 3.5)
+                        let harmonic3 = 0.3 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 5.0)
+                        let harmonic4 = 0.15 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 7.0)
+                        let pluckNoise = (Float.random(in: -1.0...1.0) * exp(-t * 150.0)) * 0.25
+                        voiceSample = ((fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55 + pluckNoise) * voiceVol
                         
                     case "bass":
-                        // Baixo elétrico: 1 oitava abaixo (freq * 0.5), harmônicos cortados rapidamente para graves profundos
                         let bassFreq = freq * 0.5
-                        let fundamental = sin(2.0 * .pi * bassFreq * t) * exp(-t * 2.5)
-                        let harmonic2 = 0.35 * sin(2.0 * .pi * bassFreq * 2.0 * t) * exp(-t * 5.0)
-                        let harmonic3 = 0.1 * sin(2.0 * .pi * bassFreq * 3.0 * t) * exp(-t * 8.0)
-                        voiceSample = (fundamental + harmonic2 + harmonic3) * 0.75 * voiceVol
+                        let fundamental = sin(2.0 * .pi * bassFreq * t) * exp(-t * 3.0)
+                        let harmonic2 = 0.5 * sin(2.0 * .pi * bassFreq * 2.0 * t) * exp(-t * 5.0)
+                        let harmonic3 = 0.15 * sin(2.0 * .pi * bassFreq * 3.0 * t) * exp(-t * 8.0)
+                        voiceSample = (fundamental + harmonic2 + harmonic3) * 0.95 * voiceVol
                         
                     case "drums":
-                        // Bateria física sintética baseada na corda dedilhada
                         if string == 6 || string == 5 {
-                            // Bumbo (Kick): seno com queda de frequência rápida e decay acentuado
-                            let sweepFreq = max(42.0, 140.0 - t * 1200.0)
-                            voiceSample = sin(2.0 * .pi * sweepFreq * t) * exp(-t * 18.0) * 0.85 * voiceVol
+                            let sweepFreq = max(40.0, 150.0 - t * 1400.0)
+                            voiceSample = sin(2.0 * .pi * sweepFreq * t) * exp(-t * 18.0) * 0.95 * voiceVol
                         } else if string == 4 || string == 3 {
-                            // Caixa (Snare): Ruído branco com envelope curto e tom de ressonância
-                            let body = sin(2.0 * .pi * 175.0 * t) * exp(-t * 25.0)
-                            let snareNoise = Float.random(in: -1.0...1.0) * exp(-t * 16.0)
-                            voiceSample = (body * 0.35 + snareNoise * 0.65) * 0.65 * voiceVol
+                            let body = sin(2.0 * .pi * 180.0 * t) * exp(-t * 30.0)
+                            let snareNoise = Float.random(in: -1.0...1.0) * exp(-t * 18.0)
+                            voiceSample = (body * 0.4 + snareNoise * 0.7) * 0.8 * voiceVol
                         } else {
-                            // Prato / Hi-hat: Ruído branco puro e curto
-                            let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 55.0)
-                            voiceSample = hihatNoise * 0.25 * voiceVol
+                            let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 60.0)
+                            voiceSample = hihatNoise * 0.45 * voiceVol
                         }
                         
                     case "keys":
-                        // Teclado/Piano: Harmônicos ricos equilibrados com decay suave
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.2)
-                        let harmonic2 = 0.5 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 1.8)
-                        let harmonic3 = 0.35 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 2.5)
-                        let harmonic4 = 0.2 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 3.5)
-                        let harmonic5 = 0.1 * sin(2.0 * .pi * freq * 5.0 * t) * exp(-t * 5.0)
-                        voiceSample = (fundamental + harmonic2 + harmonic3 + harmonic4 + harmonic5) * 0.45 * voiceVol
+                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.5)
+                        let harmonic2 = 0.55 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.0)
+                        let harmonic3 = 0.4 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.0)
+                        let harmonic4 = 0.25 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 4.0)
+                        let harmonic5 = 0.15 * sin(2.0 * .pi * freq * 5.0 * t) * exp(-t * 6.0)
+                        voiceSample = (fundamental + harmonic2 + harmonic3 + harmonic4 + harmonic5) * 0.5 * voiceVol
                         
                     default:
                         // Guitarra Elétrica: Ondas ricas com saturação suave simulando overdrive
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.5)
-                        let harmonic2 = 0.62 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.2)
-                        let harmonic3 = 0.42 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.0)
-                        let harmonic4 = 0.25 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 4.5)
+                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.8)
+                        let harmonic2 = 0.65 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.5)
+                        let harmonic3 = 0.45 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.5)
+                        let harmonic4 = 0.3 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 5.0)
                         
-                        let rawSound = (fundamental + harmonic2 + harmonic3 + harmonic4) * 0.5
-                        let saturated = atan(rawSound * 2.5) / 1.5
+                        let rawSound = (fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55
+                        let saturated = atan(rawSound * 3.0) / 1.5
                         voiceSample = saturated * voiceVol
                     }
                     
-                    sample += voiceSample
-                    self.activeVoices[i].time += 1.0 / sampleRate
+                    frameSample += voiceSample
+                    // Atualiza o tempo na própria iteração
+                    self.activeVoices[i].time += frameDuration
                 }
                 
-                // Remove vozes que já decaíram totalmente após 2 segundos
-                self.activeVoices.removeAll { $0.time > 2.0 }
-                
-                channelData[frame] = max(-0.95, min(0.95, sample))
+                // Hard clipper mix para evitar estouros (distorção digital)
+                localSamples[frame] = max(-0.95, min(0.95, frameSample))
             }
+            
+            // Remove as notas expiradas (< 2.5s) apenas UMA VEZ por bloco, fora do loop de frame
+            self.activeVoices.removeAll { $0.time > 2.5 }
+            
             self.voiceLock.unlock()
+            
+            // Escreve os samples calculados em TODOS os canais solicitados (Esquerdo, Direito, etc.)
+            for buffer in ablPointer {
+                if let channelData = buffer.mData?.assumingMemoryBound(to: Float.self) {
+                    for frame in 0..<Int(frameCount) {
+                        channelData[frame] = localSamples[frame]
+                    }
+                }
+            }
             
             return noErr
         }
         
         self.sourceNode = node
-        let format = AVAudioFormat(standardFormatWithSampleRate: Double(sampleRate), channels: 1)!
+        // Solicitando formato estéreo padrão
+        let format = AVAudioFormat(standardFormatWithSampleRate: Double(sampleRate), channels: 2)!
         
         engine.attach(node)
         engine.connect(node, to: engine.mainMixerNode, format: format)
+        
+        engine.mainMixerNode.outputVolume = 1.0
         
         startEngineIfNeeded()
     }
@@ -150,10 +171,12 @@ final class GuitarSynthEngine: ObservableObject {
     func startEngineIfNeeded() {
         do {
             let session = AVAudioSession.sharedInstance()
+            // IMPORTANTE: .playback ignora a chave de silencioso/vibrar do iPhone!
+            // .mixWithOthers permite tocar som junto com outros apps (Spotify em background, etc)
             try session.setCategory(
-                .playAndRecord,
+                .playback,
                 mode: .default,
-                options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers]
+                options: [.mixWithOthers, .allowBluetooth, .allowBluetoothA2DP]
             )
             try session.setActive(true, options: .notifyOthersOnDeactivation)
             
@@ -261,7 +284,7 @@ final class GuitarSynthEngine: ObservableObject {
         let freq = 440.0 * pow(2.0, Float(transposedMidi - 69) / 12.0)
         
         voiceLock.lock()
-        if activeVoices.count > 8 {
+        if activeVoices.count > 12 {
             activeVoices.removeFirst()
         }
         activeVoices.append(ActiveVoice(
@@ -297,7 +320,7 @@ final class GuitarSynthEngine: ObservableObject {
         startEngineIfNeeded()
         let freq: Float = isStrong ? 1050.0 : 700.0
         voiceLock.lock()
-        if activeVoices.count > 8 {
+        if activeVoices.count > 12 {
             activeVoices.removeFirst()
         }
         activeVoices.append(ActiveVoice(
@@ -319,7 +342,7 @@ final class GuitarSynthEngine: ObservableObject {
         let freq: Float = isFirstBeat ? 1250.0 : (beat == totalBeats ? 950.0 : 750.0)
         
         voiceLock.lock()
-        if activeVoices.count > 8 {
+        if activeVoices.count > 12 {
             activeVoices.removeFirst()
         }
         activeVoices.append(ActiveVoice(

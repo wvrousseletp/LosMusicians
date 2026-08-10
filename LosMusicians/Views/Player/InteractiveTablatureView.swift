@@ -30,9 +30,16 @@ struct TabNoteItem: Identifiable, Equatable {
     }
 }
 
+// MARK: - Modelo de Compasso (Measure)
+struct TabMeasure: Identifiable, Equatable {
+    let id = UUID()
+    let index: Int
+    var notes: [TabNoteItem]
+}
+
 // MARK: - Parser de Tablatura (AlphaTex e formato universal)
 struct TabParser {
-    static func parse(alphaTex: String?) -> [TabNoteItem] {
+    static func parse(alphaTex: String?) -> ([TabNoteItem], [TabMeasure]) {
         var rawText = (alphaTex ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         if rawText.isEmpty {
             rawText = ":8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2"
@@ -117,7 +124,17 @@ struct TabParser {
             }
         }
         
-        return notes
+        // Agrupa em compassos
+        var measuresDict: [Int: [TabNoteItem]] = [:]
+        for note in notes {
+            measuresDict[note.measureIndex, default: []].append(note)
+        }
+        
+        let measures = measuresDict.keys.sorted().map { idx in
+            TabMeasure(index: idx, notes: measuresDict[idx]!)
+        }
+        
+        return (notes, measures)
     }
 }
 
@@ -167,6 +184,7 @@ struct InteractiveTablatureView: View {
     }
     
     @State private var notes: [TabNoteItem] = []
+    @State private var measures: [TabMeasure] = []
     @State private var currentActiveIndex: Int = -1
     @State private var playbackTimer: Timer? = nil
     @State private var showFretboard: Bool = true
@@ -189,8 +207,8 @@ struct InteractiveTablatureView: View {
                 .transition(.opacity.combined(with: .scale))
             }
             
-            // Área de Partitura / Tablatura Estilizada
-            ZStack(alignment: .leading) {
+            // Área da Tablatura - Rolagem Vertical Estilo Songsterr
+            ZStack(alignment: .top) {
                 RoundedRectangle(cornerRadius: 18)
                     .fill(Color(red: 0.07, green: 0.07, blue: 0.11))
                     .overlay(
@@ -206,7 +224,7 @@ struct InteractiveTablatureView: View {
                     )
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    // Header da Tablatura
+                    // Header Status
                     HStack {
                         HStack(spacing: 6) {
                             Circle()
@@ -235,23 +253,8 @@ struct InteractiveTablatureView: View {
                             .cornerRadius(6)
                         }
                         
-                        if pitchShiftSemitones != 0 {
-                            HStack(spacing: 2) {
-                                Image(systemName: "tuningfork")
-                                    .font(.caption2)
-                                Text("\(pitchShiftSemitones > 0 ? "+\(pitchShiftSemitones)" : "\(pitchShiftSemitones)") st")
-                                    .font(.system(size: 11, weight: .bold))
-                            }
-                            .foregroundColor(.yellow)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.yellow.opacity(0.15))
-                            .cornerRadius(6)
-                        }
-                        
                         Spacer()
                         
-                        // Alternador de visualizador de braço
                         Button(action: {
                             withAnimation(.spring()) {
                                 showFretboard.toggle()
@@ -273,82 +276,57 @@ struct InteractiveTablatureView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 8)
                     
-                    // Grade da Tablatura com ScrollView Horizontal
+                    // Grade Vertical com Compassos
                     ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 0) {
-                                // Coluna das Cordas (Fixa)
-                                VStack(spacing: 18) {
-                                    ForEach(0..<6, id: \.self) { idx in
-                                        Text(stringNames[idx])
-                                            .font(.system(size: 13, weight: .black, design: .monospaced))
-                                            .foregroundColor(.cyan.opacity(0.8))
-                                            .frame(width: 24, height: 20)
-                                    }
-                                }
-                                .padding(.leading, 12)
-                                .padding(.trailing, 8)
-                                
-                                Divider()
-                                    .frame(width: 2, height: 160)
-                                    .background(Color.white.opacity(0.2))
-                                
-                                // Notas e Linhas da Tablatura
-                                ZStack(alignment: .leading) {
-                                    // As 6 Linhas da Guitarra
-                                    VStack(spacing: 20) {
-                                        ForEach(1...6, id: \.self) { stringIndex in
-                                            Rectangle()
-                                                .fill(Color.white.opacity(stringIndex == 1 || stringIndex == 6 ? 0.25 : 0.15))
-                                                .frame(height: 1.5)
-                                        }
-                                    }
-                                    .frame(width: CGFloat(max(notes.count * 48 + 80, 320)))
+                        ScrollView(.vertical, showsIndicators: true) {
+                            LazyVStack(spacing: 32) {
+                                ForEach(measures) { measure in
+                                    let isMeasureActive = (currentActiveIndex >= 0 && currentActiveIndex < notes.count && notes[currentActiveIndex].measureIndex == measure.index)
+                                    let isInLoop = !isLoopActive || (measure.index >= loopStartMeasure && measure.index <= loopEndMeasure)
                                     
-                                    // Notas renderizadas com destaque para intervalo de Loop A-B
-                                    HStack(spacing: 0) {
-                                        ForEach(Array(notes.enumerated()), id: \.element.id) { index, note in
-                                            let isInLoop = !isLoopActive || (note.measureIndex >= loopStartMeasure && note.measureIndex <= loopEndMeasure)
-                                            
-                                            TabNoteNodeView(
-                                                note: note,
-                                                isActive: currentActiveIndex == index,
-                                                isInLoopRange: isInLoop,
-                                                pitchShift: pitchShiftSemitones,
-                                                onTap: {
-                                                    playSingleNote(index: index)
-                                                }
-                                            )
-                                            .id(index)
-                                            .frame(width: 48)
+                                    MeasureBlockView(
+                                        measure: measure,
+                                        stringNames: stringNames,
+                                        isMeasureActive: isMeasureActive,
+                                        isInLoop: isInLoop,
+                                        currentActiveIndex: currentActiveIndex,
+                                        pitchShift: pitchShiftSemitones,
+                                        onNoteTap: { noteIndex in
+                                            playSingleNote(index: noteIndex)
                                         }
-                                    }
-                                    .padding(.leading, 16)
+                                    )
+                                    .id(measure.index)
                                 }
                             }
                             .padding(.vertical, 16)
-                            .padding(.trailing, 40)
+                            .padding(.horizontal, 8)
                         }
                         .onChange(of: currentActiveIndex) { newIndex in
-                            if newIndex >= 0 {
-                                withAnimation(.easeInOut(duration: 0.15)) {
-                                    proxy.scrollTo(newIndex, anchor: .center)
+                            if newIndex >= 0 && newIndex < notes.count {
+                                let activeMeasure = notes[newIndex].measureIndex
+                                // Autoscroll vertical suave para o compasso ativo
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    proxy.scrollTo(activeMeasure, anchor: .center)
                                 }
                             }
                         }
                     }
                 }
             }
-            .frame(minHeight: 220, maxHeight: 260)
+            .frame(minHeight: 280, maxHeight: 400)
         }
         .onAppear {
-            self.notes = TabParser.parse(alphaTex: alphaTex)
+            let parsed = TabParser.parse(alphaTex: alphaTex)
+            self.notes = parsed.0
+            self.measures = parsed.1
             if loopEndMeasure == 1 && totalMeasures > 1 {
                 loopEndMeasure = totalMeasures
             }
         }
         .onChange(of: alphaTex) { newTex in
-            self.notes = TabParser.parse(alphaTex: newTex)
+            let parsed = TabParser.parse(alphaTex: newTex)
+            self.notes = parsed.0
+            self.measures = parsed.1
             if loopEndMeasure == 1 && totalMeasures > 1 {
                 loopEndMeasure = totalMeasures
             }
@@ -383,8 +361,10 @@ struct InteractiveTablatureView: View {
         currentActiveIndex = index
         let note = notes[index]
         let midi = note.midiValue(pitchShift: pitchShiftSemitones)
-        GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: instrument, pitchShift: pitchShiftSemitones)
         
+        // Removemos o playFret duplo aqui para evitar voz duplicada com o NotificationCenter
+        // Se o TabPlayerView também ouve AlphaTabPlayedNote, basta mandar a notificação, ou chamar direto.
+        // Neste app o TabPlayerView invoca playNote ouvindo "AlphaTabPlayedNote", então mandamos apenas a notificação.
         NotificationCenter.default.post(
             name: NSNotification.Name("AlphaTabPlayedNote"),
             object: nil,
@@ -398,7 +378,7 @@ struct InteractiveTablatureView: View {
         playbackTimer?.invalidate()
         tickCounter = 0
         
-        // Se houver loop ativo, inicia na primeira nota do compasso inicial
+        // Inicia na nota correta se houver loop
         if isLoopActive {
             if let firstNoteOfLoop = notes.firstIndex(where: { $0.measureIndex >= loopStartMeasure }) {
                 currentActiveIndex = firstNoteOfLoop - 1
@@ -423,20 +403,15 @@ struct InteractiveTablatureView: View {
                 
                 var nextIndex = self.currentActiveIndex + 1
                 
-                // Trata limites de Loop A-B por Compasso
+                // Trata loop
                 if self.isLoopActive {
-                    // Pula notas anteriores ao compasso de início se necessário
                     if nextIndex < self.notes.count && self.notes[nextIndex].measureIndex < self.loopStartMeasure {
                         if let firstInLoop = self.notes.firstIndex(where: { $0.measureIndex >= self.loopStartMeasure }) {
                             nextIndex = firstInLoop
                         }
                     }
-                    
-                    // Se atingir além do compasso final do loop
                     if nextIndex >= self.notes.count || (nextIndex < self.notes.count && self.notes[nextIndex].measureIndex > self.loopEndMeasure) {
-                        // Concluiu um ciclo de Loop!
                         self.onLoopCycleCompleted?()
-                        
                         if let firstInLoop = self.notes.firstIndex(where: { $0.measureIndex >= self.loopStartMeasure }) {
                             nextIndex = firstInLoop
                         } else {
@@ -450,8 +425,6 @@ struct InteractiveTablatureView: View {
                     let note = self.notes[nextIndex]
                     let midi = note.midiValue(pitchShift: self.pitchShiftSemitones)
                     
-                    GuitarSynthEngine.shared.playFret(string: note.string, fret: note.fret, instrument: self.instrument, pitchShift: self.pitchShiftSemitones)
-                    
                     NotificationCenter.default.post(
                         name: NSNotification.Name("AlphaTabPlayedNote"),
                         object: nil,
@@ -459,7 +432,6 @@ struct InteractiveTablatureView: View {
                     )
                     self.onNotePlayed?(midi)
                 } else {
-                    // Fim da tablatura (sem loop)
                     self.onLoopCycleCompleted?()
                     if self.isLoopActive {
                         self.currentActiveIndex = 0
@@ -480,6 +452,107 @@ struct InteractiveTablatureView: View {
     }
 }
 
+// MARK: - Bloco de Compasso (Measure) Vertical
+struct MeasureBlockView: View {
+    let measure: TabMeasure
+    let stringNames: [String]
+    let isMeasureActive: Bool
+    let isInLoop: Bool
+    let currentActiveIndex: Int
+    let pitchShift: Int
+    let onNoteTap: (Int) -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // Header do Compasso
+            HStack {
+                Text("Compasso \(measure.index)")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(isMeasureActive ? .cyan : .gray)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(isMeasureActive ? Color.cyan.opacity(0.15) : Color.white.opacity(0.05))
+                    .cornerRadius(4)
+                
+                if !isInLoop {
+                    Text("Fora do Loop")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.gray.opacity(0.6))
+                }
+                Spacer()
+            }
+            .padding(.leading, 8)
+            
+            // Corpo da Partitura do Compasso
+            ZStack(alignment: .leading) {
+                // Fundo iluminado se ativo
+                if isMeasureActive {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.cyan.opacity(0.04))
+                }
+                
+                HStack(spacing: 0) {
+                    // Coluna de nomes das cordas
+                    VStack(spacing: 16) {
+                        ForEach(0..<6, id: \.self) { idx in
+                            Text(stringNames[idx])
+                                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                                .foregroundColor(.cyan.opacity(0.8))
+                                .frame(width: 24, height: 14)
+                        }
+                    }
+                    .padding(.leading, 8)
+                    
+                    Divider()
+                        .frame(width: 2, height: 160)
+                        .background(Color.white.opacity(0.15))
+                        .padding(.horizontal, 4)
+                    
+                    // As 6 linhas do braço no compasso
+                    ZStack(alignment: .leading) {
+                        VStack(spacing: 16) {
+                            ForEach(1...6, id: \.self) { stringIndex in
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.2))
+                                    .frame(height: 1.5)
+                            }
+                        }
+                        
+                        // Notas distribuídas
+                        HStack(spacing: 0) {
+                            ForEach(measure.notes) { note in
+                                let isNoteActive = (currentActiveIndex == note.noteIndex)
+                                TabNoteNodeView(
+                                    note: note,
+                                    isActive: isNoteActive,
+                                    isInLoopRange: isInLoop,
+                                    pitchShift: pitchShift,
+                                    onTap: { onNoteTap(note.noteIndex) }
+                                )
+                                .frame(width: max(40, UIScreen.main.bounds.width / CGFloat(max(measure.notes.count, 6))))
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.leading, 6)
+                    }
+                    
+                    Divider()
+                        .frame(width: 2, height: 160)
+                        .background(Color.white.opacity(0.15))
+                }
+            }
+            .frame(height: 160)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isMeasureActive ? Color.cyan.opacity(0.4) : Color.clear, lineWidth: 1.5)
+            )
+            .opacity(isInLoop ? 1.0 : 0.4)
+        }
+        .padding(.horizontal, 4)
+    }
+}
+
 // MARK: - Nó da Nota Individual
 struct TabNoteNodeView: View {
     let note: TabNoteItem
@@ -492,7 +565,9 @@ struct TabNoteNodeView: View {
         Button(action: onTap) {
             VStack(spacing: 0) {
                 ZStack {
-                    let yOffset = CGFloat(note.string - 1) * 21.5 - 54
+                    // A distância vertical exata baseada na corda. 
+                    // Espaçamento de 16pt entre cordas, offset partindo do centro.
+                    let yOffset = CGFloat(note.string - 1) * 17.5 - 44
                     
                     ZStack {
                         Circle()
@@ -503,11 +578,11 @@ struct TabNoteNodeView: View {
                                  LinearGradient(colors: [Color(red: 0.15, green: 0.15, blue: 0.22), Color(red: 0.1, green: 0.1, blue: 0.15)], startPoint: .top, endPoint: .bottom) :
                                  LinearGradient(colors: [Color.gray.opacity(0.1), Color.black.opacity(0.2)], startPoint: .top, endPoint: .bottom))
                             )
-                            .frame(width: isActive ? 28 : 22, height: isActive ? 28 : 22)
-                            .shadow(color: isActive ? Color.cyan.opacity(0.8) : Color.black.opacity(0.5), radius: isActive ? 8 : 2)
+                            .frame(width: isActive ? 26 : 22, height: isActive ? 26 : 22)
+                            .shadow(color: isActive ? Color.cyan.opacity(0.8) : Color.black.opacity(0.5), radius: isActive ? 6 : 1)
                         
                         Text("\(note.fret)")
-                            .font(.system(size: isActive ? 13 : 11, weight: .black, design: .rounded))
+                            .font(.system(size: isActive ? 12 : 11, weight: .black, design: .rounded))
                             .foregroundColor(isActive ? .white : (isInLoopRange ? .cyan : .gray.opacity(0.5)))
                     }
                     .offset(y: yOffset)
@@ -600,30 +675,20 @@ struct GuitarFretboardVisualizer: View {
                 if let note = activeNote {
                     GeometryReader { geo in
                         let step = (geo.size.width - 16) / 15.0
-                        let xPos: CGFloat = note.fret == 0 ? 8 : (8 + (CGFloat(min(15, note.fret)) - 0.5) * step)
-                        let yPos: CGFloat = CGFloat(note.string - 1) * 11.8 + 13.0
+                        let stringHeight: CGFloat = 9.4
+                        let yPos = CGFloat(note.string - 1) * stringHeight + (geo.size.height / 2 - 24)
+                        let xPos = 8 + (CGFloat(note.fret) - 0.5) * step
                         
-                        ZStack {
-                            Circle()
-                                .fill(Color.cyan.opacity(0.4))
-                                .frame(width: 22, height: 22)
-                                .scaleEffect(1.3)
-                            
-                            Circle()
-                                .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 14, height: 14)
-                                .shadow(color: .cyan, radius: 6)
-                            
-                            Text("\(note.fret)")
-                                .font(.system(size: 8, weight: .black))
-                                .foregroundColor(.white)
-                        }
-                        .position(x: xPos, y: yPos)
-                        .animation(.spring(response: 0.18, dampingFraction: 0.65), value: activeNote?.id)
+                        Circle()
+                            .fill(Color.cyan)
+                            .frame(width: 14, height: 14)
+                            .shadow(color: .cyan, radius: 6)
+                            .position(x: note.fret == 0 ? 8 : xPos, y: yPos)
+                            .transition(.scale)
                     }
                 }
             }
-            .frame(height: 72)
+            .frame(height: 70)
             .padding(.horizontal, 16)
         }
     }
