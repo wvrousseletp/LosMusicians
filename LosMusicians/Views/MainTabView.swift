@@ -20,24 +20,36 @@ struct MainTabView: View {
                             Label("Professor IA", systemImage: "sparkles")
                         }
                         .tag(1)
+                        
+                    TunerView()
+                        .tabItem {
+                            Label("Afinador", systemImage: "tuningfork")
+                        }
+                        .tag(2)
 
                     SavedExercisesView()
                         .tabItem {
-                            Label("Meus Treinos", systemImage: "music.note.list")
+                            Label("Treinos", systemImage: "music.note.list")
                         }
-                        .tag(2)
+                        .tag(3)
+                        
+                    OfflineLibraryView()
+                        .tabItem {
+                            Label("Offline", systemImage: "arrow.down.circle")
+                        }
+                        .tag(4)
                         
                     LeaderboardView()
                         .tabItem {
                             Label("Ranking", systemImage: "trophy.fill")
                         }
-                        .tag(3)
+                        .tag(5)
                     
                     ProfileView()
                         .tabItem {
                             Label("Perfil", systemImage: "person.fill")
                         }
-                        .tag(4)
+                        .tag(6)
                 }
                 .accentColor(.cyan)
                 .onAppear {

@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>GIDClientID</key>
-	<string>234982434781-adcab45sopl4si42irudafpf5dq0g7qg.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -17,11 +13,15 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>O LosMusicians usa o microfone para detectar as notas tocadas no seu instrumento em tempo real.</string>
+	<key>GIDClientID</key>
+	<string>234982434781-adcab45sopl4si42irudafpf5dq0g7qg.apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Este app não acessa dados de saúde.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Este app não atualiza dados de saúde.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O LosMusicians usa o microfone para detectar as notas tocadas no seu instrumento em tempo real.</string>
 </dict>
 </plist>

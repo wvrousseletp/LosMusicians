@@ -21,6 +21,7 @@ struct TabPlayerView: View {
     @State private var isSpeedTrainerActive: Bool = false
     @State private var speedTrainerToast: String? = nil
     @State private var isAIAnalysisPresented: Bool = false
+    @State private var showChords: Bool = false
     
     @State private var sessionXP: Int = 0
     @State private var practiceTimer: Timer? = nil
@@ -112,6 +113,25 @@ struct TabPlayerView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showChords.toggle()
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "music.note")
+                                .font(.system(size: 11))
+                            Text("Cifras")
+                                .font(.system(size: 11, weight: .bold))
+                        }
+                        .foregroundColor(showChords ? .black : .white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(showChords ? Color.yellow : Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .padding(.trailing, 16)
                 }
                 .background(Color(red: 0.08, green: 0.08, blue: 0.12))
                 
@@ -127,6 +147,7 @@ struct TabPlayerView: View {
                     pitchShiftSemitones: $pitchShiftSemitones,
                     isMetronomeActive: $isMetronomeActive,
                     isSpeedTrainerActive: $isSpeedTrainerActive,
+                    showChords: $showChords,
                     onLoopCycleCompleted: {
                         handleLoopCycleCompleted()
                     }

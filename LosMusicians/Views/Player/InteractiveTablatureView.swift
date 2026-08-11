@@ -35,6 +35,7 @@ struct TabMeasure: Identifiable, Equatable {
     let id = UUID()
     let index: Int
     var notes: [TabNoteItem]
+    var chordName: String? // Optional chord mapping
 }
 
 // MARK: - Parser de Tablatura (AlphaTex e formato universal)
@@ -130,8 +131,15 @@ struct TabParser {
             measuresDict[note.measureIndex, default: []].append(note)
         }
         
+        let demoChords = ["Am", "C", "G", "F", "Dm", "E7", "Am"]
+        
         let measures = measuresDict.keys.sorted().map { idx in
-            TabMeasure(index: idx, notes: measuresDict[idx]!)
+            var measure = TabMeasure(index: idx, notes: measuresDict[idx]!)
+            // Assign dummy chords for demonstration based on measure index
+            if idx > 0 {
+                measure.chordName = demoChords[(idx - 1) % demoChords.count]
+            }
+            return measure
         }
         
         return (notes, measures)
@@ -151,6 +159,7 @@ struct InteractiveTablatureView: View {
     @Binding var pitchShiftSemitones: Int
     @Binding var isMetronomeActive: Bool
     @Binding var isSpeedTrainerActive: Bool
+    @Binding var showChords: Bool
     
     var onNotePlayed: ((Int) -> Void)? = nil
     var onLoopCycleCompleted: (() -> Void)? = nil
@@ -166,6 +175,7 @@ struct InteractiveTablatureView: View {
         pitchShiftSemitones: Binding<Int> = .constant(0),
         isMetronomeActive: Binding<Bool> = .constant(false),
         isSpeedTrainerActive: Binding<Bool> = .constant(false),
+        showChords: Binding<Bool> = .constant(false),
         onNotePlayed: ((Int) -> Void)? = nil,
         onLoopCycleCompleted: (() -> Void)? = nil
     ) {
@@ -179,6 +189,7 @@ struct InteractiveTablatureView: View {
         self._pitchShiftSemitones = pitchShiftSemitones
         self._isMetronomeActive = isMetronomeActive
         self._isSpeedTrainerActive = isSpeedTrainerActive
+        self._showChords = showChords
         self.onNotePlayed = onNotePlayed
         self.onLoopCycleCompleted = onLoopCycleCompleted
     }
@@ -292,8 +303,9 @@ struct InteractiveTablatureView: View {
                                         currentActiveIndex: currentActiveIndex,
                                         pitchShift: pitchShiftSemitones,
                                         tempo: tempo,
-                                        onNoteTap: { noteIndex in
-                                            playSingleNote(index: noteIndex)
+                                        showChords: showChords,
+                                        onNoteTap: { idx in
+                                            playSingleNote(index: idx)
                                         }
                                     )
                                     .id(measure.index)
@@ -359,12 +371,18 @@ struct InteractiveTablatureView: View {
     
     private func playSingleNote(index: Int) {
         guard index >= 0 && index < notes.count else { return }
-        currentActiveIndex = index
-        let note = notes[index]
-        let midi = note.midiValue(pitchShift: pitchShiftSemitones)
         
-        GuitarSynthEngine.shared.playNote(midi: midi, instrument: instrument, pitchShift: pitchShiftSemitones)
-        onNotePlayed?(midi)
+        if isPlaying {
+            // Smart Seek: Avança a linha vermelha imediatamente e o timer assume
+            currentActiveIndex = index - 1
+        } else {
+            // Se pausado, só move o playhead e toca o som
+            currentActiveIndex = index
+            let note = notes[index]
+            let midi = note.midiValue(pitchShift: pitchShiftSemitones)
+            GuitarSynthEngine.shared.playNote(midi: midi, instrument: instrument, pitchShift: pitchShiftSemitones)
+            onNotePlayed?(midi)
+        }
     }
     
     private func startPlayback() {
@@ -452,12 +470,13 @@ struct MeasureBlockView: View {
     let currentActiveIndex: Int
     let pitchShift: Int
     let tempo: Int
+    let showChords: Bool
     let onNoteTap: (Int) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // Header do Compasso e Barras
-            HStack {
+            HStack(alignment: .bottom) {
                 Text("\(measure.index)")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(isMeasureActive ? .red : .gray)
@@ -465,10 +484,18 @@ struct MeasureBlockView: View {
                     .background(isMeasureActive ? Color.red.opacity(0.15) : Color.white.opacity(0.05))
                     .clipShape(Circle())
                 
+                if showChords, let chord = measure.chordName {
+                    Text(chord)
+                        .font(.system(size: 22, weight: .heavy, design: .rounded))
+                        .foregroundColor(.yellow)
+                        .padding(.leading, 12)
+                }
+                
                 if !isInLoop {
                     Text("Fora do Loop")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.gray.opacity(0.6))
+                        .padding(.leading, 8)
                 }
                 Spacer()
             }
