@@ -198,7 +198,6 @@ struct InteractiveTablatureView: View {
     @State private var measures: [TabMeasure] = []
     @State private var currentActiveIndex: Int = -1
     @State private var playbackTimer: Timer? = nil
-    @State private var showFretboard: Bool = true
     @State private var tickCounter: Int = 0
     
     private let stringNames = ["e", "B", "G", "D", "A", "E"]
@@ -208,34 +207,23 @@ struct InteractiveTablatureView: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
-            // Mini Braço de Guitarra Dinâmico (Fretboard Visualizer)
-            if showFretboard {
-                GuitarFretboardVisualizer(
-                    activeNote: currentActiveIndex >= 0 && currentActiveIndex < notes.count ? notes[currentActiveIndex] : nil,
-                    pitchShift: pitchShiftSemitones
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color(red: 0.09, green: 0.09, blue: 0.12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.cyan.opacity(0.4), Color.purple.opacity(0.2), Color.white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
                 )
-                .transition(.opacity.combined(with: .scale))
-            }
             
-            // Área da Tablatura - Rolagem Vertical Estilo Songsterr
-            ZStack(alignment: .top) {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(red: 0.09, green: 0.09, blue: 0.12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [Color.cyan.opacity(0.4), Color.purple.opacity(0.2), Color.white.opacity(0.05)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.5
-                            )
-                    )
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    // Header Status
+            VStack(alignment: .leading, spacing: 0) {
+                // Header Status
                     HStack {
                         HStack(spacing: 6) {
                             Circle()
@@ -265,23 +253,6 @@ struct InteractiveTablatureView: View {
                         }
                         
                         Spacer()
-                        
-                        Button(action: {
-                            withAnimation(.spring()) {
-                                showFretboard.toggle()
-                            }
-                        }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: showFretboard ? "eye.fill" : "eye.slash.fill")
-                                Text("Braço")
-                            }
-                            .font(.caption2.bold())
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(6)
-                        }
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
@@ -326,44 +297,6 @@ struct InteractiveTablatureView: View {
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .onAppear {
-            let parsed = TabParser.parse(alphaTex: alphaTex)
-            self.notes = parsed.0
-            self.measures = parsed.1
-            if loopEndMeasure == 1 && totalMeasures > 1 {
-                loopEndMeasure = totalMeasures
-            }
-        }
-        .onChange(of: alphaTex) { newTex in
-            let parsed = TabParser.parse(alphaTex: newTex)
-            self.notes = parsed.0
-            self.measures = parsed.1
-            if loopEndMeasure == 1 && totalMeasures > 1 {
-                loopEndMeasure = totalMeasures
-            }
-        }
-        .onChange(of: isPlaying) { playing in
-            if playing {
-                startPlayback()
-            } else {
-                stopPlayback()
-            }
-        }
-        .onChange(of: tempo) { _ in
-            if isPlaying {
-                startPlayback()
-            }
-        }
-        .onChange(of: instrument) { _ in
-            if isPlaying {
-                startPlayback()
-            }
-        }
-        .onChange(of: pitchShiftSemitones) { _ in
-            GuitarSynthEngine.shared.pitchShiftSemitones = pitchShiftSemitones
-        }
         .onDisappear {
             stopPlayback()
         }
@@ -648,103 +581,5 @@ struct TabNoteNodeView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Braço da Guitarra Visualizador (Fretboard)
-struct GuitarFretboardVisualizer: View {
-    let activeNote: TabNoteItem?
-    var pitchShift: Int = 0
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text("🎸 BRAÇO DA GUITARRA")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.gray)
-                Spacer()
-                if let note = activeNote {
-                    Text("Nota: \(note.noteName(pitchShift: pitchShift)) (Corda \(note.string), Casa \(note.fret))")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundColor(.red)
-                }
-            }
-            .padding(.horizontal, 16)
-            
-            ZStack(alignment: .leading) {
-                // Corpo da Escala de Madeira Escura
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(red: 0.16, green: 0.12, blue: 0.10), Color(red: 0.11, green: 0.08, blue: 0.07)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                    )
-                
-                // Trastes metálicos (Frets 0 a 15)
-                HStack(spacing: 0) {
-                    ForEach(0...15, id: \.self) { fretIdx in
-                        Rectangle()
-                            .fill(fretIdx == 0 ? Color.white.opacity(0.8) : Color.white.opacity(0.2))
-                            .frame(width: fretIdx == 0 ? 3 : 1.5)
-                        if fretIdx < 15 {
-                            Spacer()
-                        }
-                    }
-                }
-                .padding(.horizontal, 8)
-                
-                // Marcadores de escala (Inlays nas casas 3, 5, 7, 9, 12)
-                GeometryReader { geo in
-                    let step = (geo.size.width - 16) / 15.0
-                    ForEach([3, 5, 7, 9], id: \.self) { fret in
-                        Circle()
-                            .fill(Color.white.opacity(0.25))
-                            .frame(width: 5, height: 5)
-                            .position(x: 8 + (CGFloat(fret) - 0.5) * step, y: geo.size.height / 2)
-                    }
-                    // Casa 12 (Duplo ponto)
-                    VStack(spacing: 8) {
-                        Circle().fill(Color.white.opacity(0.25)).frame(width: 4, height: 4)
-                        Circle().fill(Color.white.opacity(0.25)).frame(width: 4, height: 4)
-                    }
-                    .position(x: 8 + 11.5 * step, y: geo.size.height / 2)
-                }
-                
-                // As 6 cordas de violão/guitarra esticadas
-                VStack(spacing: 9) {
-                    ForEach(1...6, id: \.self) { strIndex in
-                        Rectangle()
-                            .fill(LinearGradient(colors: [Color.gray, Color.white.opacity(0.8), Color.gray], startPoint: .top, endPoint: .bottom))
-                            .frame(height: CGFloat(strIndex) * 0.45 + 0.6)
-                            .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
-                    }
-                }
-                
-                // Ponto luminoso indicando o dedo ativo na escala
-                if let note = activeNote {
-                    GeometryReader { geo in
-                        let step = (geo.size.width - 16) / 15.0
-                        let stringHeight: CGFloat = 9.4
-                        let yPos = CGFloat(note.string - 1) * stringHeight + (geo.size.height / 2 - 24)
-                        let xPos = 8 + (CGFloat(note.fret) - 0.5) * step
-                        
-                        Circle()
-                            .fill(Color.red)
-                            .frame(width: 14, height: 14)
-                            .shadow(color: .red, radius: 6)
-                            .position(x: note.fret == 0 ? 8 : xPos, y: yPos)
-                            .transition(.scale)
-                    }
-                }
-            }
-            .frame(height: 70)
-            .padding(.horizontal, 16)
-        }
     }
 }

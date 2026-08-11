@@ -241,8 +241,7 @@ struct AlphaTabWebView: UIViewRepresentable {
                                 for (var i = 0; i < beat.notes.length; i++) {
                                     var midiVal = beat.notes[i].realValue;
                                     
-                                    // Emite áudio de retorno garantido
-                                    playSynthNote(midiVal);
+                                    // SoundFont player handles real audio rendering
                                     
                                     // Notifica o app Swift sobre a nota para validação de microfone
                                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.alphaTabBridge) {

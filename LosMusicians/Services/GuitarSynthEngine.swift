@@ -119,54 +119,77 @@ final class GuitarSynthEngine: ObservableObject {
     
     @inline(__always)
     private func computeSample(freq: Float, t: Float, inst: String, string: Int, voiceVol: Float) -> Float {
+        let omega = 2.0 * Float.pi * freq
+        
         switch inst {
         case "metronome":
-            let click = sin(2.0 * .pi * freq * t) * exp(-t * 90.0)
-            return click * 0.85 * voiceVol
+            let click = sin(omega * t) * exp(-t * 120.0)
+            return click * 0.8 * voiceVol
             
         case "acoustic":
-            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.5)
-            let harmonic2 = 0.6 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 3.5)
-            let harmonic3 = 0.3 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 5.0)
-            let harmonic4 = 0.15 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 7.0)
-            let pluckNoise = (Float.random(in: -1.0...1.0) * exp(-t * 150.0)) * 0.25
-            return ((fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55 + pluckNoise) * voiceVol
+            // Violão de Aço/Nylon: Ataque de palheta suave + ressonância de caixa de madeira
+            let f1 = sin(omega * t) * exp(-t * 2.2)
+            let f2 = 0.55 * sin(omega * 2.0 * t) * exp(-t * 3.2)
+            let f3 = 0.28 * sin(omega * 3.0 * t) * exp(-t * 4.5)
+            let f4 = 0.12 * sin(omega * 4.0 * t) * exp(-t * 6.5)
+            let pluckNoise = (Float.random(in: -0.6...0.6) * exp(-t * 180.0)) * 0.15
+            let bodyResonance = sin(2.0 * Float.pi * 110.0 * t) * exp(-t * 5.0) * 0.08
+            let rawAcoustic = (f1 + f2 + f3 + f4) * 0.5 + pluckNoise + bodyResonance
+            return rawAcoustic * voiceVol
             
         case "bass":
+            // Contrabaixo Elétrico: Sub-grave profundo + punch de ataque + harmônicos quentes
             let bassFreq = freq * 0.5
-            let fundamental = sin(2.0 * .pi * bassFreq * t) * exp(-t * 3.0)
-            let harmonic2 = 0.5 * sin(2.0 * .pi * bassFreq * 2.0 * t) * exp(-t * 5.0)
-            let harmonic3 = 0.15 * sin(2.0 * .pi * bassFreq * 3.0 * t) * exp(-t * 8.0)
-            return (fundamental + harmonic2 + harmonic3) * 0.95 * voiceVol
+            let bOmega = 2.0 * Float.pi * bassFreq
+            let sub = sin(bOmega * t) * exp(-t * 2.0)
+            let h2 = 0.6 * sin(bOmega * 2.0 * t) * exp(-t * 3.8)
+            let h3 = 0.25 * sin(bOmega * 3.0 * t) * exp(-t * 6.0)
+            let pluckAttack = sin(bOmega * 4.0 * t) * exp(-t * 25.0) * 0.2
+            let rawBass = (sub * 1.1 + h2 + h3 + pluckAttack) * 0.55
+            return tanh(rawBass * 1.4) * voiceVol
             
         case "drums":
+            // Bateria Física Sintetizada
             if string == 6 || string == 5 {
-                let sweepFreq = max(40.0, 150.0 - t * 1400.0)
-                return sin(2.0 * .pi * sweepFreq * t) * exp(-t * 18.0) * 0.95 * voiceVol
+                // Bumbo (Kick): Sweep de frequência grave (160Hz -> 45Hz) + Thump
+                let kickSweep = max(45.0, 160.0 - t * 1500.0)
+                let kickBody = sin(2.0 * Float.pi * kickSweep * t) * exp(-t * 16.0)
+                let kickClick = (Float.random(in: -0.8...0.8) * exp(-t * 120.0)) * 0.2
+                return (kickBody + kickClick) * 0.95 * voiceVol
             } else if string == 4 || string == 3 {
-                let body = sin(2.0 * .pi * 180.0 * t) * exp(-t * 30.0)
-                let snareNoise = Float.random(in: -1.0...1.0) * exp(-t * 18.0)
-                return (body * 0.4 + snareNoise * 0.7) * 0.8 * voiceVol
+                // Caixa (Snare): Corpo em 180Hz + Ruído de Esteira Metálica
+                let snareBody = sin(2.0 * Float.pi * 180.0 * t) * exp(-t * 28.0)
+                let snareWireNoise = Float.random(in: -1.0...1.0) * exp(-t * 16.0)
+                return (snareBody * 0.45 + snareWireNoise * 0.65) * 0.85 * voiceVol
             } else {
-                let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 60.0)
-                return hihatNoise * 0.45 * voiceVol
+                // Prato/Chimbal (Hi-Hat): Ruído de alta frequência filtrado + ataque rápido
+                let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 70.0)
+                let metallicRing = sin(2.0 * Float.pi * 7500.0 * t) * exp(-t * 80.0) * 0.3
+                return (hihatNoise + metallicRing) * 0.45 * voiceVol
             }
             
         case "keys":
-            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.5)
-            let harmonic2 = 0.55 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.0)
-            let harmonic3 = 0.4 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.0)
-            let harmonic4 = 0.25 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 4.0)
-            let harmonic5 = 0.15 * sin(2.0 * .pi * freq * 5.0 * t) * exp(-t * 6.0)
-            return (fundamental + harmonic2 + harmonic3 + harmonic4 + harmonic5) * 0.5 * voiceVol
+            // Teclado/Piano de Cauda: Série harmônica natural com decaimento duplo
+            let p1 = sin(omega * t) * exp(-t * 1.8)
+            let p2 = 0.5 * sin(omega * 2.0 * t) * exp(-t * 2.2)
+            let p3 = 0.35 * sin(omega * 3.0 * t) * exp(-t * 3.0)
+            let p4 = 0.2 * sin(omega * 4.0 * t) * exp(-t * 4.2)
+            let p5 = 0.1 * sin(omega * 5.0 * t) * exp(-t * 6.0)
+            return (p1 + p2 + p3 + p4 + p5) * 0.45 * voiceVol
             
         default:
-            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.8)
-            let harmonic2 = 0.65 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.5)
-            let harmonic3 = 0.45 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.5)
-            let harmonic4 = 0.3 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 5.0)
-            let rawSound = (fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55
-            return (atan(rawSound * 3.0) / 1.5) * voiceVol
+            // Guitarra Elétrica Solista/Base: Harmônicos ricos + simulador de amplificador a válvula (Tube Overdrive)
+            let g1 = sin(omega * t) * exp(-t * 2.0)
+            let g2 = 0.7 * sin(omega * 2.0 * t) * exp(-t * 2.8)
+            let g3 = 0.45 * sin(omega * 3.0 * t) * exp(-t * 4.0)
+            let g4 = 0.25 * sin(omega * 4.0 * t) * exp(-t * 5.5)
+            let g5 = 0.15 * sin(omega * 5.0 * t) * exp(-t * 7.5)
+            let pickAttack = (Float.random(in: -0.5...0.5) * exp(-t * 200.0)) * 0.15
+            let rawGuitar = (g1 + g2 + g3 + g4 + g5) * 0.6 + pickAttack
+            
+            // Saturação válvula suave (Soft-clipping Tube Amp curve)
+            let tubeOverdrive = tanh(rawGuitar * 2.2) / 1.15
+            return tubeOverdrive * voiceVol
         }
     }
     

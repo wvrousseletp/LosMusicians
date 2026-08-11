@@ -91,30 +91,30 @@ struct TabPlayerView: View {
                     .frame(height: 1)
                 
                 // Seletor de Faixa Discreto
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(song.tracks) { track in
-                            Button(action: {
-                                selectedTrack = track
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: track.instrument.iconName)
-                                        .font(.system(size: 11))
-                                    Text(track.name)
-                                        .font(.system(size: 11, weight: .semibold))
+                HStack(spacing: 0) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(song.tracks) { track in
+                                Button(action: {
+                                    selectedTrack = track
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: track.instrument.iconName)
+                                            .font(.system(size: 11))
+                                        Text(track.name)
+                                            .font(.system(size: 11, weight: .semibold))
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(selectedTrack.id == track.id ? Color.cyan.opacity(0.15) : Color.clear)
+                                    .foregroundColor(selectedTrack.id == track.id ? .cyan : .gray)
+                                    .cornerRadius(12)
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(selectedTrack.id == track.id ? Color.cyan.opacity(0.15) : Color.clear)
-                                .foregroundColor(selectedTrack.id == track.id ? .cyan : .gray)
-                                .cornerRadius(12)
                             }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    
-                    Spacer()
                     
                     Button(action: {
                         showChords.toggle()
@@ -133,6 +133,7 @@ struct TabPlayerView: View {
                     }
                     .padding(.trailing, 16)
                 }
+                .frame(height: 44)
                 .background(Color(red: 0.08, green: 0.08, blue: 0.12))
                 
                 // Tablatura Principal
