@@ -314,7 +314,7 @@ struct InteractiveTablatureView: View {
                     }
                 }
             }
-            .frame(minHeight: 280, maxHeight: 400)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
             let parsed = TabParser.parse(alphaTex: alphaTex)
@@ -363,11 +363,7 @@ struct InteractiveTablatureView: View {
         let note = notes[index]
         let midi = note.midiValue(pitchShift: pitchShiftSemitones)
         
-        NotificationCenter.default.post(
-            name: NSNotification.Name("AlphaTabPlayedNote"),
-            object: nil,
-            userInfo: ["midi": midi]
-        )
+        GuitarSynthEngine.shared.playNote(midi: midi, instrument: instrument, pitchShift: pitchShiftSemitones)
         onNotePlayed?(midi)
     }
     
@@ -424,11 +420,7 @@ struct InteractiveTablatureView: View {
                     let note = self.notes[nextIndex]
                     let midi = note.midiValue(pitchShift: self.pitchShiftSemitones)
                     
-                    NotificationCenter.default.post(
-                        name: NSNotification.Name("AlphaTabPlayedNote"),
-                        object: nil,
-                        userInfo: ["midi": midi]
-                    )
+                    GuitarSynthEngine.shared.playNote(midi: midi, instrument: self.instrument, pitchShift: self.pitchShiftSemitones)
                     self.onNotePlayed?(midi)
                 } else {
                     self.onLoopCycleCompleted?()

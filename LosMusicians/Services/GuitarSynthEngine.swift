@@ -173,12 +173,13 @@ final class GuitarSynthEngine: ObservableObject {
             let session = AVAudioSession.sharedInstance()
             // IMPORTANTE: .playback ignora a chave de silencioso/vibrar do iPhone!
             // .mixWithOthers permite tocar som junto com outros apps (Spotify em background, etc)
+            // Removidas opções bluetooth pois elas podiam falhar silenciosamente no AVAudioSession e impedir o AudioEngine de ligar
             try session.setCategory(
                 .playback,
                 mode: .default,
-                options: [.mixWithOthers, .allowBluetooth, .allowBluetoothA2DP]
+                options: [.mixWithOthers]
             )
-            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            try session.setActive(true)
             
             if !engine.isRunning {
                 engine.prepare()
