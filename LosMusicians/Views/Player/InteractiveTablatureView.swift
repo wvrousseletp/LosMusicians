@@ -210,7 +210,7 @@ struct InteractiveTablatureView: View {
             // Área da Tablatura - Rolagem Vertical Estilo Songsterr
             ZStack(alignment: .top) {
                 RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(red: 0.07, green: 0.07, blue: 0.11))
+                    .fill(Color(red: 0.09, green: 0.09, blue: 0.12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 18)
                             .stroke(
@@ -228,11 +228,11 @@ struct InteractiveTablatureView: View {
                     HStack {
                         HStack(spacing: 6) {
                             Circle()
-                                .fill(isPlaying ? Color.green : Color.orange)
+                                .fill(isPlaying ? Color.red : Color.orange)
                                 .frame(width: 8, height: 8)
                             Text(isPlaying ? "EM REPRODUÇÃO" : "MODO DE PRÁTICA")
                                 .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                .foregroundColor(isPlaying ? .green : .orange)
+                                .foregroundColor(isPlaying ? .red : .orange)
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -243,7 +243,7 @@ struct InteractiveTablatureView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "repeat")
                                     .font(.caption2)
-                                Text("A-B: c.\(loopStartMeasure) a c.\(loopEndMeasure)")
+                                Text("A-B: c.\(loopStartMeasure)-\(loopEndMeasure)")
                                     .font(.system(size: 11, weight: .bold))
                             }
                             .foregroundColor(.green)
@@ -279,7 +279,7 @@ struct InteractiveTablatureView: View {
                     // Grade Vertical com Compassos
                     ScrollViewReader { proxy in
                         ScrollView(.vertical, showsIndicators: true) {
-                            LazyVStack(spacing: 32) {
+                            LazyVStack(spacing: 36) {
                                 ForEach(measures) { measure in
                                     let isMeasureActive = (currentActiveIndex >= 0 && currentActiveIndex < notes.count && notes[currentActiveIndex].measureIndex == measure.index)
                                     let isInLoop = !isLoopActive || (measure.index >= loopStartMeasure && measure.index <= loopEndMeasure)
@@ -291,6 +291,7 @@ struct InteractiveTablatureView: View {
                                         isInLoop: isInLoop,
                                         currentActiveIndex: currentActiveIndex,
                                         pitchShift: pitchShiftSemitones,
+                                        tempo: tempo,
                                         onNoteTap: { noteIndex in
                                             playSingleNote(index: noteIndex)
                                         }
@@ -304,8 +305,8 @@ struct InteractiveTablatureView: View {
                         .onChange(of: currentActiveIndex) { newIndex in
                             if newIndex >= 0 && newIndex < notes.count {
                                 let activeMeasure = notes[newIndex].measureIndex
-                                // Autoscroll vertical suave para o compasso ativo
-                                withAnimation(.easeInOut(duration: 0.2)) {
+                                // Autoscroll vertical suave para o compasso ativo (Songsterr style)
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     proxy.scrollTo(activeMeasure, anchor: .center)
                                 }
                             }
@@ -362,9 +363,6 @@ struct InteractiveTablatureView: View {
         let note = notes[index]
         let midi = note.midiValue(pitchShift: pitchShiftSemitones)
         
-        // Removemos o playFret duplo aqui para evitar voz duplicada com o NotificationCenter
-        // Se o TabPlayerView também ouve AlphaTabPlayedNote, basta mandar a notificação, ou chamar direto.
-        // Neste app o TabPlayerView invoca playNote ouvindo "AlphaTabPlayedNote", então mandamos apenas a notificação.
         NotificationCenter.default.post(
             name: NSNotification.Name("AlphaTabPlayedNote"),
             object: nil,
@@ -390,8 +388,9 @@ struct InteractiveTablatureView: View {
         }
         
         let beatInterval = 60.0 / Double(max(30, tempo))
+        let tickInterval = beatInterval * 0.5
         
-        playbackTimer = Timer.scheduledTimer(withTimeInterval: beatInterval * 0.5, repeats: true) { _ in
+        playbackTimer = Timer.scheduledTimer(withTimeInterval: tickInterval, repeats: true) { _ in
             DispatchQueue.main.async {
                 if self.isMetronomeActive {
                     if self.tickCounter % 2 == 0 {
@@ -452,7 +451,7 @@ struct InteractiveTablatureView: View {
     }
 }
 
-// MARK: - Bloco de Compasso (Measure) Vertical
+// MARK: - Bloco de Compasso (Measure) Vertical Estilo Songsterr
 struct MeasureBlockView: View {
     let measure: TabMeasure
     let stringNames: [String]
@@ -460,19 +459,19 @@ struct MeasureBlockView: View {
     let isInLoop: Bool
     let currentActiveIndex: Int
     let pitchShift: Int
+    let tempo: Int
     let onNoteTap: (Int) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            // Header do Compasso
+            // Header do Compasso e Barras
             HStack {
-                Text("Compasso \(measure.index)")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundColor(isMeasureActive ? .cyan : .gray)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(isMeasureActive ? Color.cyan.opacity(0.15) : Color.white.opacity(0.05))
-                    .cornerRadius(4)
+                Text("\(measure.index)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(isMeasureActive ? .red : .gray)
+                    .frame(width: 24, height: 24)
+                    .background(isMeasureActive ? Color.red.opacity(0.15) : Color.white.opacity(0.05))
+                    .clipShape(Circle())
                 
                 if !isInLoop {
                     Text("Fora do Loop")
@@ -483,42 +482,46 @@ struct MeasureBlockView: View {
             }
             .padding(.leading, 8)
             
-            // Corpo da Partitura do Compasso
+            // Corpo da Partitura
             ZStack(alignment: .leading) {
                 // Fundo iluminado se ativo
                 if isMeasureActive {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.cyan.opacity(0.04))
+                        .fill(Color.red.opacity(0.04))
                 }
                 
                 HStack(spacing: 0) {
-                    // Coluna de nomes das cordas
+                    // Coluna de nomes das cordas (Afinacao)
                     VStack(spacing: 16) {
                         ForEach(0..<6, id: \.self) { idx in
                             Text(stringNames[idx])
-                                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                                .foregroundColor(.cyan.opacity(0.8))
+                                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                                .foregroundColor(.gray.opacity(0.9))
                                 .frame(width: 24, height: 14)
                         }
                     }
                     .padding(.leading, 8)
                     
+                    // Barra inicial de compasso
                     Divider()
-                        .frame(width: 2, height: 160)
-                        .background(Color.white.opacity(0.15))
+                        .frame(width: 2, height: 120)
+                        .background(Color.white.opacity(0.2))
                         .padding(.horizontal, 4)
                     
-                    // As 6 linhas do braço no compasso
-                    ZStack(alignment: .leading) {
+                    GeometryReader { geo in
+                        // As 6 linhas da tablatura (Staff Lines)
                         VStack(spacing: 16) {
                             ForEach(1...6, id: \.self) { stringIndex in
                                 Rectangle()
-                                    .fill(Color.white.opacity(0.2))
+                                    .fill(Color.white.opacity(0.15))
                                     .frame(height: 1.5)
                             }
                         }
+                        .offset(y: 20) // Ajuste para centralizar as linhas no Measure
                         
-                        // Notas distribuídas
+                        let noteWidth = max(35.0, geo.size.width / CGFloat(max(measure.notes.count, 4)))
+                        
+                        // Notas e Hastes Rítmicas
                         HStack(spacing: 0) {
                             ForEach(measure.notes) { note in
                                 let isNoteActive = (currentActiveIndex == note.noteIndex)
@@ -529,23 +532,37 @@ struct MeasureBlockView: View {
                                     pitchShift: pitchShift,
                                     onTap: { onNoteTap(note.noteIndex) }
                                 )
-                                .frame(width: max(40, UIScreen.main.bounds.width / CGFloat(max(measure.notes.count, 6))))
+                                .frame(width: noteWidth)
                             }
                             Spacer(minLength: 0)
                         }
-                        .padding(.leading, 6)
+                        
+                        // O Playhead (Cursor Vermelho Vertical do Songsterr)
+                        if isMeasureActive, let localIdx = measure.notes.firstIndex(where: { $0.noteIndex == currentActiveIndex }) {
+                            let playheadX = CGFloat(localIdx) * noteWidth + (noteWidth / 2.0)
+                            let tickInterval = (60.0 / Double(max(30, tempo))) * 0.5
+                            
+                            Rectangle()
+                                .fill(LinearGradient(colors: [Color.red, Color.red.opacity(0.5)], startPoint: .top, endPoint: .bottom))
+                                .frame(width: 3, height: 150)
+                                .shadow(color: Color.red, radius: 4, x: 0, y: 0)
+                                .offset(x: playheadX - 1.5, y: 6)
+                                .animation(.linear(duration: tickInterval), value: currentActiveIndex)
+                        }
                     }
+                    .frame(height: 160)
                     
+                    // Barra final de compasso
                     Divider()
-                        .frame(width: 2, height: 160)
-                        .background(Color.white.opacity(0.15))
+                        .frame(width: 2, height: 120)
+                        .background(Color.white.opacity(0.2))
                 }
             }
             .frame(height: 160)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isMeasureActive ? Color.cyan.opacity(0.4) : Color.clear, lineWidth: 1.5)
+                    .stroke(isMeasureActive ? Color.red.opacity(0.3) : Color.clear, lineWidth: 1.5)
             )
             .opacity(isInLoop ? 1.0 : 0.4)
         }
@@ -553,7 +570,7 @@ struct MeasureBlockView: View {
     }
 }
 
-// MARK: - Nó da Nota Individual
+// MARK: - Nó da Nota e Haste Rítmica
 struct TabNoteNodeView: View {
     let note: TabNoteItem
     let isActive: Bool
@@ -564,32 +581,51 @@ struct TabNoteNodeView: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 0) {
+                // Fret number / Note Circle
                 ZStack {
                     // A distância vertical exata baseada na corda. 
-                    // Espaçamento de 16pt entre cordas, offset partindo do centro.
+                    // Espaçamento de 16pt entre cordas. Corda 1 no topo.
                     let yOffset = CGFloat(note.string - 1) * 17.5 - 44
                     
                     ZStack {
-                        Circle()
-                            .fill(
-                                isActive ?
-                                LinearGradient(colors: [Color.cyan, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                (isInLoopRange ?
-                                 LinearGradient(colors: [Color(red: 0.15, green: 0.15, blue: 0.22), Color(red: 0.1, green: 0.1, blue: 0.15)], startPoint: .top, endPoint: .bottom) :
-                                 LinearGradient(colors: [Color.gray.opacity(0.1), Color.black.opacity(0.2)], startPoint: .top, endPoint: .bottom))
-                            )
-                            .frame(width: isActive ? 26 : 22, height: isActive ? 26 : 22)
-                            .shadow(color: isActive ? Color.cyan.opacity(0.8) : Color.black.opacity(0.5), radius: isActive ? 6 : 1)
+                        // Background do número na corda (para não mostrar a linha por baixo)
+                        Rectangle()
+                            .fill(Color(red: 0.09, green: 0.09, blue: 0.12))
+                            .frame(width: 22, height: 22)
+                        
+                        if isActive {
+                            Circle()
+                                .fill(LinearGradient(colors: [Color.red, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 26, height: 26)
+                                .shadow(color: Color.red.opacity(0.8), radius: 6)
+                        }
                         
                         Text("\(note.fret)")
-                            .font(.system(size: isActive ? 12 : 11, weight: .black, design: .rounded))
-                            .foregroundColor(isActive ? .white : (isInLoopRange ? .cyan : .gray.opacity(0.5)))
+                            .font(.system(size: isActive ? 13 : 12, weight: .black, design: .rounded))
+                            .foregroundColor(isActive ? .white : (isInLoopRange ? .white : .gray.opacity(0.5)))
                     }
-                    .offset(y: yOffset)
+                    .offset(y: yOffset + 24)
                     .scaleEffect(isActive ? 1.15 : 1.0)
                     .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isActive)
                 }
-                .frame(height: 140)
+                .frame(height: 110)
+                
+                // Rhythm Stem (Haste Rítmica embaixo da tablatura)
+                ZStack(alignment: .topLeading) {
+                    Rectangle()
+                        .fill(isActive ? Color.red : Color.gray.opacity(0.6))
+                        .frame(width: 2, height: 25)
+                    
+                    // Se for colcheia (duration <= 0.5), adiciona uma perninha (beam/flag)
+                    if note.durationBeats <= 0.5 {
+                        Rectangle()
+                            .fill(isActive ? Color.red : Color.gray.opacity(0.6))
+                            .frame(width: 14, height: 3)
+                            .offset(x: 0, y: 22) // Conecta no fim da haste
+                    }
+                }
+                .frame(height: 35)
+                .padding(.top, 4)
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -611,7 +647,7 @@ struct GuitarFretboardVisualizer: View {
                 if let note = activeNote {
                     Text("Nota: \(note.noteName(pitchShift: pitchShift)) (Corda \(note.string), Casa \(note.fret))")
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundColor(.cyan)
+                        .foregroundColor(.red)
                 }
             }
             .padding(.horizontal, 16)
@@ -680,9 +716,9 @@ struct GuitarFretboardVisualizer: View {
                         let xPos = 8 + (CGFloat(note.fret) - 0.5) * step
                         
                         Circle()
-                            .fill(Color.cyan)
+                            .fill(Color.red)
                             .frame(width: 14, height: 14)
-                            .shadow(color: .cyan, radius: 6)
+                            .shadow(color: .red, radius: 6)
                             .position(x: note.fret == 0 ? 8 : xPos, y: yPos)
                             .transition(.scale)
                     }
