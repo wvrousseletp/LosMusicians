@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 import FirebaseCore
 import GoogleSignIn
 
@@ -25,7 +24,6 @@ struct LosMusiciansApp: App {
             MainTabView()
                 .environmentObject(authManager)
                 .preferredColorScheme(.dark)
-                .modelContainer(for: ExerciseModel.self)
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }

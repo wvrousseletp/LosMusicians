@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct AITeacherPlayerView: View {
     let instrument: String
@@ -7,7 +6,7 @@ struct AITeacherPlayerView: View {
     let timeAvailable: Int
     let isChallengeMode: Bool
     let alphaTex: String
-    var exercise: ExerciseModel? = nil
+    @State var exercise: ExerciseModel? = nil
     
     @State private var isPlaying = false
     @State private var tempo = 100
@@ -18,8 +17,6 @@ struct AITeacherPlayerView: View {
     @Environment(\.presentationMode) var presentationMode
     
     @StateObject private var pitchDetector = PitchDetector()
-    @Environment(\.modelContext) private var modelContext
-    
     var body: some View {
         ZStack {
             // Fundo escuro premium
@@ -241,10 +238,11 @@ struct AITeacherPlayerView: View {
     }
     
     private func saveExercise() {
-        if let exercise = exercise {
-            exercise.score = max(exercise.score, score)
-            exercise.maxScore = max(exercise.maxScore, maxScore)
-            try? modelContext.save()
+        if var exerciseCopy = exercise {
+            exerciseCopy.score = max(exerciseCopy.score, score)
+            exerciseCopy.maxScore = max(exerciseCopy.maxScore, maxScore)
+            self.exercise = exerciseCopy
+            SavedExercisesManager.shared.updateExercise(exerciseCopy)
         } else {
             let newExercise = ExerciseModel(
                 title: "\(technique) - \(isChallengeMode ? "Desafio" : "Treino")",
@@ -255,8 +253,7 @@ struct AITeacherPlayerView: View {
                 maxScore: maxScore,
                 dateCreated: Date()
             )
-            modelContext.insert(newExercise)
-            try? modelContext.save()
+            SavedExercisesManager.shared.addExercise(newExercise)
         }
     }
 }

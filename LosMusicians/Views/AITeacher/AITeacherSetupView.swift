@@ -1,9 +1,7 @@
 import SwiftUI
-import SwiftData
 
 struct AITeacherSetupView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \ExerciseModel.dateCreated, order: .reverse) private var savedExercises: [ExerciseModel]
+    @StateObject private var manager = SavedExercisesManager.shared
     
     @State private var currentSection: Int = 0 // 0: Gerador IA, 1: Exercícios Salvos da IA
     
@@ -35,7 +33,7 @@ struct AITeacherSetupView: View {
                 // Segmented Picker no topo para alternar entre Gerador e Exercícios da IA
                 Picker("Aba", selection: $currentSection) {
                     Text("✨ Gerar Novo").tag(0)
-                    Text("📚 Exercícios da IA (\(savedExercises.count))").tag(1)
+                    Text("📚 Exercícios da IA (\(manager.savedExercises.count))").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
@@ -159,7 +157,7 @@ struct AITeacherSetupView: View {
     // MARK: - Aba de Exercícios Salvos da IA
     private var savedExercisesListView: some View {
         Group {
-            if savedExercises.isEmpty {
+            if manager.savedExercises.isEmpty {
                 VStack(spacing: 20) {
                     Spacer()
                     Image(systemName: "music.note.list")
@@ -196,7 +194,7 @@ struct AITeacherSetupView: View {
                 }
             } else {
                 List {
-                    ForEach(savedExercises) { exercise in
+                    ForEach(manager.savedExercises) { exercise in
                         Button(action: {
                             self.activeExercise = exercise
                             self.navigateToPlayer = true
@@ -256,11 +254,8 @@ struct AITeacherSetupView: View {
     }
     
     private func deleteExercises(at offsets: IndexSet) {
-        for index in offsets {
-            let exercise = savedExercises[index]
-            modelContext.delete(exercise)
-        }
-        try? modelContext.save()
+        manager.savedExercises.remove(atOffsets: offsets)
+        manager.saveExercises()
     }
     
     // MARK: - Geração e Salvamento Automático
@@ -292,8 +287,7 @@ struct AITeacherSetupView: View {
                         dateCreated: Date()
                     )
                     
-                    self.modelContext.insert(newExercise)
-                    try? self.modelContext.save()
+                    SavedExercisesManager.shared.addExercise(newExercise)
                     
                     self.activeExercise = newExercise
                     self.isGenerating = false
@@ -309,8 +303,10 @@ struct AITeacherSetupView: View {
     }
 }
 
-#Preview {
-    AITeacherSetupView()
+struct AITeacherSetupView_Previews: PreviewProvider {
+    static var previews: some View {
+        AITeacherSetupView()
+    }
 }
 
 struct AlertItem: Identifiable {

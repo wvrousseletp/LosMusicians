@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0548347D90A6F9ED53D126F8 /* OfflineLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38DFDA4FC193B2A1834F60B /* OfflineLibraryView.swift */; };
+		1BF9BC29A47A7BD93962C09C /* TunerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */; };
 		59C6BF8AA3A5A39E75D10511 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA73D9D1E8D68DD37A3ABAA /* LeaderboardView.swift */; };
 		74A2B09B026A93C0C8371B24 /* SavedExercisesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1358DBF7BFE8A9EC679FD3 /* SavedExercisesView.swift */; };
 		A067D565DEDBB8B32611B2B6 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3B697EB21192FC30DA29 /* GeminiService.swift */; };
+		A9C9B01C6FCC5FF58ADA72F6 /* TunerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A173149FE71ABA2AD16CF821 /* TunerView.swift */; };
 		C613AF8BD98EB14D1D1C4AAA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B9F04AA5C19231DCF0FF7C /* NotificationManager.swift */; };
 		C9723BFD38A1950B1F38FD86 /* ExerciseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4C523A6C906F8C2CD27C86 /* ExerciseModel.swift */; };
 		D3497911301A700000000001 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3497910301A700000000001 /* User.swift */; };
@@ -27,6 +30,8 @@
 		D34979A2301A67E000EDB517 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */; };
 		D34979A5301A6B7A00EDB517 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D34979A4301A6B7A00EDB517 /* FirebaseAuth */; };
 		D34979A7301A6B7A00EDB517 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D34979A6301A6B7A00EDB517 /* FirebaseFirestore */; };
+		D34979B3301A6B7A00EDB517 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B1301A6B7A00EDB517 /* GoogleSignIn */; };
+		D34979B4301A6B7A00EDB517 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B2301A6B7A00EDB517 /* GoogleSignInSwift */; };
 		D36DD9063019401500158913 /* LosMusiciansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36DD9053019401500158913 /* LosMusiciansApp.swift */; };
 		D36DD9083019401500158913 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36DD9073019401500158913 /* ContentView.swift */; };
 		D36DD90A3019401800158913 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D36DD9093019401800158913 /* Assets.xcassets */; };
@@ -34,17 +39,17 @@
 		E3497911301A700000000001 /* AITeacherSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000001 /* AITeacherSetupView.swift */; };
 		E3497911301A700000000002 /* AITeacherPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000002 /* AITeacherPlayerView.swift */; };
 		F3497911301A700000000001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3497910301A700000000001 /* PitchDetector.swift */; };
-		D34979B3301A6B7A00EDB517 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B1301A6B7A00EDB517 /* GoogleSignIn */; };
-		D34979B4301A6B7A00EDB517 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D34979B2301A6B7A00EDB517 /* GoogleSignInSwift */; };
 		G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = G7497910301A700000000001 /* GuitarSynthEngine.swift */; };
 		I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = I7497910301A700000000001 /* InteractiveTablatureView.swift */; };
-		O7497911301A700000000001 /* OfflineTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = O7497910301A700000000001 /* OfflineTabManager.swift */; };
 		M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M7497910301A700000000001 /* MultitrackMixerView.swift */; };
+		O7497911301A700000000001 /* OfflineTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = O7497910301A700000000001 /* OfflineTabManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Services/TunerService.swift; sourceTree = SOURCE_ROOT; };
 		585B3B697EB21192FC30DA29 /* GeminiService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeminiService.swift; path = Services/GeminiService.swift; sourceTree = "<group>"; };
 		8B4C523A6C906F8C2CD27C86 /* ExerciseModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExerciseModel.swift; path = Models/ExerciseModel.swift; sourceTree = "<group>"; };
+		A173149FE71ABA2AD16CF821 /* TunerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/TunerView.swift; sourceTree = SOURCE_ROOT; };
 		D3497910301A700000000001 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/User.swift; sourceTree = "<group>"; };
 		D3497910301A700000000002 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Song.swift; sourceTree = "<group>"; };
 		D3497910301A700000000003 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AuthManager.swift; sourceTree = "<group>"; };
@@ -58,12 +63,13 @@
 		D3497910301A70000000000B /* TabPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/TabPlayerView.swift; sourceTree = "<group>"; };
 		D3497910301A70000000000C /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Profile/ProfileView.swift; sourceTree = "<group>"; };
 		D34979A1301A67DF00EDB517 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		D34979A1301A67DF00EDB599 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		D34979A1301A67DF00EDB599 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D36DD9023019401500158913 /* LosMusicians.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LosMusicians.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D36DD9053019401500158913 /* LosMusiciansApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LosMusiciansApp.swift; sourceTree = "<group>"; };
 		D36DD9073019401500158913 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D36DD9093019401800158913 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D36DD90C3019401800158913 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D38DFDA4FC193B2A1834F60B /* OfflineLibraryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Library/OfflineLibraryView.swift; sourceTree = SOURCE_ROOT; };
 		D3B9F04AA5C19231DCF0FF7C /* NotificationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NotificationManager.swift; path = Services/NotificationManager.swift; sourceTree = "<group>"; };
 		DB1358DBF7BFE8A9EC679FD3 /* SavedExercisesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SavedExercisesView.swift; path = Views/SavedExercisesView.swift; sourceTree = "<group>"; };
 		E3497910301A700000000001 /* AITeacherSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AITeacher/AITeacherSetupView.swift; sourceTree = "<group>"; };
@@ -72,8 +78,8 @@
 		F3497910301A700000000001 /* PitchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PitchDetector.swift; sourceTree = "<group>"; };
 		G7497910301A700000000001 /* GuitarSynthEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/GuitarSynthEngine.swift; sourceTree = "<group>"; };
 		I7497910301A700000000001 /* InteractiveTablatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/InteractiveTablatureView.swift; sourceTree = "<group>"; };
-		O7497910301A700000000001 /* OfflineTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/OfflineTabManager.swift; sourceTree = "<group>"; };
 		M7497910301A700000000001 /* MultitrackMixerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Player/MultitrackMixerView.swift; sourceTree = "<group>"; };
+		O7497910301A700000000001 /* OfflineTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/OfflineTabManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +110,8 @@
 			children = (
 				2D04DC40BC55AB9EDE648858 /* Community */,
 				DB1358DBF7BFE8A9EC679FD3 /* SavedExercisesView.swift */,
+				C485224AC9571A4AAEFA5888 /* Home */,
+				DEE28D0F1C022EF90F4D79A8 /* Library */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -116,11 +124,20 @@
 			name = Models;
 			sourceTree = "<group>";
 		};
+		C485224AC9571A4AAEFA5888 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				A173149FE71ABA2AD16CF821 /* TunerView.swift */,
+			);
+			name = Home;
+			sourceTree = "<group>";
+		};
 		CDB84C315A997DA8821E48E1 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				585B3B697EB21192FC30DA29 /* GeminiService.swift */,
 				D3B9F04AA5C19231DCF0FF7C /* NotificationManager.swift */,
+				3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -182,6 +199,14 @@
 				D36DD90C3019401800158913 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		DEE28D0F1C022EF90F4D79A8 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				D38DFDA4FC193B2A1834F60B /* OfflineLibraryView.swift */,
+			);
+			name = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -291,6 +316,9 @@
 				I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */,
 				O7497911301A700000000001 /* OfflineTabManager.swift in Sources */,
 				M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */,
+				1BF9BC29A47A7BD93962C09C /* TunerService.swift in Sources */,
+				A9C9B01C6FCC5FF58ADA72F6 /* TunerView.swift in Sources */,
+				0548347D90A6F9ED53D126F8 /* OfflineLibraryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,7 +464,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.vicente.losmusicians";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vicente.losmusicians;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -469,7 +497,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.vicente.losmusicians";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vicente.losmusicians;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

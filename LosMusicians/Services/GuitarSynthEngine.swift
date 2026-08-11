@@ -77,58 +77,7 @@ final class GuitarSynthEngine: ObservableObject {
                     
                     var voiceSample: Float = 0.0
                     
-                    switch inst {
-                    case "metronome":
-                        let click = sin(2.0 * .pi * freq * t) * exp(-t * 90.0)
-                        voiceSample = click * 0.85 * voiceVol
-                        
-                    case "acoustic":
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.5)
-                        let harmonic2 = 0.6 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 3.5)
-                        let harmonic3 = 0.3 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 5.0)
-                        let harmonic4 = 0.15 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 7.0)
-                        let pluckNoise = (Float.random(in: -1.0...1.0) * exp(-t * 150.0)) * 0.25
-                        voiceSample = ((fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55 + pluckNoise) * voiceVol
-                        
-                    case "bass":
-                        let bassFreq = freq * 0.5
-                        let fundamental = sin(2.0 * .pi * bassFreq * t) * exp(-t * 3.0)
-                        let harmonic2 = 0.5 * sin(2.0 * .pi * bassFreq * 2.0 * t) * exp(-t * 5.0)
-                        let harmonic3 = 0.15 * sin(2.0 * .pi * bassFreq * 3.0 * t) * exp(-t * 8.0)
-                        voiceSample = (fundamental + harmonic2 + harmonic3) * 0.95 * voiceVol
-                        
-                    case "drums":
-                        if string == 6 || string == 5 {
-                            let sweepFreq = max(40.0, 150.0 - t * 1400.0)
-                            voiceSample = sin(2.0 * .pi * sweepFreq * t) * exp(-t * 18.0) * 0.95 * voiceVol
-                        } else if string == 4 || string == 3 {
-                            let body = sin(2.0 * .pi * 180.0 * t) * exp(-t * 30.0)
-                            let snareNoise = Float.random(in: -1.0...1.0) * exp(-t * 18.0)
-                            voiceSample = (body * 0.4 + snareNoise * 0.7) * 0.8 * voiceVol
-                        } else {
-                            let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 60.0)
-                            voiceSample = hihatNoise * 0.45 * voiceVol
-                        }
-                        
-                    case "keys":
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.5)
-                        let harmonic2 = 0.55 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.0)
-                        let harmonic3 = 0.4 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.0)
-                        let harmonic4 = 0.25 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 4.0)
-                        let harmonic5 = 0.15 * sin(2.0 * .pi * freq * 5.0 * t) * exp(-t * 6.0)
-                        voiceSample = (fundamental + harmonic2 + harmonic3 + harmonic4 + harmonic5) * 0.5 * voiceVol
-                        
-                    default:
-                        // Guitarra Elétrica: Ondas ricas com saturação suave simulando overdrive
-                        let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.8)
-                        let harmonic2 = 0.65 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.5)
-                        let harmonic3 = 0.45 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.5)
-                        let harmonic4 = 0.3 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 5.0)
-                        
-                        let rawSound = (fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55
-                        let saturated = atan(rawSound * 3.0) / 1.5
-                        voiceSample = saturated * voiceVol
-                    }
+                    voiceSample = self.computeSample(freq: freq, t: t, inst: inst, string: string, voiceVol: voiceVol)
                     
                     frameSample += voiceSample
                     // Atualiza o tempo na própria iteração
@@ -166,6 +115,59 @@ final class GuitarSynthEngine: ObservableObject {
         engine.mainMixerNode.outputVolume = 1.0
         
         startEngineIfNeeded()
+    }
+    
+    @inline(__always)
+    private func computeSample(freq: Float, t: Float, inst: String, string: Int, voiceVol: Float) -> Float {
+        switch inst {
+        case "metronome":
+            let click = sin(2.0 * .pi * freq * t) * exp(-t * 90.0)
+            return click * 0.85 * voiceVol
+            
+        case "acoustic":
+            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 2.5)
+            let harmonic2 = 0.6 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 3.5)
+            let harmonic3 = 0.3 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 5.0)
+            let harmonic4 = 0.15 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 7.0)
+            let pluckNoise = (Float.random(in: -1.0...1.0) * exp(-t * 150.0)) * 0.25
+            return ((fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55 + pluckNoise) * voiceVol
+            
+        case "bass":
+            let bassFreq = freq * 0.5
+            let fundamental = sin(2.0 * .pi * bassFreq * t) * exp(-t * 3.0)
+            let harmonic2 = 0.5 * sin(2.0 * .pi * bassFreq * 2.0 * t) * exp(-t * 5.0)
+            let harmonic3 = 0.15 * sin(2.0 * .pi * bassFreq * 3.0 * t) * exp(-t * 8.0)
+            return (fundamental + harmonic2 + harmonic3) * 0.95 * voiceVol
+            
+        case "drums":
+            if string == 6 || string == 5 {
+                let sweepFreq = max(40.0, 150.0 - t * 1400.0)
+                return sin(2.0 * .pi * sweepFreq * t) * exp(-t * 18.0) * 0.95 * voiceVol
+            } else if string == 4 || string == 3 {
+                let body = sin(2.0 * .pi * 180.0 * t) * exp(-t * 30.0)
+                let snareNoise = Float.random(in: -1.0...1.0) * exp(-t * 18.0)
+                return (body * 0.4 + snareNoise * 0.7) * 0.8 * voiceVol
+            } else {
+                let hihatNoise = Float.random(in: -1.0...1.0) * exp(-t * 60.0)
+                return hihatNoise * 0.45 * voiceVol
+            }
+            
+        case "keys":
+            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.5)
+            let harmonic2 = 0.55 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.0)
+            let harmonic3 = 0.4 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.0)
+            let harmonic4 = 0.25 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 4.0)
+            let harmonic5 = 0.15 * sin(2.0 * .pi * freq * 5.0 * t) * exp(-t * 6.0)
+            return (fundamental + harmonic2 + harmonic3 + harmonic4 + harmonic5) * 0.5 * voiceVol
+            
+        default:
+            let fundamental = sin(2.0 * .pi * freq * t) * exp(-t * 1.8)
+            let harmonic2 = 0.65 * sin(2.0 * .pi * freq * 2.0 * t) * exp(-t * 2.5)
+            let harmonic3 = 0.45 * sin(2.0 * .pi * freq * 3.0 * t) * exp(-t * 3.5)
+            let harmonic4 = 0.3 * sin(2.0 * .pi * freq * 4.0 * t) * exp(-t * 5.0)
+            let rawSound = (fundamental + harmonic2 + harmonic3 + harmonic4) * 0.55
+            return (atan(rawSound * 3.0) / 1.5) * voiceVol
+        }
     }
     
     func startEngineIfNeeded() {

@@ -1,18 +1,16 @@
 import SwiftUI
-import SwiftData
-
 struct SavedExercisesView: View {
-    @Query(sort: \ExerciseModel.dateCreated, order: .reverse) private var savedExercises: [ExerciseModel]
+    @StateObject private var manager = SavedExercisesManager.shared
     
     var body: some View {
         NavigationView {
             List {
-                if savedExercises.isEmpty {
+                if manager.savedExercises.isEmpty {
                     Text("Nenhum exercício salvo ainda. Vá ao Professor IA para gerar novos treinos!")
                         .foregroundColor(.gray)
                         .padding()
                 } else {
-                    ForEach(savedExercises) { exercise in
+                    ForEach(manager.savedExercises) { exercise in
                         NavigationLink(destination: AITeacherPlayerView(
                             instrument: exercise.instrument,
                             technique: exercise.technique,
