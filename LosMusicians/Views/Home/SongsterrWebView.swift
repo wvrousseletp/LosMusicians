@@ -33,7 +33,7 @@ struct SongsterrWebView: UIViewRepresentable {
     }
     
     func updateUIView(_ webView: WKWebView, context: Context) {
-        if let url = URL(string: "https://www.songsterr.com/a/wsa/song/\(songId)") {
+        if let url = URL(string: "https://www.songsterr.com/a/wa/song?id=\(songId)") {
             let request = URLRequest(url: url)
             webView.load(request)
         }
