@@ -12,9 +12,9 @@ struct SongsterrWebView: UIViewRepresentable {
         configuration.defaultWebpagePreferences = preferences
         configuration.allowsInlineMediaPlayback = true
         
-        // Inject JS to hide Songsterr's header and footer so it feels native
+        // Inject JS to hide Songsterr's header, footer, and ads so only the tab and bottom controls show
         let hideHeaderFooterScript = """
-            var css = 'header, footer, nav, [class*="Header"], [class*="Footer"], [class*="Nav"], [class*="Ad"], #bottom-ad, #top-ad { display: none !important; }';
+            var css = 'header, nav, aside, [class*="Header"], [class*="Nav"], [class*="Ad"], #bottom-ad, #top-ad, a[href*="apps.apple.com"], a[href*="play.google.com"], [class*="Banner"], [class*="promo"], [id*="banner"], [id*="promo"] { display: none !important; }';
             var style = document.createElement('style');
             style.type = 'text/css';
             style.appendChild(document.createTextNode(css));

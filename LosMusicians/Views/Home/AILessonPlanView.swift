@@ -95,7 +95,9 @@ struct AILessonPlanView: View {
             }
         }
         .fullScreenCover(isPresented: $showPlayer) {
-            SongsterrPlayerView(songId: songResult.songId)
+            if let song = readySong {
+                TabPlayerView(song: song, songId: songResult.songId)
+            }
         }
     }
     
