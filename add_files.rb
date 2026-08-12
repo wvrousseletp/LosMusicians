@@ -1,19 +1,32 @@
 require 'xcodeproj'
+
 project_path = 'LosMusicians.xcodeproj'
 project = Xcodeproj::Project.open(project_path)
-target = project.targets.first
+target = project.targets.find { |t| t.name == 'LosMusicians' }
 
-def add_file_to_group(project, target, file_path, group_path)
-  group = project.main_group
-  group_path.split('/').each do |component|
-    group = group.groups.find { |g| g.display_name == component || g.name == component } || group.new_group(component)
-  end
-  file_ref = group.new_file(file_path)
-  target.add_file_references([file_ref])
+files_to_add = [
+  'LosMusicians/Services/TabSearchService.swift',
+  'LosMusicians/Views/Home/SearchResultsView.swift',
+  'LosMusicians/Views/Home/AILessonPlanView.swift'
+]
+
+files_to_add.each do |file_path|
+  # Skip if already in project
+  next if project.files.find { |f| f.path == file_path }
+  
+  # Get or create group
+  group_path = File.dirname(file_path).sub('LosMusicians/', '')
+  group = project.main_group.find_subpath(File.join('LosMusicians', group_path), true)
+  
+  group.set_source_tree('<group>')
+  group.set_path(group_path)
+  
+  # Add file reference
+  file_ref = group.new_reference(File.basename(file_path))
+  
+  # Add to build phase
+  target.source_build_phase.add_file_reference(file_ref)
+  puts "Added #{file_path}"
 end
-
-add_file_to_group(project, target, 'LosMusicians/Services/TunerService.swift', 'LosMusicians/Services')
-add_file_to_group(project, target, 'LosMusicians/Views/Home/TunerView.swift', 'LosMusicians/Views/Home')
-add_file_to_group(project, target, 'LosMusicians/Views/Library/OfflineLibraryView.swift', 'LosMusicians/Views/Library')
 
 project.save
