@@ -138,7 +138,7 @@
 				2B2E8A7C66523C66BAD6B144 /* AILessonPlanView.swift */,
 			);
 			name = Home;
-			path = Views/Home;
+			path = Home;
 			sourceTree = "<group>";
 		};
 		CDB84C315A997DA8821E48E1 /* Services */ = {
