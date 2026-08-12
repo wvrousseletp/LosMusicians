@@ -25,7 +25,7 @@ struct DashboardView: View {
     @State private var aiSteps: [AISongStep] = []
     @State private var searchedSongTitle: String = ""
     @State private var errorMessage: String? = nil
-    
+    @State private var isShowingSearch: Bool = false
     let instruments = ["Guitarra", "Violão", "Baixo", "Teclado"]
     
     // Módulos de Técnica Interativos
@@ -122,6 +122,9 @@ struct DashboardView: View {
             .navigationBarHidden(true)
             .fullScreenCover(item: $selectedSongForPlayer) { song in
                 TabPlayerView(song: song)
+            }
+            .fullScreenCover(isPresented: $isShowingSearch) {
+                SearchResultsView()
             }
         }
     }
@@ -586,149 +589,33 @@ struct DashboardView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal)
             
-            VStack(spacing: 14) {
-                // Seletor de instrumento horizontal
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(instruments, id: \.self) { inst in
-                            Button(action: {
-                                selectedInstrument = inst
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: iconForInstrument(inst))
-                                    Text(inst)
-                                        .font(.subheadline.bold())
-                                }
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 8)
-                                .background(selectedInstrument == inst ? Color.cyan.opacity(0.2) : Color.white.opacity(0.06))
-                                .foregroundColor(selectedInstrument == inst ? .cyan : .gray)
-                                .cornerRadius(20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(selectedInstrument == inst ? Color.cyan.opacity(0.6) : Color.clear, lineWidth: 1)
-                                )
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-                
-                // Barra de pesquisa
-                HStack(spacing: 10) {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                        TextField("Ex: Back in Black, Sweet Child O' Mine", text: $searchQuery)
-                            .foregroundColor(.white)
-                            .submitLabel(.search)
-                            .onSubmit {
-                                searchAndSplitSong()
-                            }
-                    }
-                    .padding(12)
-                    .background(Color.white.opacity(0.06))
-                    .cornerRadius(12)
+            Button(action: {
+                isShowingSearch = true
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
                     
-                    Button(action: searchAndSplitSong) {
-                        if isSearching {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                .frame(width: 44, height: 44)
-                                .background(Color.cyan)
-                                .cornerRadius(12)
-                        } else {
-                            Image(systemName: "sparkles")
-                                .font(.title3.bold())
-                                .foregroundColor(.black)
-                                .frame(width: 44, height: 44)
-                                .background(Color.cyan)
-                                .cornerRadius(12)
-                                .shadow(color: .cyan.opacity(0.4), radius: 6)
-                        }
-                    }
-                    .disabled(isSearching || searchQuery.trimmingCharacters(in: .whitespaces).isEmpty)
+                    Text("Pesquisar tablaturas reais...")
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.7))
+                    
+                    Spacer()
+                    
+                    Image(systemName: "sparkles")
+                        .foregroundColor(.purple)
                 }
-                .padding(.horizontal, 20)
-                
-                if let error = errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .padding(.horizontal, 20)
-                }
-                
-                // Resultados dos passos da IA
-                if !aiSteps.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(searchedSongTitle)
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("Exercício passo a passo para \(selectedInstrument)")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 6)
-                        
-                        ForEach(Array(aiSteps.enumerated()), id: \.offset) { index, step in
-                            Button(action: {
-                                playAIStep(step)
-                            }) {
-                                HStack(spacing: 16) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.cyan.opacity(0.15))
-                                            .frame(width: 36, height: 36)
-                                        Text("\(index + 1)")
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(.cyan)
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(step.stepName)
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .multilineTextAlignment(.leading)
-                                        Text(step.description)
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                            .multilineTextAlignment(.leading)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "play.fill")
-                                        .foregroundColor(.cyan)
-                                        .font(.footnote)
-                                }
-                                .padding(12)
-                                .background(Color.white.opacity(0.04))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.white.opacity(0.05), lineWidth: 1)
-                                )
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                    }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        )
+                )
             }
-            .padding(.vertical, 16)
-            .background(Color.white.opacity(0.03))
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
-            )
             .padding(.horizontal)
         }
     }
