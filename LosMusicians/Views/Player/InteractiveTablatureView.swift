@@ -297,6 +297,43 @@ struct InteractiveTablatureView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+            let parsed = TabParser.parse(alphaTex: alphaTex)
+            self.notes = parsed.0
+            self.measures = parsed.1
+            if loopEndMeasure == 1 && totalMeasures > 1 {
+                loopEndMeasure = totalMeasures
+            }
+        }
+        .onChange(of: alphaTex) { newTex in
+            let parsed = TabParser.parse(alphaTex: newTex)
+            self.notes = parsed.0
+            self.measures = parsed.1
+            if loopEndMeasure == 1 && totalMeasures > 1 {
+                loopEndMeasure = totalMeasures
+            }
+        }
+        .onChange(of: isPlaying) { playing in
+            if playing {
+                startPlayback()
+            } else {
+                stopPlayback()
+            }
+        }
+        .onChange(of: tempo) { _ in
+            if isPlaying {
+                startPlayback()
+            }
+        }
+        .onChange(of: instrument) { _ in
+            if isPlaying {
+                startPlayback()
+            }
+        }
+        .onChange(of: pitchShiftSemitones) { _ in
+            GuitarSynthEngine.shared.pitchShiftSemitones = pitchShiftSemitones
+        }
         .onDisappear {
             stopPlayback()
         }
