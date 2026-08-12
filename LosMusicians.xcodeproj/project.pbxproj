@@ -52,10 +52,10 @@
 		3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Services/TunerService.swift; sourceTree = SOURCE_ROOT; };
 		585B3B697EB21192FC30DA29 /* GeminiService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeminiService.swift; path = Services/GeminiService.swift; sourceTree = "<group>"; };
 		8B4C523A6C906F8C2CD27C86 /* ExerciseModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExerciseModel.swift; path = Models/ExerciseModel.swift; sourceTree = "<group>"; };
-		9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AILessonPlanView.swift; sourceTree = "<group>"; };
+		9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/AILessonPlanView.swift; sourceTree = SOURCE_ROOT; };
 		A173149FE71ABA2AD16CF821 /* TunerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/TunerView.swift; sourceTree = SOURCE_ROOT; };
-		A6772F8A978857EB713EB4AA /* SearchResultsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchResultsView.swift; sourceTree = "<group>"; };
-		AA62812A101D369E85743E44 /* TabSearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TabSearchService.swift; sourceTree = "<group>"; };
+		A6772F8A978857EB713EB4AA /* SearchResultsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/SearchResultsView.swift; sourceTree = SOURCE_ROOT; };
+		AA62812A101D369E85743E44 /* TabSearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Services/TabSearchService.swift; sourceTree = SOURCE_ROOT; };
 		D3497910301A700000000001 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/User.swift; sourceTree = "<group>"; };
 		D3497910301A700000000002 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Song.swift; sourceTree = "<group>"; };
 		D3497910301A700000000003 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AuthManager.swift; sourceTree = "<group>"; };
