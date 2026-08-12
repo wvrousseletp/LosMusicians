@@ -138,7 +138,7 @@ struct TabPlayerView: View {
                 
                 // Tablatura Principal
                 InteractiveTablatureView(
-                    alphaTex: song.tabDataJson,
+                    alphaTex: selectedTrack.tabDataJson ?? song.tabDataJson,
                     isPlaying: $isPlaying,
                     tempo: $tempo,
                     instrument: selectedTrack.instrument.rawValue,
