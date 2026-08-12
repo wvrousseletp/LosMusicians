@@ -1,0 +1,43 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project LosMusicians.xcodeproj -scheme LosMusicians -configuration Release clean build
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Resolve Package Graph
+
+Resolved source packages:
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 10.28.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 4.1.1
+  Firebase: https://github.com/firebase/firebase-ios-sdk @ 10.29.0
+  AppCheck: https://github.com/google/app-check.git @ 10.19.2
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024011602.0
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30909.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 1.7.6
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS @ 7.1.0
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 9.4.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.62.2
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.26.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 100.0.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 7.13.3
+
+
+
+** CLEAN SUCCEEDED **
+
+Prepare packages
+
+Computing target dependency graph and provisioning inputs
+
+Create build description
+Build description signature: eed6c627f4276cfd8eb696246d9fa427
+Build description path: /Users/wellersonvicenterousseletporfirio/Library/Developer/Xcode/DerivedData/LosMusicians-bncxpncpocjaqjexqxrcvzlswdiy/Build/Intermediates.noindex/XCBuildData/eed6c627f4276cfd8eb696246d9fa427-desc.xcbuild
+
+note: Building targets in dependency order
+/Users/wellersonvicenterousseletporfirio/.gemini/antigravity/scratch/LosMusicians/LosMusicians.xcodeproj: warning: The iOS deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 17.0, but the range of supported deployment target versions is 11.0 to 16.2.99. (in target 'LosMusicians' from project 'LosMusicians')
+/Users/wellersonvicenterousseletporfirio/.gemini/antigravity/scratch/LosMusicians/LosMusicians.xcodeproj: error: No signing certificate "iOS Development" found: No "iOS Development" signing certificate matching team ID "PJ32UPL29J" with a private key was found. (in target 'LosMusicians' from project 'LosMusicians')
+/Users/wellersonvicenterousseletporfirio/.gemini/antigravity/scratch/LosMusicians/LosMusicians.xcodeproj: error: Provisioning profile "iOS Team Provisioning Profile: *" doesn't support the App Groups and Sign in with Apple capability. (in target 'LosMusicians' from project 'LosMusicians')
+/Users/wellersonvicenterousseletporfirio/.gemini/antigravity/scratch/LosMusicians/LosMusicians.xcodeproj: error: Provisioning profile "iOS Team Provisioning Profile: *" doesn't include the com.apple.developer.applesignin and com.apple.security.application-groups entitlements. (in target 'LosMusicians' from project 'LosMusicians')

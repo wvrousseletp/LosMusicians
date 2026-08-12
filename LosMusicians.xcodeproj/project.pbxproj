@@ -11,6 +11,7 @@
 		0E0BA20FB08505ECF14F9DD2 /* TabSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA62812A101D369E85743E44 /* TabSearchService.swift */; };
 		1BF9BC29A47A7BD93962C09C /* TunerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */; };
 		59C6BF8AA3A5A39E75D10511 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA73D9D1E8D68DD37A3ABAA /* LeaderboardView.swift */; };
+		6C1E98BB66DACECFEAE2ABE8 /* SongsterrPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFF0AF1BBCD5ED1DD3F9C8 /* SongsterrPlayerView.swift */; };
 		74A2B09B026A93C0C8371B24 /* SavedExercisesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1358DBF7BFE8A9EC679FD3 /* SavedExercisesView.swift */; };
 		870FDB91185B952A9F6AC0EE /* SearchResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6772F8A978857EB713EB4AA /* SearchResultsView.swift */; };
 		896BE287B5D5EDAA4DCC2787 /* AILessonPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */; };
@@ -42,6 +43,7 @@
 		E3497911301A700000000001 /* AITeacherSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000001 /* AITeacherSetupView.swift */; };
 		E3497911301A700000000002 /* AITeacherPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000002 /* AITeacherPlayerView.swift */; };
 		F3497911301A700000000001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3497910301A700000000001 /* PitchDetector.swift */; };
+		FBAE2A067CFBD5DA607C6826 /* SongsterrWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */; };
 		G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = G7497910301A700000000001 /* GuitarSynthEngine.swift */; };
 		I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = I7497910301A700000000001 /* InteractiveTablatureView.swift */; };
 		M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M7497910301A700000000001 /* MultitrackMixerView.swift */; };
@@ -49,9 +51,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SongsterrWebView.swift; path = LosMusicians/Views/Home/SongsterrWebView.swift; sourceTree = SOURCE_ROOT; };
 		3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Services/TunerService.swift; sourceTree = SOURCE_ROOT; };
 		585B3B697EB21192FC30DA29 /* GeminiService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeminiService.swift; path = Services/GeminiService.swift; sourceTree = "<group>"; };
 		8B4C523A6C906F8C2CD27C86 /* ExerciseModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExerciseModel.swift; path = Models/ExerciseModel.swift; sourceTree = "<group>"; };
+		8CAFF0AF1BBCD5ED1DD3F9C8 /* SongsterrPlayerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SongsterrPlayerView.swift; path = LosMusicians/Views/Home/SongsterrPlayerView.swift; sourceTree = SOURCE_ROOT; };
 		9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/AILessonPlanView.swift; sourceTree = SOURCE_ROOT; };
 		A173149FE71ABA2AD16CF821 /* TunerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/TunerView.swift; sourceTree = SOURCE_ROOT; };
 		A6772F8A978857EB713EB4AA /* SearchResultsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Views/Home/SearchResultsView.swift; sourceTree = SOURCE_ROOT; };
@@ -136,6 +140,8 @@
 				A173149FE71ABA2AD16CF821 /* TunerView.swift */,
 				A6772F8A978857EB713EB4AA /* SearchResultsView.swift */,
 				9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */,
+				0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */,
+				8CAFF0AF1BBCD5ED1DD3F9C8 /* SongsterrPlayerView.swift */,
 			);
 			name = Home;
 			sourceTree = "<group>";
@@ -331,6 +337,8 @@
 				0E0BA20FB08505ECF14F9DD2 /* TabSearchService.swift in Sources */,
 				870FDB91185B952A9F6AC0EE /* SearchResultsView.swift in Sources */,
 				896BE287B5D5EDAA4DCC2787 /* AILessonPlanView.swift in Sources */,
+				FBAE2A067CFBD5DA607C6826 /* SongsterrWebView.swift in Sources */,
+				6C1E98BB66DACECFEAE2ABE8 /* SongsterrPlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
