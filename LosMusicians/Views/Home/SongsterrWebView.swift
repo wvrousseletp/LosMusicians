@@ -19,27 +19,38 @@ struct SongsterrWebView: UIViewRepresentable {
         }
         
         @objc func handlePlayPause() {
-            // Songsterr uses the Spacebar to toggle Play/Pause
-            let js = "document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', keyCode: 32, which: 32, bubbles: true }));"
+            let js = """
+            var playBtn = document.querySelector('#control-play, [data-testid="control-play"], button[title*="Play"], button[aria-label*="Play"]');
+            if (playBtn) { 
+                playBtn.click(); 
+            } else { 
+                var e = new KeyboardEvent('keydown', { key: ' ', code: 'Space', keyCode: 32, which: 32, bubbles: true });
+                document.dispatchEvent(e);
+                window.dispatchEvent(e);
+            }
+            """
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
         
         @objc func handleSetSpeed(_ notification: Notification) {
             guard let speed = notification.userInfo?["speed"] as? Double else { return }
-            // Songsterr doesn't have a simple keyboard shortcut for speed, but we can try to click the speed button if we can find it.
-            // Actually, we can just dispatch the spacebar for now, or find the audio element if possible.
-            // Finding the specific React component is hard, but we can try setting window.playbackRate if they expose it.
-            // As a fallback, we just send a console log.
-            let js = "console.log('Speed change requested to \(speed)');"
+            let js = """
+            var medias = document.querySelectorAll('audio, video');
+            medias.forEach(m => m.playbackRate = \(speed));
+            """
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
         
         @objc func handleToggleLoop() {
-            // Attempt to click the loop button or dispatch 'l'
             let js = """
-            var loopBtn = document.querySelector('button[title*="Loop"], button[aria-label*="Loop"]');
-            if (loopBtn) { loopBtn.click(); }
-            else { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'l', code: 'KeyL', keyCode: 76, which: 76, bubbles: true })); }
+            var loopBtn = document.querySelector('#control-loop, [data-testid="control-loop"], button[title*="Loop"], button[aria-label*="Loop"]');
+            if (loopBtn) { 
+                loopBtn.click(); 
+            } else { 
+                var e = new KeyboardEvent('keydown', { key: 'l', code: 'KeyL', keyCode: 76, which: 76, bubbles: true });
+                document.dispatchEvent(e);
+                window.dispatchEvent(e);
+            }
             """
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
@@ -56,6 +67,8 @@ struct SongsterrWebView: UIViewRepresentable {
         let configuration = WKWebViewConfiguration()
         configuration.defaultWebpagePreferences = preferences
         configuration.allowsInlineMediaPlayback = true
+        // CRITICAL: Allow programmatic audio playback triggered by Swift buttons (outside WebView)
+        configuration.mediaTypesRequiringUserActionForPlayback = []
         
         // Hide Songsterr's UI elements: header, footer, ads, AND bottom player controls (we provide our own)
         let hideHeaderFooterScript = """
