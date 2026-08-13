@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TabPlayerView: View {
     let song: Song
-    let songId: Int
+    let songId: Int?
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var authManager: AuthManager
     @ObservedObject var offlineManager = OfflineTabManager.shared
@@ -27,7 +27,7 @@ struct TabPlayerView: View {
     @State private var sessionXP: Int = 0
     @State private var practiceTimer: Timer? = nil
     
-    init(song: Song, songId: Int) {
+    init(song: Song, songId: Int? = nil) {
         self.song = song
         self.songId = songId
         _tempo = State(initialValue: max(40, song.bpm))
@@ -139,8 +139,29 @@ struct TabPlayerView: View {
                 .background(Color(red: 0.08, green: 0.08, blue: 0.12))
                 
                 // Tablatura Principal
-                SongsterrWebView(songId: songId)
+                if let id = songId {
+                    SongsterrWebView(songId: id)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    InteractiveTablatureView(
+                        alphaTex: selectedTrack.tabDataJson ?? song.tabDataJson,
+                        isPlaying: $isPlaying,
+                        tempo: $tempo,
+                        instrument: selectedTrack.instrument.rawValue,
+                        isLoopActive: $isLoopActive,
+                        loopStartMeasure: $loopStartMeasure,
+                        loopEndMeasure: $loopEndMeasure,
+                        pitchShiftSemitones: $pitchShiftSemitones,
+                        isMetronomeActive: $isMetronomeActive,
+                        isSpeedTrainerActive: $isSpeedTrainerActive,
+                        showChords: $showChords,
+                        onLoopCycleCompleted: {
+                            handleLoopCycleCompleted()
+                        }
+                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.bottom, 90)
+                }
             }
             
             // Toast flutuante de aceleração do Speed Trainer
@@ -161,7 +182,113 @@ struct TabPlayerView: View {
                 .zIndex(10)
             }
             
-
+            // Bottom Bar Flutuante
+            if songId == nil {
+                VStack {
+                    Spacer()
+                    
+                    HStack(spacing: 0) {
+                        // Loop Button
+                        Button(action: {
+                            isLoopActive.toggle()
+                        }) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "repeat")
+                                    .font(.system(size: 18))
+                                Text("Loop")
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .foregroundColor(isLoopActive ? .green : .gray)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .contextMenu {
+                            Button("Loop Compasso 1 a 4") { loopStartMeasure = 1; loopEndMeasure = 4; isLoopActive = true }
+                            Button("Loop Compasso 1 a 2") { loopStartMeasure = 1; loopEndMeasure = 2; isLoopActive = true }
+                            Button("Loop Compasso 3 a 4") { loopStartMeasure = 3; loopEndMeasure = 4; isLoopActive = true }
+                        }
+                        
+                        // Metrônomo Button
+                        Button(action: {
+                            isMetronomeActive.toggle()
+                        }) {
+                            VStack(spacing: 4) {
+                                Image(systemName: isMetronomeActive ? "clock.fill" : "clock")
+                                    .font(.system(size: 18))
+                                Text("Metrônomo")
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .foregroundColor(isMetronomeActive ? .yellow : .gray)
+                            .frame(maxWidth: .infinity)
+                        }
+                        
+                        // Play / Pause Button Central
+                        Button(action: {
+                            handlePlayButtonTapped()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(
+                                        gradient: Gradient(colors: isPlaying ? [Color.orange, Color.red] : [Color.cyan, Color.blue]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 64, height: 64)
+                                    .shadow(color: isPlaying ? Color.red.opacity(0.3) : Color.cyan.opacity(0.3), radius: 8, x: 0, y: 4)
+                                
+                                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 24, weight: .black))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .offset(y: -15) // Eleva o botão central
+                        
+                        // Speed Button (%)
+                        Menu {
+                            Button("50%") { setSpeed(0.5) }
+                            Button("75%") { setSpeed(0.75) }
+                            Button("100% (Normal)") { setSpeed(1.0) }
+                            Button("125%") { setSpeed(1.25) }
+                            Button("150%") { setSpeed(1.5) }
+                        } label: {
+                            VStack(spacing: 4) {
+                                Image(systemName: "speedometer")
+                                    .font(.system(size: 18))
+                                Text(String(format: "%.0f%%", speedRatio * 100))
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .foregroundColor(speedRatio != 1.0 ? .white : .gray)
+                            .frame(maxWidth: .infinity)
+                        }
+                        
+                        // Mixer Button
+                        Button(action: {
+                            isMixerPresented = true
+                        }) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "slider.vertical.3")
+                                    .font(.system(size: 18))
+                                Text("Mixer")
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 32)
+                            .fill(Color(red: 0.12, green: 0.12, blue: 0.16).opacity(0.95))
+                            .shadow(color: Color.black.opacity(0.5), radius: 15, x: 0, y: 10)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 20)
+                }
+            }
         }
         .sheet(isPresented: $isAIAnalysisPresented) {
             AIAnalysisSheetView(song: song, currentBPM: tempo)
