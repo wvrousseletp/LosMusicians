@@ -183,111 +183,112 @@ struct TabPlayerView: View {
             }
             
             // Bottom Bar Flutuante
-            if songId == nil {
-                VStack {
-                    Spacer()
-                    
-                    HStack(spacing: 0) {
-                        // Loop Button
-                        Button(action: {
-                            isLoopActive.toggle()
-                        }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: "repeat")
-                                    .font(.system(size: 18))
-                                Text("Loop")
-                                    .font(.system(size: 10, weight: .medium))
-                            }
-                            .foregroundColor(isLoopActive ? .green : .gray)
-                            .frame(maxWidth: .infinity)
+            VStack {
+                Spacer()
+                
+                HStack(spacing: 0) {
+                    // Loop Button
+                    Button(action: {
+                        isLoopActive.toggle()
+                        if songId != nil {
+                            NotificationCenter.default.post(name: NSNotification.Name("SongsterrToggleLoop"), object: nil)
                         }
-                        .contextMenu {
-                            Button("Loop Compasso 1 a 4") { loopStartMeasure = 1; loopEndMeasure = 4; isLoopActive = true }
-                            Button("Loop Compasso 1 a 2") { loopStartMeasure = 1; loopEndMeasure = 2; isLoopActive = true }
-                            Button("Loop Compasso 3 a 4") { loopStartMeasure = 3; loopEndMeasure = 4; isLoopActive = true }
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "repeat")
+                                .font(.system(size: 18))
+                            Text("Loop")
+                                .font(.system(size: 10, weight: .medium))
                         }
-                        
-                        // Metrônomo Button
-                        Button(action: {
-                            isMetronomeActive.toggle()
-                        }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: isMetronomeActive ? "clock.fill" : "clock")
-                                    .font(.system(size: 18))
-                                Text("Metrônomo")
-                                    .font(.system(size: 10, weight: .medium))
-                            }
-                            .foregroundColor(isMetronomeActive ? .yellow : .gray)
-                            .frame(maxWidth: .infinity)
-                        }
-                        
-                        // Play / Pause Button Central
-                        Button(action: {
-                            handlePlayButtonTapped()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: isPlaying ? [Color.orange, Color.red] : [Color.cyan, Color.blue]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ))
-                                    .frame(width: 64, height: 64)
-                                    .shadow(color: isPlaying ? Color.red.opacity(0.3) : Color.cyan.opacity(0.3), radius: 8, x: 0, y: 4)
-                                
-                                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                    .font(.system(size: 24, weight: .black))
-                                    .foregroundColor(.white)
-                            }
-                        }
+                        .foregroundColor(isLoopActive ? .green : .gray)
                         .frame(maxWidth: .infinity)
-                        .offset(y: -15) // Eleva o botão central
-                        
-                        // Speed Button (%)
-                        Menu {
-                            Button("50%") { setSpeed(0.5) }
-                            Button("75%") { setSpeed(0.75) }
-                            Button("100% (Normal)") { setSpeed(1.0) }
-                            Button("125%") { setSpeed(1.25) }
-                            Button("150%") { setSpeed(1.5) }
-                        } label: {
-                            VStack(spacing: 4) {
-                                Image(systemName: "speedometer")
-                                    .font(.system(size: 18))
-                                Text(String(format: "%.0f%%", speedRatio * 100))
-                                    .font(.system(size: 10, weight: .medium))
-                            }
-                            .foregroundColor(speedRatio != 1.0 ? .white : .gray)
-                            .frame(maxWidth: .infinity)
+                    }
+                    .contextMenu {
+                        Button("Loop Compasso 1 a 4") { loopStartMeasure = 1; loopEndMeasure = 4; isLoopActive = true }
+                        Button("Loop Compasso 1 a 2") { loopStartMeasure = 1; loopEndMeasure = 2; isLoopActive = true }
+                        Button("Loop Compasso 3 a 4") { loopStartMeasure = 3; loopEndMeasure = 4; isLoopActive = true }
+                    }
+                    
+                    // Metrônomo Button
+                    Button(action: {
+                        isMetronomeActive.toggle()
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: isMetronomeActive ? "clock.fill" : "clock")
+                                .font(.system(size: 18))
+                            Text("Metrônomo")
+                                .font(.system(size: 10, weight: .medium))
                         }
-                        
-                        // Mixer Button
-                        Button(action: {
-                            isMixerPresented = true
-                        }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: "slider.vertical.3")
-                                    .font(.system(size: 18))
-                                Text("Mixer")
-                                    .font(.system(size: 10, weight: .medium))
-                            }
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity)
+                        .foregroundColor(isMetronomeActive ? .yellow : .gray)
+                        .frame(maxWidth: .infinity)
+                    }
+                    
+                    // Play / Pause Button Central
+                    Button(action: {
+                        handlePlayButtonTapped()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(LinearGradient(
+                                    gradient: Gradient(colors: isPlaying ? [Color.orange, Color.red] : [Color.cyan, Color.blue]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
+                                .frame(width: 64, height: 64)
+                                .shadow(color: isPlaying ? Color.red.opacity(0.3) : Color.cyan.opacity(0.3), radius: 8, x: 0, y: 4)
+                            
+                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                .font(.system(size: 24, weight: .black))
+                                .foregroundColor(.white)
                         }
                     }
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 32)
-                            .fill(Color(red: 0.12, green: 0.12, blue: 0.16).opacity(0.95))
-                            .shadow(color: Color.black.opacity(0.5), radius: 15, x: 0, y: 10)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 32)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 20)
+                    .frame(maxWidth: .infinity)
+                    .offset(y: -15) // Eleva o botão central
+                    
+                    // Speed Button (%)
+                    Menu {
+                        Button("50%") { setSpeed(0.5) }
+                        Button("75%") { setSpeed(0.75) }
+                        Button("100% (Normal)") { setSpeed(1.0) }
+                        Button("125%") { setSpeed(1.25) }
+                        Button("150%") { setSpeed(1.5) }
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: "speedometer")
+                                .font(.system(size: 18))
+                            Text(String(format: "%.0f%%", speedRatio * 100))
+                                .font(.system(size: 10, weight: .medium))
+                        }
+                        .foregroundColor(speedRatio != 1.0 ? .white : .gray)
+                        .frame(maxWidth: .infinity)
+                    }
+                    
+                    // Mixer Button
+                    Button(action: {
+                        isMixerPresented = true
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "slider.vertical.3")
+                                .font(.system(size: 18))
+                            Text("Mixer")
+                                .font(.system(size: 10, weight: .medium))
+                        }
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity)
+                    }
                 }
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 32)
+                        .fill(Color(red: 0.12, green: 0.12, blue: 0.16).opacity(0.95))
+                        .shadow(color: Color.black.opacity(0.5), radius: 15, x: 0, y: 10)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
             }
         }
         .sheet(isPresented: $isAIAnalysisPresented) {
@@ -311,6 +312,10 @@ struct TabPlayerView: View {
             stopPractice()
         } else {
             startPlayingDirectly()
+        }
+        
+        if songId != nil {
+            NotificationCenter.default.post(name: NSNotification.Name("SongsterrPlayPause"), object: nil)
         }
     }
     
@@ -340,6 +345,9 @@ struct TabPlayerView: View {
     private func setSpeed(_ ratio: Double) {
         speedRatio = ratio
         tempo = Int(Double(song.bpm) * ratio)
+        if songId != nil {
+            NotificationCenter.default.post(name: NSNotification.Name("SongsterrSetSpeed"), object: nil, userInfo: ["speed": ratio])
+        }
     }
     
     private func startPracticeTimer() {
