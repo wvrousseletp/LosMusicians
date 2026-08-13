@@ -1,12 +1,25 @@
 import Foundation
 import AVFoundation
 
+class AppleMIDISynth: AVAudioUnitMIDIInstrument {
+    override init() {
+        var desc = AudioComponentDescription(
+            componentType: OSType(kAudioUnitType_MusicDevice),
+            componentSubType: OSType(kAudioUnitSubType_MIDISynth),
+            componentManufacturer: OSType(kAudioUnitManufacturer_Apple),
+            componentFlags: 0,
+            componentFlagsMask: 0
+        )
+        super.init(audioComponentDescription: desc)
+    }
+}
+
 /// Motor de síntese sonora nativo para reprodução de notas de violão, guitarra, baixo, bateria e metrônomo com precisão de estúdio
 final class GuitarSynthEngine: ObservableObject {
     static let shared = GuitarSynthEngine()
     
     private var engine = AVAudioEngine()
-    private var midiSynth = AVAudioUnitMIDISynth()
+    private var midiSynth: AppleMIDISynth
     private var isEngineRunning = false
     
     @Published var pitchShiftSemitones: Int = 0
@@ -32,6 +45,7 @@ final class GuitarSynthEngine: ObservableObject {
     ]
     
     private init() {
+        self.midiSynth = AppleMIDISynth()
         setupAudioEngine()
     }
     
