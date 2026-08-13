@@ -175,11 +175,11 @@ final class GuitarSynthEngine: ObservableObject {
         
         if let ch = channels[normalized] {
             let velocity = UInt8(vol * 100.0) // slightly lower than 127 to avoid clipping
-            midiSynth.sendNoteOn(UInt8(transposedMidi), withVelocity: velocity, onChannel: ch)
+            midiSynth.startNote(UInt8(transposedMidi), withVelocity: velocity, onChannel: ch)
             
             // Auto stop note after a certain time to prevent hanging notes
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
-                self?.midiSynth.sendNoteOff(UInt8(transposedMidi), withVelocity: 0, onChannel: ch)
+                self?.midiSynth.stopNote(UInt8(transposedMidi), onChannel: ch)
             }
         }
     }
@@ -197,10 +197,10 @@ final class GuitarSynthEngine: ObservableObject {
         guard let ch = channels["metronome"] else { return }
         
         let note: UInt8 = isStrong ? 76 : 77 // Woodblock High/Low
-        midiSynth.sendNoteOn(note, withVelocity: 110, onChannel: ch)
+        midiSynth.startNote(note, withVelocity: 110, onChannel: ch)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            self?.midiSynth.sendNoteOff(note, withVelocity: 0, onChannel: ch)
+            self?.midiSynth.stopNote(note, onChannel: ch)
         }
     }
     
