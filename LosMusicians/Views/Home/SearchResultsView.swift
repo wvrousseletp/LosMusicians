@@ -5,7 +5,7 @@ struct SearchResultsView: View {
     @State private var query: String = ""
     @Environment(\.presentationMode) var presentationMode
     
-    @State private var selectedResult: SongSearchResult? = nil
+    @State private var selectedResult: Song? = nil
     
     var body: some View {
         NavigationView {
@@ -108,7 +108,7 @@ struct SearchResultsView: View {
             }
         }
         .fullScreenCover(item: $selectedResult) { result in
-            AILessonPlanView(songResult: result)
+            AILessonPlanView(song: result)
         }
     }
 }

@@ -1,13 +1,12 @@
 import SwiftUI
 
 struct AILessonPlanView: View {
-    let songResult: SongSearchResult
+    let song: Song
     @Environment(\.presentationMode) var presentationMode
     
     @State private var isLoading: Bool = true
     @State private var aiTips: [String] = []
     @State private var showPlayer: Bool = false
-    @State private var readySong: Song? = nil
     
     var body: some View {
         ZStack {
@@ -20,7 +19,7 @@ struct AILessonPlanView: View {
                         .scaleEffect(1.5)
                         .progressViewStyle(CircularProgressViewStyle(tint: .purple))
                     
-                    Text("Analisando '\(songResult.title)' com IA...")
+                    Text("Analisando '\(song.title)' com IA...")
                         .font(.headline)
                         .foregroundColor(.white)
                     
@@ -42,7 +41,7 @@ struct AILessonPlanView: View {
                             Text("Plano de Aula")
                                 .font(.title3.bold())
                                 .foregroundColor(.white)
-                            Text("\(songResult.title) - \(songResult.artist)")
+                            Text("\(song.title) - \(song.artist)")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
@@ -95,37 +94,26 @@ struct AILessonPlanView: View {
             }
         }
         .fullScreenCover(isPresented: $showPlayer) {
-            if let song = readySong {
-                TabPlayerView(song: song, songId: songResult.songId)
-            }
+            TabPlayerView(song: song, songId: nil) // songId = nil força a usar o player nativo do app
         }
     }
     
     private func simulateAILoading() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            // Gera as dicas
-            self.aiTips = [
-                "Esta música contém palhetada alternada rápida. Aqueça seu pulso direito antes de começar.",
-                "Foque primeiro em tocar os riffs principais a 50% da velocidade original usando o Speed Trainer.",
-                "Cuidado com a precisão dos bends no solo; use seu dedo anelar apoiado pelos outros para ter mais força."
-            ]
-            
-            // Cria o "Song" para o player
-            let alphaTex = TabSearchService.shared.fetchMockAlphaTex(for: songResult)
-            
-            self.readySong = Song(
-                id: String(songResult.songId),
-                title: songResult.title,
-                artist: songResult.artist,
-                coverUrl: nil,
-                difficulty: "Médio", // Seria definido pela IA
-                bpm: 120,
-                tracks: [
-                    InstrumentTrack(id: "t_main", name: "Guitarra Principal", instrument: .leadGuitar, tabDataJson: alphaTex)
-                ],
-                isPublic: true,
-                authorName: "IA / Songsterr"
-            )
+            // Gera as dicas baseadas na dificuldade
+            if self.song.difficulty == "Insano" {
+                self.aiTips = [
+                    "Esta música contém palhetada alternada rápida. Aqueça seu pulso direito antes de começar.",
+                    "Foque primeiro em tocar os riffs principais a 50% da velocidade original usando o Speed Trainer.",
+                    "Cuidado com a precisão dos bends no solo; use seu dedo anelar apoiado pelos outros para ter mais força."
+                ]
+            } else {
+                self.aiTips = [
+                    "Sente-se confortavelmente e foque em tocar cada nota com clareza.",
+                    "Use o metrônomo incluído no player para manter o tempo constante.",
+                    "Divida a música em pequenos loops de 4 compassos para memorizar mais rápido."
+                ]
+            }
             
             withAnimation {
                 self.isLoading = false

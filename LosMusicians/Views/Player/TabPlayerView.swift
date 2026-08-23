@@ -2,7 +2,6 @@ import SwiftUI
 
 struct TabPlayerView: View {
     let song: Song
-    let songId: Int?
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var authManager: AuthManager
     @ObservedObject var offlineManager = OfflineTabManager.shared
@@ -12,7 +11,7 @@ struct TabPlayerView: View {
     @State private var speedRatio: Double = 1.0
     @State private var selectedTrack: InstrumentTrack
     
-    // Controles Avançados do Player (Estilo Songsterr)
+    // Controles Avançados do Player
     @State private var isLoopActive: Bool = false
     @State private var loopStartMeasure: Int = 1
     @State private var loopEndMeasure: Int = 4
@@ -27,16 +26,14 @@ struct TabPlayerView: View {
     @State private var sessionXP: Int = 0
     @State private var practiceTimer: Timer? = nil
     
-    init(song: Song, songId: Int? = nil) {
+    init(song: Song) {
         self.song = song
-        self.songId = songId
         _tempo = State(initialValue: max(40, song.bpm))
         _selectedTrack = State(initialValue: song.tracks.first ?? InstrumentTrack(id: "t0", name: "Guitarra", instrument: .leadGuitar))
     }
     
     var body: some View {
         ZStack {
-            // Fundo escuro premium (Estilo Songsterr)
             Color(red: 0.05, green: 0.05, blue: 0.08)
                 .ignoresSafeArea()
             
@@ -68,7 +65,6 @@ struct TabPlayerView: View {
                     
                     Spacer()
                     
-                    // Botão Discreto IA / XP
                     Button(action: {
                         isAIAnalysisPresented = true
                     }) {
@@ -138,30 +134,25 @@ struct TabPlayerView: View {
                 .frame(height: 44)
                 .background(Color(red: 0.08, green: 0.08, blue: 0.12))
                 
-                // Tablatura Principal
-                if let id = songId {
-                    SongsterrWebView(songId: id)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    InteractiveTablatureView(
-                        alphaTex: selectedTrack.tabDataJson ?? song.tabDataJson,
-                        isPlaying: $isPlaying,
-                        tempo: $tempo,
-                        instrument: selectedTrack.instrument.rawValue,
-                        isLoopActive: $isLoopActive,
-                        loopStartMeasure: $loopStartMeasure,
-                        loopEndMeasure: $loopEndMeasure,
-                        pitchShiftSemitones: $pitchShiftSemitones,
-                        isMetronomeActive: $isMetronomeActive,
-                        isSpeedTrainerActive: $isSpeedTrainerActive,
-                        showChords: $showChords,
-                        onLoopCycleCompleted: {
-                            handleLoopCycleCompleted()
-                        }
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.bottom, 90)
-                }
+                // Tablatura Principal 100% Nativa
+                InteractiveTablatureView(
+                    alphaTex: selectedTrack.tabDataJson ?? song.tabDataJson,
+                    isPlaying: $isPlaying,
+                    tempo: $tempo,
+                    instrument: selectedTrack.instrument.rawValue,
+                    isLoopActive: $isLoopActive,
+                    loopStartMeasure: $loopStartMeasure,
+                    loopEndMeasure: $loopEndMeasure,
+                    pitchShiftSemitones: $pitchShiftSemitones,
+                    isMetronomeActive: $isMetronomeActive,
+                    isSpeedTrainerActive: $isSpeedTrainerActive,
+                    showChords: $showChords,
+                    onLoopCycleCompleted: {
+                        handleLoopCycleCompleted()
+                    }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.bottom, 90)
             }
             
             // Toast flutuante de aceleração do Speed Trainer
@@ -190,9 +181,6 @@ struct TabPlayerView: View {
                     // Loop Button
                     Button(action: {
                         isLoopActive.toggle()
-                        if songId != nil {
-                            NotificationCenter.default.post(name: NSNotification.Name("SongsterrToggleLoop"), object: nil)
-                        }
                     }) {
                         VStack(spacing: 4) {
                             Image(systemName: "repeat")
@@ -313,10 +301,6 @@ struct TabPlayerView: View {
         } else {
             startPlayingDirectly()
         }
-        
-        if songId != nil {
-            NotificationCenter.default.post(name: NSNotification.Name("SongsterrPlayPause"), object: nil)
-        }
     }
     
     private func startPlayingDirectly() {
@@ -345,9 +329,6 @@ struct TabPlayerView: View {
     private func setSpeed(_ ratio: Double) {
         speedRatio = ratio
         tempo = Int(Double(song.bpm) * ratio)
-        if songId != nil {
-            NotificationCenter.default.post(name: NSNotification.Name("SongsterrSetSpeed"), object: nil, userInfo: ["speed": ratio])
-        }
     }
     
     private func startPracticeTimer() {
