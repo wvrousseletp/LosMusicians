@@ -69,21 +69,16 @@ jobs:
         env:
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
         run: |
-          # Use pipefail to catch xcodebuild errors even with pipes
           set -o pipefail
-          
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
 
-          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
-          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
           SIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep "Apple Distribution" | head -1 | awk -F'"' '{print $2}')
-          
           echo "Signing with: $SIGN_IDENTITY"
-          echo "Profile UUID: $PROFILE_UUID"
 
-          # Using xcpretty for cleaner logs, or raw xcodebuild if xcpretty fails
+          # Removed global CODE_SIGN_IDENTITY and PROVISIONING_PROFILE_SPECIFIER overrides
+          # to prevent breaking SPM dependencies. We just specify the team and Automatic signing.
           xcodebuild archive \
             -project LosMusicians.xcodeproj \
             -scheme LosMusicians \
@@ -92,9 +87,6 @@ jobs:
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
             DEVELOPMENT_TEAM=PJ32UPL29J \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" | xcpretty || {
               echo "xcpretty failed, running raw xcodebuild for full logs..."
@@ -106,9 +98,6 @@ jobs:
                 -archivePath $PWD/build/LosMusicians.xcarchive \
                 -destination 'generic/platform=iOS' \
                 DEVELOPMENT_TEAM=PJ32UPL29J \
-                CODE_SIGN_STYLE=Manual \
-                CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
-                PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
                 CURRENT_PROJECT_VERSION=${{ github.run_number }} \
                 OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
             }
