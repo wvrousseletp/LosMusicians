@@ -94,7 +94,7 @@ struct AILessonPlanView: View {
             }
         }
         .fullScreenCover(isPresented: $showPlayer) {
-            TabPlayerView(song: song, songId: nil) // songId = nil força a usar o player nativo do app
+            TabPlayerView(song: song)
         }
     }
     
