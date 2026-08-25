@@ -123,14 +123,46 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
+
+          # Extract the provisioning profile UUID to reference in export options
+          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
+          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
+          PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" | plutil -extract Name raw -)
+          echo "Using profile: $PROFILE_NAME ($PROFILE_UUID)"
+
+          # Build ExportOptions dynamically with manual signing
+          cat > $RUNNER_TEMP/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>destination</key>
+              <string>export</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>teamID</key>
+              <string>PJ32UPL29J</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.wellerson.LosMusicians</key>
+                  <string>$PROFILE_UUID</string>
+              </dict>
+          </dict>
+          </plist>
+          EOF
+
           xcodebuild -exportArchive \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -exportPath $PWD/build \
-            -exportOptionsPlist ExportOptions.plist \
-            -allowProvisioningUpdates \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
+            2>&1
 
       - name: Print Xcode Distribution Logs on Failure
         if: failure()
@@ -141,17 +173,25 @@ jobs:
             echo "Found logs at: $LOG_DIR"
             for logfile in "$LOG_DIR"/*.log; do
               echo "--- $(basename "$logfile") ---"
-              cat "$logfile" | head -100
+              cat "$logfile" | head -200
             done
           else
             echo "No logs found under /var/folders"
           fi
+          # Also print any IPA export logs
+          find $PWD/build -name "*.log" 2>/dev/null | while read f; do
+            echo "--- $f ---"
+            cat "$f" | tail -50
+          done
 
       - name: Upload Build to TestFlight
         run: |
+          IPA_PATH=$(find $PWD/build -name "*.ipa" | head -1)
+          echo "Uploading IPA: $IPA_PATH"
           xcrun altool --upload-app \
             --type ios \
-            --file $PWD/build/LosMusicians.ipa \
+            --file "$IPA_PATH" \
             --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            --apiPrivateKey ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+            --apiPrivateKey ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
+            --verbose 2>&1
