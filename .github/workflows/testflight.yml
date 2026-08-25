@@ -74,6 +74,13 @@ jobs:
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
 
+          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
+          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
+          
+          # Injeta o signing manual diretamente no .pbxproj para aplicar SOMENTE ao App
+          # e não aos targets do SPM (Swift Package Manager)
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual; CODE_SIGN_IDENTITY = \"Apple Distribution\"; PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_UUID\";/g" LosMusicians.xcodeproj/project.pbxproj
+
           xcodebuild archive \
             -project LosMusicians.xcodeproj \
             -scheme LosMusicians \
@@ -81,10 +88,6 @@ jobs:
             -sdk iphoneos \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
-            -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
             DEVELOPMENT_TEAM=PJ32UPL29J \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" | xcpretty || {
@@ -96,10 +99,6 @@ jobs:
                 -sdk iphoneos \
                 -archivePath $PWD/build/LosMusicians.xcarchive \
                 -destination 'generic/platform=iOS' \
-                -allowProvisioningUpdates \
-                -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-                -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-                -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
                 DEVELOPMENT_TEAM=PJ32UPL29J \
                 CURRENT_PROJECT_VERSION=${{ github.run_number }} \
                 OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
