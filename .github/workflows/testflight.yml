@@ -35,7 +35,6 @@ jobs:
           echo "$CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
           security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/xcodebuild
 
-          # Apple WWDR intermediate certificates for trust chain
           curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o $RUNNER_TEMP/AppleWWDRCAG3.cer
           curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer -o $RUNNER_TEMP/AppleWWDRCAG6.cer
           security import $RUNNER_TEMP/AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
@@ -43,9 +42,6 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
-
-          echo "=== Identidades de assinatura disponíveis ==="
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
 
       - name: Install Provisioning Profile
         env:
@@ -55,9 +51,7 @@ jobs:
           echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
-          PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" | plutil -extract Name raw -)
           cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$PROFILE_UUID".mobileprovision
-          echo "Installed profile: $PROFILE_NAME ($PROFILE_UUID)"
 
       - name: Resolve Swift Package Manager Dependencies
         run: |
@@ -75,6 +69,9 @@ jobs:
         env:
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
         run: |
+          # Use pipefail to catch xcodebuild errors even with pipes
+          set -o pipefail
+          
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
@@ -82,9 +79,11 @@ jobs:
           PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
           SIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep "Apple Distribution" | head -1 | awk -F'"' '{print $2}')
+          
           echo "Signing with: $SIGN_IDENTITY"
           echo "Profile UUID: $PROFILE_UUID"
 
+          # Using xcpretty for cleaner logs, or raw xcodebuild if xcpretty fails
           xcodebuild archive \
             -project LosMusicians.xcodeproj \
             -scheme LosMusicians \
@@ -95,21 +94,33 @@ jobs:
             DEVELOPMENT_TEAM=PJ32UPL29J \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
-            PROVISIONING_PROFILE="$PROFILE_UUID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
-            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" \
-            2>&1 | tail -50
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" | xcpretty || {
+              echo "xcpretty failed, running raw xcodebuild for full logs..."
+              xcodebuild archive \
+                -project LosMusicians.xcodeproj \
+                -scheme LosMusicians \
+                -configuration Release \
+                -sdk iphoneos \
+                -archivePath $PWD/build/LosMusicians.xcarchive \
+                -destination 'generic/platform=iOS' \
+                DEVELOPMENT_TEAM=PJ32UPL29J \
+                CODE_SIGN_STYLE=Manual \
+                CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
+                PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
+                CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+                OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
+            }
 
       - name: Export IPA Package
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
 
           PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
 
-          # Gera ExportOptions com manual signing e UUID correto
           cat > $RUNNER_TEMP/ExportOptions.plist << PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -140,8 +151,7 @@ jobs:
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
-            2>&1
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Print Xcode Distribution Logs on Failure
         if: failure()
@@ -149,27 +159,19 @@ jobs:
           echo "=== Xcode Distribution Logs ==="
           LOG_DIR=$(find /var/folders -type d -name "LosMusicians_*.xcdistributionlogs" 2>/dev/null | sort | tail -1)
           if [ -n "$LOG_DIR" ]; then
-            echo "Found logs at: $LOG_DIR"
             for logfile in "$LOG_DIR"/*.log; do
               echo "--- $(basename "$logfile") ---"
               cat "$logfile" | head -200
             done
-          else
-            echo "No distribution logs found"
           fi
-          # Archive contents
-          echo "=== Archive Contents ==="
-          ls -la $PWD/build/LosMusicians.xcarchive/Products/Applications/ 2>/dev/null || echo "No archive"
-          codesign -dv $PWD/build/LosMusicians.xcarchive/Products/Applications/LosMusicians.app 2>&1 || echo "Codesign check failed"
 
       - name: Upload to TestFlight
         run: |
           IPA_PATH=$(find $PWD/build -name "*.ipa" | head -1)
-          echo "Uploading: $IPA_PATH"
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \
             --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             --apiPrivateKey ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
-            --verbose 2>&1
+            --verbose
