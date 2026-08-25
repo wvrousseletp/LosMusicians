@@ -1,230 +1,209 @@
 import Foundation
 
-class GeminiService {
+// MARK: - Serviço de IA Gemini
+
+final class GeminiService {
     static let shared = GeminiService()
     
-    // A chave real é injetada pela esteira de CI/CD por segurança.
+    // Chave injetada pela CI/CD — nunca inclua valores reais no código
     private let apiKey = "INJECTED_BY_CI"
     
-    // Modelos ativos e compatíveis em ordem de prioridade
-    private let models = [
-        "gemini-flash-latest",
-        "gemini-3.5-flash",
-        "gemini-3-flash-preview"
-    ]
+    // Modelos em ordem de prioridade (mais rápido primeiro)
+    private let models = ["gemini-2.0-flash", "gemini-1.5-flash"]
+    
+    private init() {}
+    
+    // MARK: - Geração de Exercício AlphaTex
     
     func generateExercise(instrument: String, technique: String, timeAvailable: Int, isChallengeMode: Bool) async throws -> String {
-        guard !apiKey.isEmpty && apiKey != "YOUR_GEMINI_API_KEY" else {
-            throw NSError(domain: "GeminiService", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key não configurada."])
+        guard isAPIKeyValid() else {
+            return buildFallbackExercise(technique: technique)
         }
-        
         let prompt = """
-        Atue como um professor de música especialista. O aluno precisa de um exercício para \(instrument) focado na técnica de \(technique).
-        Tempo disponível: \(timeAvailable) minutos.
-        Modo: \(isChallengeMode ? "Desafio (Alta dificuldade, padrões rápidos)" : "Aquecimento (Dificuldade moderada, foco em precisão)").
-        
-        Você DEVE responder EXCLUSIVAMENTE com código AlphaTex compatível com AlphaTab.
-        Formato obrigatório estrito:
+        Atue como professor de música. O aluno precisa de um exercício para \(instrument) focado em \(technique).
+        Tempo: \(timeAvailable) minutos. Modo: \(isChallengeMode ? "Desafio (rápido)" : "Aquecimento (moderado)").
+        Responda APENAS com AlphaTex puro (sem markdown):
         \\title "Exercício de \(technique)"
         \\tempo 100
         .
         :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2
-        
-        Regras:
-        1. Inicie com \\title e \\tempo.
-        2. Coloque um ponto "." sozinho na linha seguinte.
-        3. Notas no formato traste.corda (ex: 5.6 significa traste 5 na corda 6).
-        4. Use :8 para colcheias ou :4 para semínimas antes dos grupos de notas.
-        5. Separe os compassos usando a barra vertical "|".
-        6. Gere exatamente 4 compassos completos.
-        7. Não use markdown, crases ou qualquer texto explicativo. Retorne apenas o código AlphaTex puro.
+        Gere exatamente 4 compassos reais de \(technique). Formato: traste.corda (ex: 5.6). Separador de compasso: |
         """
-        
-        let requestBody: [String: Any] = [
-            "contents": [
-                [
-                    "parts": [
-                        ["text": prompt]
-                    ]
-                ]
-            ],
-            "generationConfig": [
-                "temperature": 0.2,
-                "maxOutputTokens": 2048
-            ]
-        ]
-        
-        let httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-        var lastError: Error? = nil
-        
-        for model in models {
-            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
-                continue
+        return try await callGemini(prompt: prompt, maxTokens: 2048, temperature: 0.2) { rawText in
+            var clean = self.stripMarkdownFences(rawText)
+            if !clean.contains(".") && !clean.contains(":") {
+                clean = self.buildFallbackExercise(technique: technique)
             }
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = httpBody
-            
-            do {
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    let errorText = String(data: data, encoding: .utf8) ?? "Erro desconhecido"
-                    lastError = NSError(domain: "GeminiService", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Erro na API (\(model)): \(errorText)"])
-                    continue
-                }
-                
-                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-                guard let candidates = json?["candidates"] as? [[String: Any]],
-                      let firstCandidate = candidates.first,
-                      let content = firstCandidate["content"] as? [String: Any],
-                      let parts = content["parts"] as? [[String: Any]],
-                      let firstPart = parts.first,
-                      let rawText = firstPart["text"] as? String else {
-                    lastError = NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Resposta inválida da API"])
-                    continue
-                }
-                
-                // Limpeza e higienização rigorosa do AlphaTex
-                var cleanText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
-                if cleanText.contains("```") {
-                    let lines = cleanText.components(separatedBy: .newlines)
-                    let filteredLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("```") }
-                    cleanText = filteredLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-                }
-                
-                // Valida se o texto contém estrutura mínima de AlphaTex
-                if !cleanText.contains(".") && !cleanText.contains(":") {
-                    cleanText = """
-                    \\title "\(technique)"
-                    \\tempo 100
-                    .
-                    :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2
-                    """
-                }
-                
-                return cleanText
-            } catch {
-                lastError = error
-            }
+            return clean
         }
-        
-        throw lastError ?? NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Não foi possível gerar o exercício com nenhum dos modelos."])
     }
     
-    func generateSongSteps(songTitle: String, instrument: String) async throws -> [AISongStep] {
-        guard !apiKey.isEmpty && apiKey != "YOUR_GEMINI_API_KEY" else {
-            throw NSError(domain: "GeminiService", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key não configurada."])
+    // MARK: - Dicas de Aula (Real via IA)
+    
+    func generateLessonTips(songTitle: String, artist: String, difficulty: String, bpm: Int) async throws -> [String] {
+        guard isAPIKeyValid() else {
+            return fallbackLessonTips(for: difficulty)
         }
-        
         let prompt = """
-        Atue como um professor de música especialista em transcrição e tablaturas.
-        O aluno quer aprender a música ou riff: "\(songTitle)" no instrumento: "\(instrument)".
-        
-        Você DEVE transcrever a melodia, riff de introdução ou progressão de acordes REAL e RECONHECÍVEL da música "\(songTitle)".
-        NÃO retorne escalas genéricas ou notas aleatórias. Se for um riff famoso (como "Back in Black", "Sweet Child O' Mine", "Smoke on the Water", "Seven Nation Army", "Come As You Are", etc.), use a sequência de trastes e cordas correta e correspondente ao instrumento "\(instrument)".
-        
-        Exemplos de referências reais (traste.corda):
-        - Smoke on the Water (Riff de Guitarra na corda 6 e 5): :4 0.6 3.6 5.6 | 0.6 3.6 6.6 5.6 | 0.6 3.6 5.6 | 3.6 0.6
-        - Seven Nation Army (Riff de Baixo/Guitarra na corda 5 e 4): :4 7.5 7.5 10.5 7.5 5.5 3.5 2.5
-        
-        Se o instrumento for Baixo, faça a linha de baixo real da música (geralmente notas graves unitárias).
-        Se for Teclado, forneça as notas da melodia vocal principal ou melodia de piano na corda 1, 2 ou 3 (tons mais agudos).
-        Se for Violão/Acoustic, use progressões de acordes ou dedilhados comuns da música.
-        Se for Guitarra (Lead/Rhythm), use o riff principal da guitarra.
-        
-        Divida o aprendizado dessa música em exatamente 3 partes/passos de aprendizado progressivos:
-        Parte 1: Ritmo/Base Lento (BPM bem reduzido para treinar o posicionamento correto dos dedos).
-        Parte 2: Padrão Intermediário (BPM médio, aproximando-se da velocidade real, foco em fluxo de palhetada/digitação).
-        Parte 3: Velocidade Real (BPM original da música, tocando na velocidade do estúdio).
-        
-        Forneça a tablatura real no formato AlphaTex compatível com AlphaTab.
-        Retorne a resposta EXCLUSIVAMENTE como um array JSON válido de objetos com os campos: "stepName", "description", "bpm" (inteiro) e "alphaTex" (string com escapes de quebra de linha corretos).
-        Não use crases de markdown (```json), tags HTML ou qualquer texto explicativo. Retorne apenas o JSON bruto de forma que possa ser analisado por um JSONDecoder em Swift.
-        
-        Regras de formatação obrigatórias do AlphaTex em cada parte:
-        - Inicie com \\\\title \\"Nome da Parte\\" e \\\\tempo BPM correspondente.
-        - Coloque um ponto "." isolado na linha seguinte.
-        - Escreva as notas no formato traste.corda (ex: 5.6).
-        - Separe os compassos usando a barra vertical "|".
-        - Use :4 (semínimas) ou :8 (colcheias) antes de grupos de notas para definir o tempo.
-        - Gere exatamente 2 ou 4 compassos completos da música real (ou o mais próximo possível simplificado).
+        Você é professor de guitarra. O aluno vai tocar "\(songTitle)" de \(artist).
+        Dificuldade: \(difficulty). BPM: \(bpm).
+        Gere EXATAMENTE 3 dicas práticas e específicas para ESSA música (mencione técnicas reais usadas nela).
+        Retorne APENAS um array JSON: ["Dica 1...", "Dica 2...", "Dica 3..."]
+        Sem markdown, sem texto extra — apenas o JSON.
         """
-        
-        let requestBody: [String: Any] = [
-            "contents": [
-                [
-                    "parts": [
-                        ["text": prompt]
-                    ]
-                ]
-            ],
-            "generationConfig": [
-                "temperature": 0.3,
-                "maxOutputTokens": 4096
-            ]
+        return try await callGemini(prompt: prompt, maxTokens: 512, temperature: 0.4) { rawText in
+            let clean = self.stripMarkdownFences(rawText)
+            if let data = clean.data(using: .utf8),
+               let tips = try? JSONDecoder().decode([String].self, from: data),
+               tips.count >= 3 {
+                return Array(tips.prefix(3))
+            }
+            return self.fallbackLessonTips(for: difficulty)
+        }
+    }
+    
+    // MARK: - Passos Progressivos para Aprender Música
+    
+    func generateSongSteps(songTitle: String, instrument: String) async throws -> [AISongStep] {
+        guard isAPIKeyValid() else {
+            throw NSError(domain: "GeminiService", code: 401,
+                         userInfo: [NSLocalizedDescriptionKey: "API Key não configurada."])
+        }
+        let prompt = """
+        Professor de música: transcreva o riff/melodia REAL de "\(songTitle)" para \(instrument) em AlphaTex.
+        NÃO use notas genéricas. Use a sequência correta de trastes e cordas da música real.
+        Referências (traste.corda):
+        - Smoke on the Water: :4 0.6 3.6 5.6 | 0.6 3.6 6.6 5.6 | 0.6 3.6 5.6 | 3.6 0.6
+        - Seven Nation Army: :4 7.5 7.5 10.5 7.5 5.5 3.5 2.5
+        Divida em 3 partes progressivas (lento, médio, velocidade real).
+        Retorne APENAS array JSON com campos: "stepName", "description", "bpm" (int), "alphaTex" (string).
+        """
+        let body: [String: Any] = [
+            "contents": [["parts": [["text": prompt]]]],
+            "generationConfig": ["temperature": 0.3, "maxOutputTokens": 4096]
         ]
-        
-        let httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-        var lastError: Error? = nil
+        let httpBody = try JSONSerialization.data(withJSONObject: body)
+        var lastError: Error?
         
         for model in models {
-            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
-                continue
-            }
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = httpBody
-            
+            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else { continue }
+            var req = URLRequest(url: url)
+            req.httpMethod = "POST"
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            req.httpBody = httpBody
             do {
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    let errorText = String(data: data, encoding: .utf8) ?? "Erro desconhecido"
-                    lastError = NSError(domain: "GeminiService", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Erro na API (\(model)): \(errorText)"])
+                let (data, resp) = try await URLSession.shared.data(for: req)
+                guard (resp as? HTTPURLResponse)?.statusCode == 200 else {
+                    lastError = NSError(domain: "GeminiService", code: (resp as? HTTPURLResponse)?.statusCode ?? 500,
+                                       userInfo: [NSLocalizedDescriptionKey: "HTTP error em \(model)"])
                     continue
                 }
-                
                 let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-                guard let candidates = json?["candidates"] as? [[String: Any]],
-                      let firstCandidate = candidates.first,
-                      let content = firstCandidate["content"] as? [String: Any],
-                      let parts = content["parts"] as? [[String: Any]],
-                      let firstPart = parts.first,
-                      var rawText = firstPart["text"] as? String else {
-                    lastError = NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Resposta inválida da API"])
-                    continue
-                }
-                
-                // Limpeza rigorosa de markdown de código
-                rawText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
-                if rawText.contains("```") {
-                    let lines = rawText.components(separatedBy: .newlines)
-                    let filteredLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("```") }
-                    rawText = filteredLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-                }
-                
-                guard let jsonData = rawText.data(using: .utf8) else {
-                    continue
-                }
-                
-                let steps = try JSONDecoder().decode([AISongStep].self, from: jsonData)
-                return steps
-            } catch {
-                lastError = error
-            }
+                guard var rawText = extractText(from: json) else { continue }
+                rawText = stripMarkdownFences(rawText)
+                guard let jsonData = rawText.data(using: .utf8) else { continue }
+                return try JSONDecoder().decode([AISongStep].self, from: jsonData)
+            } catch { lastError = error }
         }
+        throw lastError ?? NSError(domain: "GeminiService", code: 500,
+                                   userInfo: [NSLocalizedDescriptionKey: "Não foi possível gerar passos."])
+    }
+    
+    // MARK: - Helpers Privados
+    
+    private func callGemini<T>(prompt: String, maxTokens: Int, temperature: Double, transform: @escaping (String) throws -> T) async throws -> T {
+        let body: [String: Any] = [
+            "contents": [["parts": [["text": prompt]]]],
+            "generationConfig": ["temperature": temperature, "maxOutputTokens": maxTokens]
+        ]
+        let httpBody = try JSONSerialization.data(withJSONObject: body)
+        var lastError: Error?
         
-        throw lastError ?? NSError(domain: "GeminiService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Não foi possível gerar os passos do treino com nenhum dos modelos."])
+        for model in models {
+            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else { continue }
+            var req = URLRequest(url: url)
+            req.httpMethod = "POST"
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            req.httpBody = httpBody
+            do {
+                let (data, resp) = try await URLSession.shared.data(for: req)
+                guard (resp as? HTTPURLResponse)?.statusCode == 200 else {
+                    lastError = NSError(domain: "GeminiService", code: (resp as? HTTPURLResponse)?.statusCode ?? 500,
+                                       userInfo: [NSLocalizedDescriptionKey: "HTTP error"])
+                    continue
+                }
+                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                guard let rawText = extractText(from: json) else { continue }
+                return try transform(rawText)
+            } catch { lastError = error }
+        }
+        throw lastError ?? NSError(domain: "GeminiService", code: 500,
+                                   userInfo: [NSLocalizedDescriptionKey: "Falha em todos os modelos."])
+    }
+    
+    private func extractText(from json: [String: Any]?) -> String? {
+        guard let candidates = json?["candidates"] as? [[String: Any]],
+              let content = candidates.first?["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let text = parts.first?["text"] as? String else { return nil }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    private func stripMarkdownFences(_ text: String) -> String {
+        guard text.contains("```") else { return text }
+        return text.components(separatedBy: .newlines)
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("```") }
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    private func isAPIKeyValid() -> Bool {
+        return !apiKey.isEmpty && apiKey != "YOUR_GEMINI_API_KEY" && apiKey != "INJECTED_BY_CI"
+    }
+    
+    private func buildFallbackExercise(technique: String) -> String {
+        return """
+        \\title "Exercício: \(technique)"
+        \\tempo 100
+        .
+        :8 5.6 7.6 8.6 7.6 5.5 7.5 8.5 7.5 | 5.4 7.4 8.4 7.4 5.3 7.3 8.3 7.3 | 5.2 7.2 8.2 7.2 5.1 7.1 8.1 7.1 | 8.1 7.1 5.1 7.1 8.2 7.2 5.2 7.2
+        """
+    }
+    
+    private func fallbackLessonTips(for difficulty: String) -> [String] {
+        return fallbackTipsPublic(for: difficulty)
+    }
+    
+    /// Exposto para uso em Views como fallback gracioso quando a API não está disponível
+    func fallbackTipsPublic(for difficulty: String) -> [String] {
+        switch difficulty {
+        case "Insano":
+            return [
+                "Esta música exige palhetada alternada rápida. Aqueça o pulso direito por 5 minutos antes.",
+                "Pratique os riffs a 50% da velocidade até memorizar todos os trastes, depois acelere gradualmente.",
+                "Use o Speed Trainer: suba 5 BPM a cada 3 repetições perfeitas consecutivas."
+            ]
+        case "Difícil":
+            return [
+                "Divida a música em seções de 4 compassos e domine cada uma antes de juntar.",
+                "Foque na limpeza: cada nota deve soar clara sem buzz das cordas adjacentes.",
+                "Use o loop A-B no player para repetir partes difíceis em isolamento."
+            ]
+        default:
+            return [
+                "Comece devagar e foque em tocar cada nota com clareza antes de pensar em velocidade.",
+                "Use o metrônomo incluído para manter o tempo constante desde o início.",
+                "Divida em loops de 4 compassos para memorizar mais rápido e com menos frustração."
+            ]
+        }
     }
 }
 
+// MARK: - Modelo de Passo de Aula com ID Estável
+
 struct AISongStep: Codable, Identifiable {
-    var id: UUID { UUID() }
+    /// UUID estável — armazenado, não computado (evita breaks no ForEach do SwiftUI)
+    let id: UUID
     let stepName: String
     let description: String
     let bpm: Int
@@ -233,5 +212,21 @@ struct AISongStep: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case stepName, description, bpm, alphaTex
     }
+    
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = UUID()
+        self.stepName = try c.decode(String.self, forKey: .stepName)
+        self.description = try c.decode(String.self, forKey: .description)
+        self.bpm = try c.decode(Int.self, forKey: .bpm)
+        self.alphaTex = try c.decode(String.self, forKey: .alphaTex)
+    }
+    
+    init(stepName: String, description: String, bpm: Int, alphaTex: String) {
+        self.id = UUID()
+        self.stepName = stepName
+        self.description = description
+        self.bpm = bpm
+        self.alphaTex = alphaTex
+    }
 }
-

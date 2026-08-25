@@ -42,7 +42,6 @@
 		E3497911301A700000000001 /* AITeacherSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000001 /* AITeacherSetupView.swift */; };
 		E3497911301A700000000002 /* AITeacherPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3497910301A700000000002 /* AITeacherPlayerView.swift */; };
 		F3497911301A700000000001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3497910301A700000000001 /* PitchDetector.swift */; };
-		FBAE2A067CFBD5DA607C6826 /* SongsterrWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */; };
 		G7497911301A700000000001 /* GuitarSynthEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = G7497910301A700000000001 /* GuitarSynthEngine.swift */; };
 		I7497911301A700000000001 /* InteractiveTablatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = I7497910301A700000000001 /* InteractiveTablatureView.swift */; };
 		M7497911301A700000000001 /* MultitrackMixerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M7497910301A700000000001 /* MultitrackMixerView.swift */; };
@@ -50,7 +49,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SongsterrWebView.swift; path = LosMusicians/Views/Home/SongsterrWebView.swift; sourceTree = SOURCE_ROOT; };
 		3A4F2AA5E04291A1D7CEE370 /* TunerService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LosMusicians/Services/TunerService.swift; sourceTree = SOURCE_ROOT; };
 		585B3B697EB21192FC30DA29 /* GeminiService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeminiService.swift; path = Services/GeminiService.swift; sourceTree = "<group>"; };
 		8B4C523A6C906F8C2CD27C86 /* ExerciseModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExerciseModel.swift; path = Models/ExerciseModel.swift; sourceTree = "<group>"; };
@@ -138,7 +136,6 @@
 				A173149FE71ABA2AD16CF821 /* TunerView.swift */,
 				A6772F8A978857EB713EB4AA /* SearchResultsView.swift */,
 				9DDCCC93C1DDB753106699C8 /* AILessonPlanView.swift */,
-				0A14BC26A704DBA73252BAC5 /* SongsterrWebView.swift */,
 			);
 			name = Home;
 			sourceTree = "<group>";
@@ -334,7 +331,6 @@
 				0E0BA20FB08505ECF14F9DD2 /* TabSearchService.swift in Sources */,
 				870FDB91185B952A9F6AC0EE /* SearchResultsView.swift in Sources */,
 				896BE287B5D5EDAA4DCC2787 /* AILessonPlanView.swift in Sources */,
-				FBAE2A067CFBD5DA607C6826 /* SongsterrWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

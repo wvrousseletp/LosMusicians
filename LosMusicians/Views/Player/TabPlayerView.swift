@@ -24,7 +24,7 @@ struct TabPlayerView: View {
     @State private var showChords: Bool = false
     
     @State private var sessionXP: Int = 0
-    @State private var practiceTimer: Timer? = nil
+    @State private var practiceTask: Task<Void, Never>? = nil
     
     init(song: Song) {
         self.song = song
@@ -332,16 +332,22 @@ struct TabPlayerView: View {
     }
     
     private func startPracticeTimer() {
-        practiceTimer?.invalidate()
-        practiceTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { _ in
-            sessionXP += 1
-            authManager.addPracticeTime(minutes: 1)
+        practiceTask?.cancel()
+        practiceTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 6_000_000_000) // 6 segundos
+                if Task.isCancelled { break }
+                await MainActor.run {
+                    sessionXP += 1
+                    authManager.addPracticeTime(minutes: 1)
+                }
+            }
         }
     }
     
     private func stopPractice() {
-        practiceTimer?.invalidate()
-        practiceTimer = nil
+        practiceTask?.cancel()
+        practiceTask = nil
     }
 }
 

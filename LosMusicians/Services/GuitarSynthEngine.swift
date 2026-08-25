@@ -22,6 +22,9 @@ final class GuitarSynthEngine: ObservableObject {
     private var midiSynth: AppleMIDISynth
     private var isEngineRunning = false
     
+    /// Fila dedicada para timing de áudio — evita interferência na thread de UI
+    private let audioQueue = DispatchQueue(label: "com.losmusicians.audioTiming", qos: .userInteractive)
+    
     @Published var pitchShiftSemitones: Int = 0
     private var instrumentVolumes: [String: Float] = [
         "guitar": 1.0,
@@ -174,11 +177,11 @@ final class GuitarSynthEngine: ObservableObject {
         transposedMidi = max(0, min(127, transposedMidi))
         
         if let ch = channels[normalized] {
-            let velocity = UInt8(vol * 100.0) // slightly lower than 127 to avoid clipping
+            let velocity = UInt8(vol * 100.0)
             midiSynth.startNote(UInt8(transposedMidi), withVelocity: velocity, onChannel: ch)
             
-            // Auto stop note after a certain time to prevent hanging notes
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+            // Stop note na fila de áudio — não bloqueia a UI
+            audioQueue.asyncAfter(deadline: .now() + 2.5) { [weak self] in
                 self?.midiSynth.stopNote(UInt8(transposedMidi), onChannel: ch)
             }
         }
@@ -198,8 +201,7 @@ final class GuitarSynthEngine: ObservableObject {
         
         let note: UInt8 = isStrong ? 76 : 77 // Woodblock High/Low
         midiSynth.startNote(note, withVelocity: 110, onChannel: ch)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        audioQueue.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             self?.midiSynth.stopNote(note, onChannel: ch)
         }
     }

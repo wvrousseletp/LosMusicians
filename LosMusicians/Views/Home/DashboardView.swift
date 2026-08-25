@@ -19,12 +19,6 @@ struct DashboardView: View {
     @State private var selectedSongForPlayer: Song? = nil
     
     // Estado do buscador de músicas com IA
-    @State private var searchQuery: String = ""
-    @State private var selectedInstrument: String = "Guitarra"
-    @State private var isSearching: Bool = false
-    @State private var aiSteps: [AISongStep] = []
-    @State private var searchedSongTitle: String = ""
-    @State private var errorMessage: String? = nil
     @State private var isShowingSearch: Bool = false
     let instruments = ["Guitarra", "Violão", "Baixo", "Teclado"]
     
@@ -640,60 +634,5 @@ struct DashboardView: View {
             tabDataJson: module.alphaTex
         )
         selectedSongForPlayer = dynSong
-    }
-    
-    private func searchAndSplitSong() {
-        let cleanedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !cleanedQuery.isEmpty else { return }
-        
-        isSearching = true
-        errorMessage = nil
-        aiSteps = []
-        
-        Task {
-            do {
-                let steps = try await GeminiService.shared.generateSongSteps(songTitle: cleanedQuery, instrument: selectedInstrument)
-                await MainActor.run {
-                    self.aiSteps = steps
-                    self.searchedSongTitle = cleanedQuery
-                    self.isSearching = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "Erro ao buscar aula: \(error.localizedDescription)"
-                    self.isSearching = false
-                }
-            }
-        }
-    }
-    
-    private func playAIStep(_ step: AISongStep) {
-        let instEnum: InstrumentType
-        switch selectedInstrument {
-        case "Violão": instEnum = .leadGuitar
-        case "Baixo": instEnum = .bass
-        case "Teclado": instEnum = .keys
-        default: instEnum = .leadGuitar
-        }
-        
-        let dynamicSong = Song(
-            id: "ai-step-\(UUID().uuidString)",
-            title: step.stepName,
-            artist: searchedSongTitle,
-            difficulty: "Médio",
-            bpm: step.bpm,
-            tracks: [
-                InstrumentTrack(
-                    id: "t-ai",
-                    name: "\(selectedInstrument) - Aula IA",
-                    instrument: instEnum
-                )
-            ],
-            isPublic: false,
-            authorName: "IA Professor",
-            tabDataJson: step.alphaTex
-        )
-        
-        selectedSongForPlayer = dynamicSong
     }
 }
