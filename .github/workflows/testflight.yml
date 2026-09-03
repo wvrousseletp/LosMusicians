@@ -62,6 +62,9 @@ jobs:
           openssl x509 -in $RUNNER_TEMP/certs.pem -noout -text | grep -E "Issuer:|Subject:|Not Before:|Not After :"
           echo "=== Certificate Validation ==="
           security verify-cert -c $RUNNER_TEMP/certs.pem || echo "Verification failed locally"
+          echo "=== Test Codesign ==="
+          touch $RUNNER_TEMP/dummy
+          codesign -s "Apple Distribution" -f --keychain "$KEYCHAIN_PATH" $RUNNER_TEMP/dummy || echo "Codesign failed"
 
       - name: Install Provisioning Profile
         env:
@@ -85,7 +88,7 @@ jobs:
         run: |
           sed -i '' "s/INJECTED_BY_CI/$GEMINI_API_KEY/g" LosMusicians/Services/GeminiService.swift
 
-      - name: Build and Archive (with code signing)
+      - name: Build and Archive (unsigned)
         env:
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
         run: |
@@ -94,10 +97,10 @@ jobs:
           security unlock-keychain -p "buildkeychain" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
 
-          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
-          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
-          
-          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual; CODE_SIGN_IDENTITY = \"Apple Distribution\"; PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_UUID\";/g" LosMusicians.xcodeproj/project.pbxproj
+          # Revert any manual signing from pbxproj to Automatic but disable signing via CLI
+          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" LosMusicians.xcodeproj/project.pbxproj
+          sed -i '' '/CODE_SIGN_IDENTITY = "Apple Distribution";/d' LosMusicians.xcodeproj/project.pbxproj
+          sed -i '' '/PROVISIONING_PROFILE_SPECIFIER = ".*";/d' LosMusicians.xcodeproj/project.pbxproj
 
           xcodebuild archive \
             -project LosMusicians.xcodeproj \
@@ -106,9 +109,11 @@ jobs:
             -sdk iphoneos \
             -archivePath $PWD/build/LosMusicians.xcarchive \
             -destination 'generic/platform=iOS' \
-            DEVELOPMENT_TEAM=PJ32UPL29J \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
-            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" | xcpretty || {
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} | xcpretty || {
               echo "xcpretty failed, running raw xcodebuild for full logs..."
               xcodebuild archive \
                 -project LosMusicians.xcodeproj \
@@ -117,9 +122,11 @@ jobs:
                 -sdk iphoneos \
                 -archivePath $PWD/build/LosMusicians.xcarchive \
                 -destination 'generic/platform=iOS' \
-                DEVELOPMENT_TEAM=PJ32UPL29J \
-                CURRENT_PROJECT_VERSION=${{ github.run_number }} \
-                OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
+                CODE_SIGNING_ALLOWED=NO \
+                CODE_SIGNING_REQUIRED=NO \
+                CODE_SIGN_IDENTITY="" \
+                DEVELOPMENT_TEAM="" \
+                CURRENT_PROJECT_VERSION=${{ github.run_number }}
             }
 
       - name: Export IPA Package
