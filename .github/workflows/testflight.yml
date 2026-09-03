@@ -20,7 +20,7 @@ jobs:
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
           chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: Install Distribution Certificate
+      - name: Install Distribution Certificate and Trust Chain
         env:
           CERTIFICATE_BASE64: ${{ secrets.DISTRIBUTION_CERTIFICATE_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
@@ -35,10 +35,21 @@ jobs:
           echo "$CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
           security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/xcodebuild
 
-          curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o $RUNNER_TEMP/AppleWWDRCAG3.cer
-          curl -fLs https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer -o $RUNNER_TEMP/AppleWWDRCAG6.cer
-          security import $RUNNER_TEMP/AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
-          security import $RUNNER_TEMP/AppleWWDRCAG6.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          # Download and install all Apple WWDR Intermediate Certificates to ensure trust chain is valid
+          # This prevents the "invalid, revoked or expired" error when the certificate is actually valid but missing its issuer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -o $RUNNER_TEMP/AppleWWDRCA.cer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG2.cer -o $RUNNER_TEMP/AppleWWDRCAG2.cer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer -o $RUNNER_TEMP/AppleWWDRCAG3.cer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG4.cer -o $RUNNER_TEMP/AppleWWDRCAG4.cer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG5.cer -o $RUNNER_TEMP/AppleWWDRCAG5.cer
+          curl -fLs https://developer.apple.com/certificationauthority/AppleWWDRCAG6.cer -o $RUNNER_TEMP/AppleWWDRCAG6.cer
+          
+          security import $RUNNER_TEMP/AppleWWDRCA.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
+          security import $RUNNER_TEMP/AppleWWDRCAG2.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
+          security import $RUNNER_TEMP/AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
+          security import $RUNNER_TEMP/AppleWWDRCAG4.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
+          security import $RUNNER_TEMP/AppleWWDRCAG5.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
+          security import $RUNNER_TEMP/AppleWWDRCAG6.cer -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/xcodebuild || true
 
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db /Library/Keychains/System.keychain
@@ -77,8 +88,6 @@ jobs:
           PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
           
-          # Injeta o signing manual diretamente no .pbxproj para aplicar SOMENTE ao App
-          # e não aos targets do SPM (Swift Package Manager)
           sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual; CODE_SIGN_IDENTITY = \"Apple Distribution\"; PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_UUID\";/g" LosMusicians.xcodeproj/project.pbxproj
 
           xcodebuild archive \
@@ -129,7 +138,7 @@ jobs:
               <string>PJ32UPL29J</string>
               <key>provisioningProfiles</key>
               <dict>
-                  <key>com.wellerson.LosMusicians</key>
+                  <key>com.vicente.losmusicians</key>
                   <string>$PROFILE_UUID</string>
               </dict>
           </dict>
